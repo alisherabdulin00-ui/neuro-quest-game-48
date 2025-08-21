@@ -44,17 +44,17 @@ All colors MUST be HSL.
     --ring: 246 83% 65%;
 
     /* Custom design tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(246 83% 65%), hsl(305 85% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(217 32% 17%), hsl(220 23% 8%));
-    --gradient-hero: linear-gradient(135deg, hsl(246 83% 65%) 0%, hsl(305 85% 70%) 50%, hsl(246 100% 85%) 100%);
-    --gradient-glow: radial-gradient(circle at center, hsl(246 83% 65% / 0.3) 0%, transparent 70%);
+    --gradient-primary: linear-gradient(180deg, hsl(246 83% 65%), hsl(246 83% 55%));
+    --gradient-secondary: hsl(217 32% 17%);
+    --gradient-hero: hsl(246 83% 65%);
+    --gradient-glow: hsl(246 83% 65% / 0.05);
     
-    --shadow-glow: 0 0 40px hsl(246 83% 65% / 0.4);
-    --shadow-card: 0 8px 32px hsl(220 27% 5% / 0.6);
-    --shadow-elevated: 0 16px 64px hsl(220 27% 5% / 0.8);
+    --shadow-glow: 0 2px 8px hsl(246 83% 65% / 0.1);
+    --shadow-card: 0 2px 8px hsl(220 27% 5% / 0.1);
+    --shadow-elevated: 0 4px 16px hsl(220 27% 5% / 0.1);
     
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: all 0.2s ease;
+    --transition-bounce: all 0.2s ease;
 
     --radius: 0.5rem;
 
@@ -131,40 +131,21 @@ All colors MUST be HSL.
   }
 
   /* Custom animations */
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(246 83% 65% / 0.4); }
-    50% { box-shadow: 0 0 30px hsl(246 83% 65% / 0.8); }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease;
   }
 
-  @keyframes pulse-glow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  /* Gradient text effect */
+  /* Text effects */
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    @apply text-primary;
   }
 
   .text-gradient-hero {
-    background: var(--gradient-hero);
-    @apply bg-clip-text text-transparent;
+    @apply text-foreground;
   }
 }
