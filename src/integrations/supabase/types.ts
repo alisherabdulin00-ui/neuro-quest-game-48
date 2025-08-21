@@ -14,7 +14,171 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      courses: {
+        Row: {
+          bg_color: string
+          color: string
+          created_at: string
+          description: string
+          difficulty: string
+          duration_hours: number
+          icon: string
+          id: string
+          lessons_count: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bg_color: string
+          color: string
+          created_at?: string
+          description: string
+          difficulty: string
+          duration_hours: number
+          icon: string
+          id?: string
+          lessons_count?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bg_color?: string
+          color?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration_hours?: number
+          icon?: string
+          id?: string
+          lessons_count?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lesson_content: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          id: string
+          lesson_id: string
+          order_index: number
+          title: string
+        }
+        Insert: {
+          content: string
+          content_type: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          order_index: number
+          title: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          order_index?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_content_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string
+          duration_minutes: number
+          id: string
+          lesson_type: string
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description: string
+          duration_minutes: number
+          id?: string
+          lesson_type: string
+          order_index: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string
+          duration_minutes?: number
+          id?: string
+          lesson_type?: string
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          lesson_id: string
+          progress_percentage: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lesson_id: string
+          progress_percentage?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          progress_percentage?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

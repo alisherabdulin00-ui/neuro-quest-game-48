@@ -1,109 +1,86 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Brain, Eye, MessageSquare, Cpu, Zap, Trophy, Clock, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import modulesImage from "@/assets/ai-modules.jpg";
 
-const modules = [
-  {
-    id: 1,
-    title: "Основы ИИ",
-    description: "Узнай, что такое искусственный интеллект и как он работает",
-    icon: Brain,
-    progress: 85,
-    lessons: 12,
-    time: "2 часа",
-    difficulty: "Новичок",
-    color: "text-primary",
-    bgColor: "bg-primary/10",
-    points: 250,
-    completed: true
-  },
-  {
-    id: 2,
-    title: "Машинное обучение",
-    description: "Погрузись в мир алгоритмов машинного обучения",
-    icon: Cpu,
-    progress: 45,
-    lessons: 18,
-    time: "4 часа",
-    difficulty: "Средний",
-    color: "text-accent",
-    bgColor: "bg-accent/10",
-    points: 450,
-    completed: false
-  },
-  {
-    id: 3,
-    title: "Компьютерное зрение",
-    description: "Научи компьютер видеть и распознавать изображения",
-    icon: Eye,
-    progress: 0,
-    lessons: 15,
-    time: "3 часа",
-    difficulty: "Продвинутый",
-    color: "text-warning",
-    bgColor: "bg-warning/10",
-    points: 380,
-    completed: false
-  },
-  {
-    id: 4,
-    title: "Обработка языка",
-    description: "Создай чат-боты и системы понимания текста",
-    icon: MessageSquare,
-    progress: 20,
-    lessons: 14,
-    time: "3.5 часа",
-    difficulty: "Продвинутый",
-    color: "text-success",
-    bgColor: "bg-success/10",
-    points: 420,
-    completed: false
-  },
-  {
-    id: 5,
-    title: "Нейронные сети",
-    description: "Создавай и обучай собственные нейронные сети",
-    icon: Zap,
-    progress: 0,
-    lessons: 20,
-    time: "5 часов",
-    difficulty: "Эксперт",
-    color: "text-primary-glow",
-    bgColor: "bg-primary-glow/10",
-    points: 600,
-    completed: false
-  },
-  {
-    id: 6,
-    title: "Проекты ИИ",
-    description: "Создай реальные проекты с использованием ИИ",
-    icon: Trophy,
-    progress: 0,
-    lessons: 10,
-    time: "6 часов",
-    difficulty: "Мастер",
-    color: "text-accent",
-    bgColor: "bg-accent/10",
-    points: 800,
-    completed: false
-  }
-];
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  difficulty: string;
+  duration_hours: number;
+  lessons_count: number;
+  color: string;
+  bg_color: string;
+}
 
 const getDifficultyColor = (difficulty: string) => {
   switch (difficulty) {
-    case "Новичок": return "bg-success text-success-foreground";
+    case "Начинающий": return "bg-success text-success-foreground";
     case "Средний": return "bg-warning text-warning-foreground";
     case "Продвинутый": return "bg-primary text-primary-foreground";
-    case "Эксперт": return "bg-accent text-accent-foreground";
-    case "Мастер": return "bg-destructive text-destructive-foreground";
     default: return "bg-muted text-muted-foreground";
   }
 };
 
+const getIconFromString = (iconStr: string) => {
+  switch (iconStr) {
+    case "🧠": return Brain;
+    case "💬": return MessageSquare;
+    case "🎨": return Eye;
+    case "🎬": return Zap;
+    case "⚙️": return Cpu;
+    default: return Brain;
+  }
+};
+
 const LearningModules = () => {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*')
+          .order('created_at');
+
+        if (error) throw error;
+        setCourses(data || []);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const handleCourseClick = (courseId: string) => {
+    navigate(`/course/${courseId}`);
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Загружаем курсы...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="py-20 px-6">
       <div className="max-w-7xl mx-auto">
@@ -126,31 +103,32 @@ const LearningModules = () => {
           </p>
         </div>
 
-        {/* Modules grid */}
+        {/* Courses grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((module) => {
-            const Icon = module.icon;
+          {courses.map((course) => {
+            const Icon = getIconFromString(course.icon);
             return (
               <Card 
-                key={module.id} 
-                className="group hover:shadow-elevated transition-smooth hover:scale-105 border-border/50 backdrop-blur-sm bg-card/80"
+                key={course.id} 
+                className="group hover:shadow-elevated transition-smooth hover:scale-105 border-border/50 backdrop-blur-sm bg-card/80 cursor-pointer"
+                onClick={() => handleCourseClick(course.id)}
               >
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between mb-3">
-                    <div className={`p-3 rounded-lg ${module.bgColor} group-hover:scale-110 transition-smooth`}>
-                      <Icon className={`w-6 h-6 ${module.color}`} />
+                    <div className={`p-3 rounded-lg ${course.bg_color} group-hover:scale-110 transition-smooth`}>
+                      <Icon className={`w-6 h-6 ${course.color}`} />
                     </div>
-                    <Badge className={getDifficultyColor(module.difficulty)}>
-                      {module.difficulty}
+                    <Badge className={getDifficultyColor(course.difficulty)}>
+                      {course.difficulty}
                     </Badge>
                   </div>
                   
                   <CardTitle className="text-xl group-hover:text-gradient transition-smooth">
-                    {module.title}
+                    {course.title}
                   </CardTitle>
                   
                   <CardDescription className="text-muted-foreground">
-                    {module.description}
+                    {course.description}
                   </CardDescription>
                 </CardHeader>
 
@@ -159,48 +137,30 @@ const LearningModules = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Прогресс</span>
-                      <span className="font-medium">{module.progress}%</span>
+                      <span className="font-medium">0%</span>
                     </div>
-                    <Progress value={module.progress} className="h-2" />
+                    <Progress value={0} className="h-2" />
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="flex items-center gap-1">
                       <Brain className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{module.lessons}</span>
+                      <span className="text-muted-foreground">{course.lessons_count}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{module.time}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-warning" />
-                      <span className="text-muted-foreground">{module.points}</span>
+                      <span className="text-muted-foreground">{course.duration_hours}ч</span>
                     </div>
                   </div>
 
                   {/* Action button */}
                   <Button 
-                    variant={module.completed ? "success" : module.progress > 0 ? "default" : "game"} 
+                    variant="game" 
                     className="w-full"
                   >
-                    {module.completed ? (
-                      <>
-                        <Trophy className="w-4 h-4 mr-2" />
-                        Пройдено
-                      </>
-                    ) : module.progress > 0 ? (
-                      <>
-                        <Zap className="w-4 h-4 mr-2" />
-                        Продолжить
-                      </>
-                    ) : (
-                      <>
-                        <Brain className="w-4 h-4 mr-2" />
-                        Начать
-                      </>
-                    )}
+                    <Brain className="w-4 h-4 mr-2" />
+                    Начать
                   </Button>
                 </CardContent>
               </Card>
