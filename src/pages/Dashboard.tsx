@@ -174,153 +174,49 @@ const Dashboard = () => {
     : user?.email || "Пользователь";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
-      <Navigation />
-      
-      <main className="pt-20 px-6 pb-20">
-        <div className="max-w-7xl mx-auto space-y-8">
-          
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={profile?.avatar_url} />
-                <AvatarFallback>
-                  <User className="h-8 w-8" />
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-3xl font-bold">Добро пожаловать, {userName}!</h1>
-                <p className="text-muted-foreground">Ваш личный кабинет обучения</p>
+    <div className="min-h-screen bg-background">
+      {/* Mobile Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <button className="p-2">
+          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        
+        <div className="flex items-center gap-2">
+          <span className="font-medium">Learning Path</span>
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+        
+        <button className="p-2" onClick={handleLogout}>
+          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/>
+          </svg>
+        </button>
+      </div>
+
+      <main className="pb-20">
+        {/* Learning Path Content */}
+        <div className="space-y-6 p-4">
+          {courses.map((course) => (
+            <div key={course.id} className="space-y-4">
+              {/* Course Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-lg">
+                <Badge variant="secondary" className="bg-white/20 text-white mb-2 text-xs">
+                  AI MASTERY • LEVEL 1
+                </Badge>
+                <h1 className="text-lg font-semibold">{course.title}</h1>
+              </div>
+              
+              {/* Learning Path */}
+              <div className="bg-white rounded-b-lg p-6">
+                <LearningPath courseId={course.id} />
               </div>
             </div>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Выйти
-            </Button>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Общий прогресс</CardTitle>
-                <Target className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{Math.round(totalProgress)}%</div>
-                <Progress value={totalProgress} className="mt-2" />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Пройдено уроков</CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{completedLessons}</div>
-                <p className="text-xs text-muted-foreground">из {userProgress.length} начатых</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Доступно курсов</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{courses.length}</div>
-                <p className="text-xs text-muted-foreground">готовых к изучению</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Время обучения</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {courses.reduce((acc, course) => acc + course.duration_hours, 0)}ч
-                </div>
-                <p className="text-xs text-muted-foreground">общая длительность</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Current Progress */}
-          {userProgress.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Текущий прогресс</CardTitle>
-                <CardDescription>Ваши активные уроки</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {userProgress.slice(0, 5).map((progress) => (
-                    <div key={progress.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: progress.lesson.course.color }}
-                        />
-                        <div>
-                          <p className="font-medium">{progress.lesson.title}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {progress.lesson.course.title}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {progress.completed ? (
-                          <Badge variant="default">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Завершен
-                          </Badge>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <Progress value={progress.progress_percentage} className="w-20" />
-                            <span className="text-sm">{progress.progress_percentage}%</span>
-                          </div>
-                        )}
-                        <Button size="sm" variant="outline">
-                          <Play className="w-3 h-3 mr-1" />
-                          Продолжить
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Learning Path */}
-          <div className="space-y-6">
-            {courses.map((course) => (
-              <Card key={course.id} className="overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Badge variant="secondary" className="bg-white/20 text-white mb-2">
-                        AI MASTERY • LEVEL 1
-                      </Badge>
-                      <CardTitle className="text-xl">{course.title}</CardTitle>
-                    </div>
-                    <div className="text-right text-sm">
-                      <div>Learning Path</div>
-                      <div className="text-white/80">▼</div>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="p-6">
-                  <LearningPath courseId={course.id} />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          ))}
         </div>
       </main>
       
