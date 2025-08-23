@@ -84,6 +84,8 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
   };
 
   const updateLessonProgress = async (lessonId: string, completed: boolean = true) => {
+    console.log('updateLessonProgress called with:', { lessonId, completed, user: user?.id });
+    
     if (!user) {
       toast({
         title: "Требуется авторизация",
@@ -94,6 +96,8 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     }
 
     try {
+      console.log('Calling edge function with:', { lessonId, progressPercentage: 100, completed });
+      
       const { data, error } = await supabase.functions.invoke('update-lesson-progress', {
         body: {
           lessonId,
@@ -101,6 +105,8 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           completed
         }
       });
+
+      console.log('Edge function response:', { data, error });
 
       if (error) {
         console.error('Error updating progress:', error);
@@ -113,6 +119,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
       }
 
       // Refresh user progress
+      console.log('Refreshing user progress for user:', user.id);
       await fetchUserProgress(user.id);
 
       toast({
@@ -178,6 +185,8 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isCompleted = isLessonCompleted(lesson.id);
           const unlocked = isLessonUnlocked(index);
+          
+          console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
           
           return (
             <div key={lesson.id} className="relative mb-16 last:mb-0">

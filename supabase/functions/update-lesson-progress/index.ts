@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       .select('*')
       .eq('user_id', user.id)
       .eq('lesson_id', lessonId)
-      .single();
+      .maybeSingle();
 
     let result;
     const progressData = {
