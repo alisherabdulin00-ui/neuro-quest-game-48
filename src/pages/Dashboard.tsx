@@ -18,6 +18,7 @@ import {
   LogOut
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 interface UserProfile {
   id: string;
@@ -175,7 +176,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
       <Navigation />
       
-      <main className="pt-20 px-6 pb-12">
+      <main className="pt-20 px-6 pb-20">
         <div className="max-w-7xl mx-auto space-y-8">
           
           {/* Header */}
@@ -338,6 +339,8 @@ const Dashboard = () => {
           </Card>
         </div>
       </main>
+      
+      <MobileBottomNav />
     </div>
   );
 };
