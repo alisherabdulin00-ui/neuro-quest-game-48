@@ -65,52 +65,65 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative px-4 py-6">
       {/* Learning path with connecting lines */}
-      <div className="relative max-w-sm mx-auto">
+      <div className="relative max-w-xs mx-auto">
         {lessons.map((lesson, index) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isFirst = index === 0;
           const isCompleted = false; // TODO: get from user progress
+          const isLeftSide = index % 2 === 0;
           
           return (
-            <div key={lesson.id} className="relative mb-6 last:mb-0">
+            <div key={lesson.id} className="relative mb-8 last:mb-0">
               {/* Connecting line */}
               {index < lessons.length - 1 && (
-                <div className="absolute left-1/2 top-12 transform -translate-x-0.5 w-0.5 h-8 bg-gray-300" />
+                <div className={`
+                  absolute w-0.5 h-12 bg-muted-foreground/20
+                  ${isLeftSide ? 'left-8 top-16' : 'right-8 top-16'}
+                `} />
+              )}
+              
+              {/* Horizontal connector to center line */}
+              {!isFirst && (
+                <div className={`
+                  absolute top-8 w-6 h-0.5 bg-muted-foreground/20
+                  ${isLeftSide ? 'left-8' : 'right-8'}
+                `} />
               )}
               
               {/* Lesson item */}
               <div 
-                className={`flex flex-col items-center cursor-pointer group ${
-                  index % 2 === 0 ? 'translate-x-0' : 'translate-x-4'
-                }`}
+                className={`flex items-center cursor-pointer group relative
+                  ${isLeftSide ? 'flex-row' : 'flex-row-reverse'}
+                `}
                 onClick={() => handleLessonClick(lesson.id)}
               >
                 {/* Lesson box */}
                 <div className={`
-                  relative w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-200
+                  relative w-16 h-16 rounded-2xl flex items-center justify-center 
+                  transition-all duration-200 shadow-sm border-2
                   ${isFirst 
-                    ? 'bg-blue-500 text-white shadow-lg' 
+                    ? 'bg-primary text-primary-foreground border-primary/20 shadow-lg' 
                     : isCompleted
-                    ? 'bg-green-500 text-white'
-                    : 'bg-white border-2 border-gray-200 text-gray-600 group-hover:border-blue-300'
+                    ? 'bg-success text-success-foreground border-success/20'
+                    : 'bg-card text-muted-foreground border-border group-hover:border-primary/30 group-hover:bg-primary/5'
                   }
                   group-hover:scale-105 group-hover:shadow-md
                 `}>
                   {isCompleted ? (
-                    <CheckCircle2 className="w-6 h-6" />
+                    <CheckCircle2 className="w-7 h-7" />
                   ) : (
-                    <Icon className="w-6 h-6" />
+                    <Icon className="w-7 h-7" />
                   )}
                 </div>
                 
                 {/* Lesson title */}
-                <div className="mt-3 text-center px-2">
-                  <p className="text-sm font-medium text-gray-900 leading-tight">
+                <div className={`mx-4 max-w-[120px] ${isLeftSide ? 'text-left' : 'text-right'}`}>
+                  <p className="text-sm font-medium text-foreground leading-tight mb-1">
                     {lesson.title}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground">
                     {lesson.duration_minutes} мин
                   </p>
                 </div>
