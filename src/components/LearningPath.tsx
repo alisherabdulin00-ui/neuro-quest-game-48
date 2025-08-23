@@ -77,7 +77,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
             <div key={lesson.id} className="relative mb-16 last:mb-0">
               {/* Vertical connecting line */}
               {index < lessons.length - 1 && (
-                <div className="absolute left-1/2 top-20 transform -translate-x-0.5 w-0.5 h-12 bg-muted-foreground/30" />
+                <div className="absolute left-1/2 top-24 transform -translate-x-0.5 w-1 h-12 bg-gradient-to-b from-muted-foreground/20 to-muted-foreground/10 rounded-full" />
               )}
               
               {/* Lesson item - centered */}
@@ -85,28 +85,41 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 className="flex flex-col items-center cursor-pointer group"
                 onClick={() => handleLessonClick(lesson.id)}
               >
-                {/* Lesson box */}
+                {/* Lesson box with 3D effect */}
                 <div className={`
-                  relative w-20 h-20 rounded-3xl flex items-center justify-center 
-                  transition-all duration-200 shadow-lg border-2
+                  relative w-24 h-24 rounded-full flex items-center justify-center 
+                  transition-all duration-300 transform
                   ${isFirst 
-                    ? 'bg-primary text-primary-foreground border-primary/20' 
+                    ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30' 
                     : isCompleted
-                    ? 'bg-success text-success-foreground border-success/20'
-                    : 'bg-secondary text-secondary-foreground border-secondary/20 group-hover:border-primary/30 group-hover:bg-primary/10'
+                    ? 'bg-gradient-to-br from-success to-success/80 text-success-foreground shadow-lg shadow-success/30'
+                    : 'bg-gradient-to-br from-muted to-muted/80 text-muted-foreground shadow-lg shadow-muted/30 group-hover:from-primary/20 group-hover:to-primary/10'
                   }
-                  group-hover:scale-105
+                  group-hover:scale-110 group-hover:-translate-y-1
+                  border-4 border-white/20
+                  before:absolute before:inset-0 before:rounded-full 
+                  before:bg-gradient-to-t before:from-black/10 before:to-white/20
+                  before:opacity-50
                 `}>
-                  {isCompleted ? (
-                    <CheckCircle2 className="w-8 h-8" />
-                  ) : (
-                    <Icon className="w-8 h-8" />
-                  )}
+                  {/* Inner glow effect */}
+                  <div className="absolute inset-1 rounded-full bg-gradient-to-t from-transparent to-white/30 opacity-60"></div>
+                  
+                  {/* Icon */}
+                  <div className="relative z-10">
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-10 h-10 drop-shadow-sm" />
+                    ) : (
+                      <Icon className="w-10 h-10 drop-shadow-sm" />
+                    )}
+                  </div>
+                  
+                  {/* Bottom shadow for 3D effect */}
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-3 bg-black/20 rounded-full blur-sm"></div>
                 </div>
                 
                 {/* Lesson duration - под модулем */}
-                <div className="mt-4 text-center">
-                  <p className="text-lg font-medium text-muted-foreground">
+                <div className="mt-6 text-center">
+                  <p className="text-lg font-semibold text-muted-foreground drop-shadow-sm">
                     {lesson.duration_minutes} мин
                   </p>
                 </div>
