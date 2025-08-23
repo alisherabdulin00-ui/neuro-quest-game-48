@@ -4,9 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Clock, BookOpen, CheckCircle, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, BookOpen, CheckCircle, Play, Video, FileText, Presentation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
+import { VideoContent } from "@/components/LessonContent/VideoContent";
+import { SlidesContent } from "@/components/LessonContent/SlidesContent";
+import { QuizContent } from "@/components/LessonContent/QuizContent";
 
 interface Lesson {
   id: string;
@@ -33,19 +36,31 @@ interface Course {
 
 const getLessonTypeColor = (type: string) => {
   switch (type) {
-    case "theory": return "bg-blue-100 text-blue-700";
-    case "practice": return "bg-green-100 text-green-700";
-    case "mixed": return "bg-purple-100 text-purple-700";
+    case "video": return "bg-red-100 text-red-700";
+    case "slides": return "bg-purple-100 text-purple-700";
+    case "quiz": return "bg-green-100 text-green-700";
+    case "reading": return "bg-blue-100 text-blue-700";
     default: return "bg-muted text-muted-foreground";
   }
 };
 
 const getLessonTypeName = (type: string) => {
   switch (type) {
-    case "theory": return "Теория";
-    case "practice": return "Практика";
-    case "mixed": return "Смешанный";
+    case "video": return "Видео";
+    case "slides": return "Слайды";
+    case "quiz": return "Тест";
+    case "reading": return "Чтение";
     default: return type;
+  }
+};
+
+const getLessonTypeIcon = (type: string) => {
+  switch (type) {
+    case "video": return Video;
+    case "slides": return Presentation;
+    case "quiz": return FileText;
+    case "reading": return BookOpen;
+    default: return BookOpen;
   }
 };
 
@@ -212,62 +227,94 @@ const Lesson = () => {
         </div>
 
         {/* Content */}
-        {currentContent ? (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                {currentContent.title}
-                <Badge variant="outline">
-                  {currentContent.content_type === 'theory' ? 'Теория' : 'Практика'}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="prose max-w-none">
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                {currentContent.content}
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="mb-8">
-            <CardContent className="p-12 text-center">
-              <h3 className="text-xl font-semibold mb-4">Контент урока пуст</h3>
-              <p className="text-muted-foreground">
-                Этот урок еще не заполнен контентом.
+        <div className="mb-8">
+          {lesson.lesson_type === 'video' && lessonContent.length > 0 && (
+            <VideoContent 
+              videoUrl={lessonContent[0].content}
+              title={lessonContent[0].title}
+            />
+          )}
+
+          {lesson.lesson_type === 'slides' && (
+            <SlidesContent slides={lessonContent} />
+          )}
+
+          {lesson.lesson_type === 'quiz' && (
+            <QuizContent questions={lessonContent} />
+          )}
+
+          {lesson.lesson_type === 'reading' && currentContent && (
+            <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <BookOpen className="h-5 w-5" />
+                  {currentContent.title}
+                  <Badge className={getLessonTypeColor(lesson.lesson_type)}>
+                    {getLessonTypeName(lesson.lesson_type)}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="prose max-w-none">
+                <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                  {currentContent.content}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {!currentContent && lessonContent.length === 0 && (
+            <Card className="mb-8">
+              <CardContent className="p-12 text-center">
+                <h3 className="text-xl font-semibold mb-4">Контент урока пуст</h3>
+                <p className="text-muted-foreground">
+                  Этот урок еще не заполнен контентом.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Navigation - only show for reading lessons */}
+        {lesson.lesson_type === 'reading' && lessonContent.length > 1 && (
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="outline" 
+              onClick={handlePrevious}
+              disabled={currentContentIndex === 0}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Назад
+            </Button>
+
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                Слайд {currentContentIndex + 1} из {lessonContent.length}
               </p>
-            </CardContent>
-          </Card>
+            </div>
+
+            {isLastContent ? (
+              <Button onClick={handleComplete}>
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Завершить урок
+              </Button>
+            ) : (
+              <Button onClick={handleNext}>
+                Далее
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            )}
+          </div>
         )}
 
-        {/* Navigation */}
-        <div className="flex items-center justify-between">
-          <Button 
-            variant="outline" 
-            onClick={handlePrevious}
-            disabled={currentContentIndex === 0}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад
-          </Button>
-
+        {/* Complete button for video, slides and quiz lessons */}
+        {(lesson.lesson_type === 'video' || lesson.lesson_type === 'slides' || lesson.lesson_type === 'quiz') && (
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Слайд {currentContentIndex + 1} из {lessonContent.length}
-            </p>
-          </div>
-
-          {isLastContent ? (
-            <Button onClick={handleComplete}>
+            <Button onClick={handleComplete} size="lg">
               <CheckCircle className="w-4 h-4 mr-2" />
               Завершить урок
             </Button>
-          ) : (
-            <Button onClick={handleNext}>
-              Далее
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );
