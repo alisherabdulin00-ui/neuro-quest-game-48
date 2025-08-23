@@ -72,66 +72,41 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isFirst = index === 0;
           const isCompleted = false; // TODO: get from user progress
-          const isLeftSide = index % 2 === 0;
-          const nextIsLeftSide = (index + 1) % 2 === 0;
           
           return (
-            <div key={lesson.id} className="relative mb-12 last:mb-0">
+            <div key={lesson.id} className="relative mb-16 last:mb-0">
               {/* Vertical connecting line */}
               {index < lessons.length - 1 && (
-                <div className={`
-                  absolute w-0.5 h-8 bg-muted-foreground/30 top-20
-                  ${isLeftSide ? 'left-8' : 'right-8'}
-                `} />
+                <div className="absolute left-1/2 top-20 transform -translate-x-0.5 w-0.5 h-12 bg-muted-foreground/30" />
               )}
               
-              {/* Horizontal connecting line to next lesson */}
-              {index < lessons.length - 1 && (
-                <div className={`
-                  absolute h-0.5 bg-muted-foreground/30 top-28
-                  ${isLeftSide 
-                    ? nextIsLeftSide 
-                      ? 'left-8 w-6' 
-                      : 'left-8 w-32'
-                    : nextIsLeftSide 
-                      ? 'right-8 w-32' 
-                      : 'right-8 w-6'
-                  }
-                `} />
-              )}
-              
-              {/* Lesson item */}
+              {/* Lesson item - centered */}
               <div 
-                className={`flex flex-col items-center cursor-pointer group
-                  ${isLeftSide ? '' : 'ml-auto mr-0 w-fit'}
-                `}
+                className="flex flex-col items-center cursor-pointer group"
                 onClick={() => handleLessonClick(lesson.id)}
               >
                 {/* Lesson box */}
                 <div className={`
-                  relative w-16 h-16 rounded-2xl flex items-center justify-center 
-                  transition-all duration-200 shadow-sm border-2
+                  relative w-20 h-20 rounded-3xl flex items-center justify-center 
+                  transition-all duration-200 shadow-lg border-2
                   ${isFirst 
-                    ? 'bg-primary text-primary-foreground border-primary/20 shadow-lg' 
+                    ? 'bg-primary text-primary-foreground border-primary/20' 
                     : isCompleted
                     ? 'bg-success text-success-foreground border-success/20'
-                    : 'bg-card text-muted-foreground border-border group-hover:border-primary/30 group-hover:bg-primary/5'
+                    : 'bg-secondary text-secondary-foreground border-secondary/20 group-hover:border-primary/30 group-hover:bg-primary/10'
                   }
-                  group-hover:scale-105 group-hover:shadow-md
+                  group-hover:scale-105
                 `}>
                   {isCompleted ? (
-                    <CheckCircle2 className="w-7 h-7" />
+                    <CheckCircle2 className="w-8 h-8" />
                   ) : (
-                    <Icon className="w-7 h-7" />
+                    <Icon className="w-8 h-8" />
                   )}
                 </div>
                 
-                {/* Lesson title - под модулем */}
-                <div className="mt-3 text-center max-w-[100px]">
-                  <p className="text-sm font-medium text-foreground leading-tight mb-1">
-                    {lesson.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
+                {/* Lesson duration - под модулем */}
+                <div className="mt-4 text-center">
+                  <p className="text-lg font-medium text-muted-foreground">
                     {lesson.duration_minutes} мин
                   </p>
                 </div>
