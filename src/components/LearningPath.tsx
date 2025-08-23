@@ -31,6 +31,8 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  console.log('LearningPath render:', { courseId, user: user?.id, userProgress: userProgress.length });
+
   useEffect(() => {
     checkUser();
   }, [courseId]);
@@ -67,6 +69,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
 
   const fetchUserProgress = async (userId: string) => {
     try {
+      console.log('Fetching progress for user:', userId);
       const { data, error } = await supabase
         .from('user_progress')
         .select('lesson_id, progress_percentage, completed, completed_at')
@@ -77,6 +80,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
         return;
       }
 
+      console.log('Progress data fetched:', data);
       setUserProgress(data || []);
     } catch (error) {
       console.error('Error fetching progress:', error);
@@ -138,18 +142,24 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
   };
 
   const getLessonProgress = (lessonId: string) => {
-    return userProgress.find(p => p.lesson_id === lessonId);
+    const progress = userProgress.find(p => p.lesson_id === lessonId);
+    console.log(`Progress for lesson ${lessonId}:`, progress);
+    return progress;
   };
 
   const isLessonCompleted = (lessonId: string) => {
     const progress = getLessonProgress(lessonId);
-    return progress?.completed || false;
+    const completed = progress?.completed || false;
+    console.log(`Lesson ${lessonId} completed:`, completed);
+    return completed;
   };
 
   const isLessonUnlocked = (lessonIndex: number) => {
     if (lessonIndex === 0) return true; // First lesson is always unlocked
     const previousLesson = lessons[lessonIndex - 1];
-    return previousLesson ? isLessonCompleted(previousLesson.id) : false;
+    const unlocked = previousLesson ? isLessonCompleted(previousLesson.id) : false;
+    console.log(`Lesson at index ${lessonIndex} unlocked:`, unlocked);
+    return unlocked;
   };
 
   const getLessonIcon = (type: string, index: number) => {
@@ -235,11 +245,12 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-3 bg-black/20 rounded-full blur-sm"></div>
                 </div>
                 
-                {/* Complete Button for unlocked lessons */}
+                {/* Complete Button for unlocked lessons - always show for non-completed if user is logged in */}
                 {unlocked && !isCompleted && user && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('Button clicked for lesson:', lesson.id);
                       updateLessonProgress(lesson.id);
                     }}
                     className="absolute top-0 right-4 w-8 h-8 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white text-sm transition-colors z-20 shadow-lg"

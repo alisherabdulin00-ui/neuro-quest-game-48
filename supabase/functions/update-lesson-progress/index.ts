@@ -76,6 +76,7 @@ Deno.serve(async (req) => {
 
     if (existingProgress) {
       // Update existing progress
+      console.log('Updating existing progress record');
       const { data, error } = await supabaseClient
         .from('user_progress')
         .update({
@@ -96,6 +97,7 @@ Deno.serve(async (req) => {
       result = data;
     } else {
       // Create new progress record
+      console.log('Creating new progress record');
       const { data, error } = await supabaseClient
         .from('user_progress')
         .insert(progressData)
