@@ -23,7 +23,7 @@ const AuthPage = () => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/");
+        navigate("/dashboard");
       }
     };
     checkAuth();
@@ -77,7 +77,7 @@ const AuthPage = () => {
           title: "Добро пожаловать!",
           description: "Вы успешно вошли в систему",
         });
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -117,7 +117,7 @@ const AuthPage = () => {
           title: "Добро пожаловать!",
           description: "Авторизация через Telegram успешна",
         });
-        navigate("/");
+        navigate("/dashboard");
       } else {
         throw new Error("Не удалось создать сессию");
       }
