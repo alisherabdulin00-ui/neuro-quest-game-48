@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import LearningPath from "@/components/LearningPath";
 
 interface UserProfile {
   id: string;
@@ -295,48 +296,31 @@ const Dashboard = () => {
             </Card>
           )}
 
-          {/* Available Courses */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Доступные курсы</CardTitle>
-              <CardDescription>Начните изучение новых тем</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course) => (
-                  <Card key={course.id} className="cursor-pointer hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div 
-                          className="p-2 rounded-lg" 
-                          style={{ backgroundColor: course.bg_color, color: course.color }}
-                        >
-                          <span className="text-2xl">{course.icon}</span>
-                        </div>
-                        <Badge variant="secondary">{course.difficulty}</Badge>
-                      </div>
-                      <CardTitle className="text-lg">{course.title}</CardTitle>
-                      <CardDescription className="line-clamp-2">
-                        {course.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
-                        <span>{course.lessons_count} уроков</span>
-                        <span>{course.duration_hours}ч</span>
-                      </div>
-                      <Button 
-                        className="w-full" 
-                        onClick={() => navigate(`/course/${course.id}`)}
-                      >
-                        Начать изучение
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Learning Path */}
+          <div className="space-y-6">
+            {courses.map((course) => (
+              <Card key={course.id} className="overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Badge variant="secondary" className="bg-white/20 text-white mb-2">
+                        AI MASTERY • LEVEL 1
+                      </Badge>
+                      <CardTitle className="text-xl">{course.title}</CardTitle>
+                    </div>
+                    <div className="text-right text-sm">
+                      <div>Learning Path</div>
+                      <div className="text-white/80">▼</div>
+                    </div>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="p-6">
+                  <LearningPath courseId={course.id} />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </main>
       
