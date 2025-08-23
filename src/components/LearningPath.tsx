@@ -117,9 +117,12 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-3 bg-black/20 rounded-full blur-sm"></div>
                 </div>
                 
-                {/* Lesson duration - под модулем */}
-                <div className="mt-6 text-center">
-                  <p className="text-lg font-semibold text-muted-foreground drop-shadow-sm">
+                {/* Lesson title and duration */}
+                <div className="mt-6 text-center max-w-[120px]">
+                  <p className="text-sm font-semibold text-foreground mb-1 leading-tight">
+                    {lesson.title}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
                     {lesson.duration_minutes} мин
                   </p>
                 </div>
