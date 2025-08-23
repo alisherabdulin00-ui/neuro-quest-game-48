@@ -66,7 +66,7 @@ const LearningModules = () => {
   }, []);
 
   const handleCourseClick = (courseId: string) => {
-    navigate(`/course/${courseId}`);
+    navigate('/dashboard');
   };
 
   if (loading) {

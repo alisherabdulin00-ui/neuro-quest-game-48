@@ -134,9 +134,7 @@ const Lesson = () => {
 
   const handleComplete = () => {
     // В будущем здесь можно добавить логику сохранения прогресса
-    if (lesson?.course_id) {
-      navigate(`/course/${lesson.course_id}`);
-    }
+    navigate('/dashboard');
   };
 
   if (loading) {
@@ -181,11 +179,11 @@ const Lesson = () => {
         <div className="mb-8">
           <Button 
             variant="ghost" 
-            onClick={() => navigate(`/course/${lesson.course_id}`)}
+            onClick={() => navigate('/dashboard')}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад к курсу
+            Назад к обучению
           </Button>
 
           <div className="mb-6">
