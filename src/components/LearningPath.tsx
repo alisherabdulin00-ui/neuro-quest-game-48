@@ -73,29 +73,37 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           const isFirst = index === 0;
           const isCompleted = false; // TODO: get from user progress
           const isLeftSide = index % 2 === 0;
+          const nextIsLeftSide = (index + 1) % 2 === 0;
           
           return (
-            <div key={lesson.id} className="relative mb-8 last:mb-0">
-              {/* Connecting line */}
+            <div key={lesson.id} className="relative mb-12 last:mb-0">
+              {/* Vertical connecting line */}
               {index < lessons.length - 1 && (
                 <div className={`
-                  absolute w-0.5 h-12 bg-muted-foreground/20
-                  ${isLeftSide ? 'left-8 top-16' : 'right-8 top-16'}
+                  absolute w-0.5 h-8 bg-muted-foreground/30 top-20
+                  ${isLeftSide ? 'left-8' : 'right-8'}
                 `} />
               )}
               
-              {/* Horizontal connector to center line */}
-              {!isFirst && (
+              {/* Horizontal connecting line to next lesson */}
+              {index < lessons.length - 1 && (
                 <div className={`
-                  absolute top-8 w-6 h-0.5 bg-muted-foreground/20
-                  ${isLeftSide ? 'left-8' : 'right-8'}
+                  absolute h-0.5 bg-muted-foreground/30 top-28
+                  ${isLeftSide 
+                    ? nextIsLeftSide 
+                      ? 'left-8 w-6' 
+                      : 'left-8 w-32'
+                    : nextIsLeftSide 
+                      ? 'right-8 w-32' 
+                      : 'right-8 w-6'
+                  }
                 `} />
               )}
               
               {/* Lesson item */}
               <div 
-                className={`flex items-center cursor-pointer group relative
-                  ${isLeftSide ? 'flex-row' : 'flex-row-reverse'}
+                className={`flex flex-col items-center cursor-pointer group
+                  ${isLeftSide ? '' : 'ml-auto mr-0 w-fit'}
                 `}
                 onClick={() => handleLessonClick(lesson.id)}
               >
@@ -118,8 +126,8 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                   )}
                 </div>
                 
-                {/* Lesson title */}
-                <div className={`mx-4 max-w-[120px] ${isLeftSide ? 'text-left' : 'text-right'}`}>
+                {/* Lesson title - под модулем */}
+                <div className="mt-3 text-center max-w-[100px]">
                   <p className="text-sm font-medium text-foreground leading-tight mb-1">
                     {lesson.title}
                   </p>
