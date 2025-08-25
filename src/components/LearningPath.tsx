@@ -280,34 +280,24 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 <div className={`
                   relative w-20 h-20 rounded-full flex items-center justify-center 
                   ${isCompleted 
-                    ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 text-white shadow-2xl shadow-emerald-500/40' 
+                    ? 'bg-emerald-500 text-white shadow-[0_6px_0_#10b981]' 
                     : unlocked
-                    ? 'bg-gradient-to-br from-blue-400 via-primary to-blue-600 text-white shadow-2xl shadow-primary/40'
-                    : 'bg-gradient-to-br from-slate-300 via-gray-400 to-slate-500 text-gray-200 shadow-xl shadow-gray-400/30 opacity-60'
+                    ? 'bg-primary text-white shadow-[0_6px_0_hsl(var(--primary-foreground))]'
+                    : 'bg-slate-400 text-gray-200 shadow-[0_6px_0_#64748b] opacity-60'
                   }
-                  border-4 border-white/30
-                  before:absolute before:inset-0 before:rounded-full 
-                  before:bg-gradient-to-t before:from-black/20 before:via-transparent before:to-white/40
-                  after:absolute after:inset-2 after:rounded-full 
-                  after:bg-gradient-to-br after:from-white/30 after:to-transparent
+                  border-2 border-white
                 `}>
                   
-                  {/* Inner highlight */}
-                  <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white/40 via-transparent to-black/10 opacity-80"></div>
-                  
-                  {/* Icon with enhanced styling */}
+                  {/* Icon */}
                   <div className="relative z-20">
                     {isCompleted ? (
-                      <CheckCircle2 className="w-8 h-8 drop-shadow-lg filter brightness-110" />
+                      <CheckCircle2 className="w-8 h-8" />
                     ) : unlocked ? (
-                      <Icon className="w-8 h-8 drop-shadow-lg filter brightness-110" />
+                      <Icon className="w-8 h-8" />
                     ) : (
-                      <Lock className="w-8 h-8 drop-shadow-lg" />
+                      <Lock className="w-8 h-8" />
                     )}
                   </div>
-                  
-                  {/* Enhanced 3D shadow */}
-                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-black/30 rounded-full blur-md"></div>
                 </div>
                 
                 {/* Floating complete button */}
