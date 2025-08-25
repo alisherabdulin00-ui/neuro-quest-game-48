@@ -216,12 +216,10 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 bg-primary/20 rounded-full animate-float"
+              className="absolute w-2 h-2 bg-primary/20 rounded-full"
               style={{
                 left: `${20 + (i * 15)}%`,
-                top: `${10 + (i * 120)}px`,
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: `${3 + (i * 0.5)}s`
+                top: `${10 + (i * 120)}px`
               }}
             />
           ))}
@@ -265,12 +263,11 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           return (
             <div
               key={lesson.id}
-              className="absolute transition-all duration-500 ease-out animate-fade-in"
+              className="absolute"
               style={{
                 left: `calc(50% + ${position.x}px)`,
                 top: `${80 + position.y}px`,
-                transform: 'translateX(-50%)',
-                animationDelay: `${index * 0.1}s`
+                transform: 'translateX(-50%)'
               }}
             >
               
@@ -282,11 +279,10 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
                   relative w-20 h-20 rounded-full flex items-center justify-center 
-                  transition-all duration-500 transform-gpu
                   ${isCompleted 
-                    ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 text-white shadow-2xl shadow-emerald-500/40 animate-bounce-subtle' 
+                    ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 text-white shadow-2xl shadow-emerald-500/40' 
                     : unlocked
-                    ? 'bg-gradient-to-br from-blue-400 via-primary to-blue-600 text-white shadow-2xl shadow-primary/40 hover:scale-110 hover:-translate-y-2 hover:rotate-3'
+                    ? 'bg-gradient-to-br from-blue-400 via-primary to-blue-600 text-white shadow-2xl shadow-primary/40'
                     : 'bg-gradient-to-br from-slate-300 via-gray-400 to-slate-500 text-gray-200 shadow-xl shadow-gray-400/30 opacity-60'
                   }
                   border-4 border-white/30
@@ -296,16 +292,11 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                   after:bg-gradient-to-br after:from-white/30 after:to-transparent
                 `}>
                   
-                  {/* Glowing ring effect for active lessons */}
-                  {unlocked && !isCompleted && (
-                    <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 animate-spin-slow opacity-75"></div>
-                  )}
-                  
                   {/* Inner highlight */}
                   <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white/40 via-transparent to-black/10 opacity-80"></div>
                   
                   {/* Icon with enhanced styling */}
-                  <div className="relative z-20 transform transition-transform duration-300 group-hover:scale-110">
+                  <div className="relative z-20">
                     {isCompleted ? (
                       <CheckCircle2 className="w-8 h-8 drop-shadow-lg filter brightness-110" />
                     ) : unlocked ? (
@@ -317,23 +308,6 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                   
                   {/* Enhanced 3D shadow */}
                   <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-black/30 rounded-full blur-md"></div>
-                  
-                  {/* Completion sparkle effect */}
-                  {isCompleted && (
-                    <div className="absolute inset-0 rounded-full">
-                      {[...Array(4)].map((_, sparkleIndex) => (
-                        <div
-                          key={sparkleIndex}
-                          className="absolute w-1 h-1 bg-yellow-300 rounded-full animate-sparkle"
-                          style={{
-                            left: `${20 + sparkleIndex * 15}%`,
-                            top: `${15 + sparkleIndex * 20}%`,
-                            animationDelay: `${sparkleIndex * 0.5}s`
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
                 </div>
                 
                 {/* Floating complete button */}
@@ -344,7 +318,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                       console.log('Button clicked for lesson:', lesson.id);
                       updateLessonProgress(lesson.id);
                     }}
-                    className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 rounded-full flex items-center justify-center text-white text-xs transition-all duration-300 z-30 shadow-lg hover:scale-110 hover:-translate-y-1 border-2 border-white/50"
+                    className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 rounded-full flex items-center justify-center text-white text-xs z-30 shadow-lg border-2 border-white/50"
                     title="Отметить как завершенный"
                   >
                     ✓
@@ -380,14 +354,14 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
         {/* End celebration */}
         {lessons.length > 0 && (
           <div
-            className="absolute flex flex-col items-center animate-bounce-gentle"
+            className="absolute flex flex-col items-center"
             style={{
               left: '50%',
               top: `${80 + lessons.length * 140 + 80}px`,
               transform: 'translateX(-50%)',
             }}
           >
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40 animate-bounce-gentle">
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40">
               <span className="text-2xl">🏆</span>
             </div>
             <div className="mt-3 text-center">
