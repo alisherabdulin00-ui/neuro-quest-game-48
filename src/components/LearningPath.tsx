@@ -307,13 +307,9 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 
                 {/* Lesson info card */}
                 <div className="mt-4 text-center">
-                  <div className="bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border">
-                    <p className="text-xs font-bold text-card-foreground mb-1 leading-tight">
+                  <div className="bg-card/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border border-border min-w-[160px] max-w-[200px]">
+                    <p className="text-sm font-bold text-card-foreground leading-tight">
                       {lesson.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                      <span>⏱️</span>
-                      {lesson.duration_minutes} мин
                     </p>
                   </div>
                 </div>
