@@ -177,7 +177,7 @@ const Dashboard = () => {
               </div>
               
               {/* Learning Path */}
-              <div className="rounded-b-lg p-6 bg-gray-800">
+              <div className="rounded-b-lg p-0 bg-gray-800">
                 <LearningPath courseId={course.id} />
               </div>
             </div>)}
