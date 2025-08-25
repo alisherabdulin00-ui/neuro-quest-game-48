@@ -193,23 +193,29 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
-  // Calculate structured path positions similar to the image
+  // Calculate structured path positions to match the image layout
   const calculatePathPosition = (index: number) => {
-    const containerWidth = 300;
-    const verticalSpacing = 180;
+    const containerWidth = 280;
+    const verticalSpacing = 200;
     
-    // Pattern: center -> right -> left -> right -> left...
+    // Pattern based on the image: center -> center -> left -> right -> center...
     let x = 0;
     
     if (index === 0) {
-      // First lesson (Start) at center top
+      // First lesson (START) at center top
       x = 0;
-    } else if (index % 2 === 1) {
-      // Odd lessons go to the right
-      x = containerWidth * 0.3;
+    } else if (index === 1) {
+      // Second lesson stays center
+      x = 0;
+    } else if (index === 2) {
+      // Third lesson goes to the left
+      x = -containerWidth * 0.4;
+    } else if (index === 3) {
+      // Fourth lesson goes to the right
+      x = containerWidth * 0.4;
     } else {
-      // Even lessons go to the left
-      x = -containerWidth * 0.3;
+      // For more lessons, alternate left-right
+      x = (index % 2 === 0) ? -containerWidth * 0.4 : containerWidth * 0.4;
     }
     
     const y = index * verticalSpacing;
@@ -272,23 +278,23 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
         {/* Path connections SVG */}
         <svg 
           className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none"
-          width="400" 
-          height={`${lessons.length * 180 + 200}`}
+          width="500" 
+          height={`${lessons.length * 200 + 200}`}
           style={{ zIndex: 0 }}
         >
           <defs>
             <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="rgb(99 102 241)" stopOpacity="0.6" />
-              <stop offset="50%" stopColor="rgb(99 102 241)" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="rgb(99 102 241)" stopOpacity="0.2" />
+              <stop offset="0%" stopColor="rgb(129 140 248)" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="rgb(129 140 248)" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="rgb(129 140 248)" stopOpacity="0.3" />
             </linearGradient>
           </defs>
           <path
             d={generatePathConnections()}
             stroke="url(#pathGradient)"
-            strokeWidth="3"
+            strokeWidth="4"
             fill="none"
-            strokeDasharray="8,4"
+            strokeDasharray="12,8"
             className="animate-pulse"
           />
         </svg>
@@ -320,46 +326,50 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
               >
                 {/* Enhanced lesson node */}
                 <div className={`
-                  relative w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300
+                  relative w-24 h-24 rounded-3xl flex items-center justify-center transition-all duration-300 shadow-lg
                   ${isCompleted 
-                    ? 'bg-gradient-to-br from-green-500 to-green-600 text-white border-[3px] border-green-700 shadow-[0px_4px_0px_0px] shadow-green-700' 
+                    ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-green-500/30' 
                     : unlocked
-                    ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700 hover:shadow-[0px_6px_0px_0px] hover:shadow-indigo-700 hover:-translate-y-1'
-                    : 'bg-gradient-to-br from-slate-400 to-slate-500 text-slate-200 opacity-60 border-[3px] border-slate-500 shadow-[0px_4px_0px_0px] shadow-slate-500'
+                    ? index === 2 // Third lesson (blue in image)
+                      ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-blue-500/30 hover:shadow-blue-500/40 hover:-translate-y-1'
+                      : 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-green-500/30 hover:shadow-green-500/40 hover:-translate-y-1'
+                    : 'bg-gradient-to-br from-slate-400 to-slate-500 text-slate-200 opacity-60 shadow-slate-500/20'
                   }
                 `}>
                   
                   {/* Glow effect for unlocked lessons */}
                   {unlocked && !isCompleted && (
-                    <div className="absolute inset-0 rounded-2xl bg-indigo-400 opacity-30 animate-ping"></div>
+                    <div className={`absolute inset-0 rounded-3xl opacity-30 animate-ping ${
+                      index === 2 ? 'bg-blue-400' : 'bg-green-400'
+                    }`}></div>
                   )}
                   
                   {/* Icon */}
                   <div className="relative z-20">
                     {isCompleted ? (
-                      <CheckCircle2 className="w-8 h-8" />
+                      <CheckCircle2 className="w-10 h-10" />
                     ) : unlocked ? (
-                      <Icon className="w-8 h-8" />
+                      <Icon className="w-10 h-10" />
                     ) : (
-                      <Lock className="w-8 h-8" />
+                      <Lock className="w-10 h-10" />
                     )}
                   </div>
 
                   {/* Special styling for first lesson */}
                   {index === 0 && (
-                    <div className="absolute -top-3 -right-3 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">
+                    <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                       START
                     </div>
                   )}
                 </div>
                 
                 {/* Lesson info card */}
-                <div className="mt-4 text-center max-w-[140px]">
-                  <div className="bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border transition-all duration-300 group-hover:shadow-xl">
-                    <p className="text-xs font-bold text-card-foreground mb-1 leading-tight">
+                <div className="mt-6 text-center max-w-[160px]">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-3 shadow-xl border border-gray-200 transition-all duration-300 group-hover:shadow-2xl">
+                    <p className="text-sm font-bold text-gray-800 mb-2 leading-tight">
                       {lesson.title}
                     </p>
-                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                    <p className="text-xs text-gray-500 flex items-center justify-center gap-1 mb-2">
                       <span>⏱️</span>
                       {lesson.duration_minutes} мин
                     </p>
@@ -368,8 +378,8 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 
                 {/* Progress indicator for completed lessons */}
                 {isCompleted && (
-                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium shadow-sm border border-green-200">
+                  <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium shadow-lg border border-green-200">
                       Завершено! ✅
                     </div>
                   </div>
@@ -392,7 +402,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
             className="absolute flex flex-col items-center"
             style={{
               left: '50%',
-              top: `${80 + lessons.length * 180 + 80}px`,
+              top: `${100 + lessons.length * 200 + 100}px`,
               transform: 'translateX(-50%)',
             }}
           >
