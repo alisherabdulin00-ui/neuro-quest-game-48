@@ -188,14 +188,18 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
   }
 
   // Calculate curved path position for each lesson
-  const calculateCurvePosition = (index: number, total: number) => {
+  const calculateCurvePosition = (index: number) => {
     // Create alternating positions for the snake-like path
-    const amplitude = 120; // How far lessons swing left/right
-    const verticalSpacing = 180; // Vertical distance between lessons
+    const amplitude = 80; // How far lessons swing left/right
+    const verticalSpacing = 160; // Vertical distance between lessons
     
-    // Create S-curve using sine wave
-    const normalizedIndex = index / Math.max(1, total - 1);
-    const x = Math.sin(normalizedIndex * Math.PI * 2) * amplitude;
+    // Alternate between left and right with some randomness
+    const isEven = index % 2 === 0;
+    const baseX = isEven ? -amplitude : amplitude;
+    
+    // Add some variation to make it more organic
+    const variation = Math.sin(index * 0.8) * 20;
+    const x = baseX + variation;
     const y = index * verticalSpacing;
     
     return { x, y };
@@ -227,29 +231,31 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isCompleted = isLessonCompleted(lesson.id);
           const unlocked = isLessonUnlocked(index);
-          const position = calculateCurvePosition(index, lessons.length);
+          const position = calculateCurvePosition(index);
+          const nextPosition = index < lessons.length - 1 ? calculateCurvePosition(index + 1) : null;
           
           console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
           
           return (
             <div
               key={lesson.id}
-              className="absolute transition-all duration-500 ease-out"
+              className="absolute transition-all duration-500 ease-out animate-fade-in"
               style={{
                 left: `calc(50% + ${position.x}px)`,
-                top: `${position.y}px`,
+                top: `${80 + position.y}px`,
                 transform: 'translateX(-50%)',
+                animationDelay: `${index * 0.1}s`
               }}
             >
               {/* Curved connecting path */}
-              {index < lessons.length - 1 && (
+              {nextPosition && (
                 <>
-                  {/* Main path line */}
+                  {/* Main curved path line */}
                   <svg
                     className="absolute top-16 left-1/2 transform -translate-x-1/2 pointer-events-none"
-                    width="300"
-                    height="200"
-                    viewBox="0 0 300 200"
+                    width="200"
+                    height="180"
+                    viewBox="0 0 200 180"
                     style={{ zIndex: 1 }}
                   >
                     <defs>
@@ -259,7 +265,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                       </linearGradient>
                     </defs>
                     <path
-                      d={`M 150 0 Q ${150 + (position.x > 0 ? 80 : -80)} 100 ${150 + (calculateCurvePosition(index + 1, lessons.length).x - position.x)} 180`}
+                      d={`M 100 0 Q ${100 + (nextPosition.x - position.x) / 2} 90 ${100 + (nextPosition.x - position.x)} 160`}
                       stroke={`url(#pathGradient-${index})`}
                       strokeWidth="4"
                       fill="none"
@@ -268,21 +274,18 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                     />
                   </svg>
                   
-                  {/* Progress dots along path */}
+                  {/* Animated progress dots */}
                   {isCompleted && (
-                    <div className="absolute top-24 left-1/2 transform -translate-x-1/2">
-                      {[...Array(3)].map((_, dotIndex) => (
-                        <div
-                          key={dotIndex}
-                          className="absolute w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"
-                          style={{
-                            left: `${dotIndex * 15}px`,
-                            top: `${dotIndex * 25}px`,
-                            animationDelay: `${dotIndex * 0.3}s`
-                          }}
-                        />
-                      ))}
-                    </div>
+                    <>
+                      <div 
+                        className="absolute w-2 h-2 bg-green-400 rounded-full animate-pulse" 
+                        style={{ top: '60px', left: `calc(50% + ${(nextPosition.x - position.x) * 0.3}px)` }}
+                      />
+                      <div 
+                        className="absolute w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" 
+                        style={{ top: '100px', left: `calc(50% + ${(nextPosition.x - position.x) * 0.6}px)`, animationDelay: '0.3s' }}
+                      />
+                    </>
                   )}
                 </>
               )}
@@ -390,13 +393,13 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           );
         })}
         
-        {/* End of path celebration */}
+        {/* End celebration */}
         {lessons.length > 0 && (
           <div
-            className="absolute flex flex-col items-center"
+            className="absolute flex flex-col items-center animate-bounce-gentle"
             style={{
               left: '50%',
-              top: `${lessons.length * 180 + 100}px`,
+              top: `${80 + lessons.length * 160 + 80}px`,
               transform: 'translateX(-50%)',
             }}
           >
