@@ -207,7 +207,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
   };
 
   return (
-    <div className="relative px-4 py-8 overflow-hidden">
+    <div className="relative px-4 py-8 overflow-hidden bg-background">
       {/* Curved learning path container */}
       <div className="relative w-full max-w-md mx-auto min-h-screen">
         {/* Background decorative elements */}
