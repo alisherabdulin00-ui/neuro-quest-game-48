@@ -13,7 +13,7 @@ import { QuizContent } from "@/components/LessonContent/QuizContent";
 
 interface Lesson {
   id: string;
-  course_id: string;
+  chapter_id: string;
   title: string;
   description: string;
   order_index: number;
@@ -88,11 +88,20 @@ const Lesson = () => {
         if (lessonError) throw lessonError;
         setLesson(lessonData);
 
-        // Fetch course details
+        // Fetch chapter and course details  
+        const { data: chapterData, error: chapterError } = await supabase
+          .from('chapters')
+          .select('course_id')
+          .eq('id', lessonData.chapter_id)
+          .single();
+
+        if (chapterError) throw chapterError;
+
+        // Fetch course details separately
         const { data: courseData, error: courseError } = await supabase
           .from('courses')
           .select('id, title')
-          .eq('id', lessonData.course_id)
+          .eq('id', chapterData.course_id)
           .single();
 
         if (courseError) throw courseError;

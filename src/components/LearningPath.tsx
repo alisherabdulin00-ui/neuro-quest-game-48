@@ -9,6 +9,7 @@ interface Lesson {
   lesson_type: string;
   order_index: number;
   duration_minutes: number;
+  chapter_id: string;
 }
 interface UserProgress {
   lesson_id: string;
@@ -17,10 +18,10 @@ interface UserProgress {
   completed_at: string | null;
 }
 interface LearningPathProps {
-  courseId: string;
+  chapterId: string;
 }
 const LearningPath = ({
-  courseId
+  chapterId
 }: LearningPathProps) => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
@@ -31,13 +32,13 @@ const LearningPath = ({
     toast
   } = useToast();
   console.log('LearningPath render:', {
-    courseId,
+    chapterId,
     user: user?.id,
     userProgress: userProgress.length
   });
   useEffect(() => {
     checkUser();
-  }, [courseId]);
+  }, [chapterId]);
   const checkUser = async () => {
     const {
       data: {
@@ -56,7 +57,7 @@ const LearningPath = ({
       const {
         data,
         error
-      } = await supabase.from('lessons').select('*').eq('course_id', courseId).order('order_index');
+      } = await supabase.from('lessons').select('*').eq('chapter_id', chapterId).order('order_index');
       if (error) throw error;
       setLessons(data || []);
     } catch (error) {
