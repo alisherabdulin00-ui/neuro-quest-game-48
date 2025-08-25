@@ -187,22 +187,23 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
-  // Calculate curved path position for each lesson
+  // Calculate smooth curved path position for each lesson
   const calculateCurvePosition = (index: number) => {
-    // Create alternating positions for the snake-like path
-    const amplitude = 80; // How far lessons swing left/right
-    const verticalSpacing = 160; // Vertical distance between lessons
+    const amplitude = 120; // How far lessons swing left/right (increased)
+    const verticalSpacing = 140; // Vertical distance between lessons (reduced for smoother flow)
+    const frequency = 0.8; // Controls the curve frequency
     
-    // Alternate between left and right with some randomness
-    const isEven = index % 2 === 0;
-    const baseX = isEven ? -amplitude : amplitude;
-    
-    // Add some variation to make it more organic
-    const variation = Math.sin(index * 0.8) * 20;
-    const x = baseX + variation;
+    // Use sinusoidal function for smooth curve
+    const x = amplitude * Math.sin(index * frequency);
     const y = index * verticalSpacing;
     
-    return { x, y };
+    // Add subtle randomization for organic feel
+    const organicVariation = Math.sin(index * 1.3) * 15;
+    
+    return { 
+      x: x + organicVariation, 
+      y: y 
+    };
   };
 
   return (
@@ -226,13 +227,38 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           ))}
         </div>
 
+        {/* Optional subtle background path */}
+        <svg 
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-20"
+          width="400" 
+          height={`${lessons.length * 140 + 200}`}
+          style={{ zIndex: 0 }}
+        >
+          <defs>
+            <pattern id="dashed-pattern" patternUnits="userSpaceOnUse" width="8" height="8">
+              <circle cx="4" cy="4" r="1" fill="currentColor" opacity="0.3"/>
+            </pattern>
+          </defs>
+          <path
+            d={lessons.map((_, index) => {
+              const pos = calculateCurvePosition(index);
+              return index === 0 
+                ? `M ${200 + pos.x} ${80 + pos.y}`
+                : `L ${200 + pos.x} ${80 + pos.y}`;
+            }).join(' ')}
+            stroke="url(#dashed-pattern)"
+            strokeWidth="2"
+            fill="none"
+            className="text-primary/30"
+          />
+        </svg>
+
         {/* Lesson nodes with curved positioning */}
         {lessons.map((lesson, index) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isCompleted = isLessonCompleted(lesson.id);
           const unlocked = isLessonUnlocked(index);
           const position = calculateCurvePosition(index);
-          const nextPosition = index < lessons.length - 1 ? calculateCurvePosition(index + 1) : null;
           
           console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
           
@@ -247,48 +273,6 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 animationDelay: `${index * 0.1}s`
               }}
             >
-              {/* Curved connecting path */}
-              {nextPosition && (
-                <>
-                  {/* Main curved path line */}
-                  <svg
-                    className="absolute top-16 left-1/2 transform -translate-x-1/2 pointer-events-none"
-                    width="200"
-                    height="180"
-                    viewBox="0 0 200 180"
-                    style={{ zIndex: 1 }}
-                  >
-                    <defs>
-                      <linearGradient id={`pathGradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={isCompleted ? "#10b981" : "#e2e8f0"} />
-                        <stop offset="100%" stopColor={isCompleted ? "#059669" : "#cbd5e1"} />
-                      </linearGradient>
-                    </defs>
-                    <path
-                      d={`M 100 0 Q ${100 + (nextPosition.x - position.x) / 2} 90 ${100 + (nextPosition.x - position.x)} 160`}
-                      stroke={`url(#pathGradient-${index})`}
-                      strokeWidth="4"
-                      fill="none"
-                      strokeLinecap="round"
-                      className={isCompleted ? "drop-shadow-sm" : ""}
-                    />
-                  </svg>
-                  
-                  {/* Animated progress dots */}
-                  {isCompleted && (
-                    <>
-                      <div 
-                        className="absolute w-2 h-2 bg-green-400 rounded-full animate-pulse" 
-                        style={{ top: '60px', left: `calc(50% + ${(nextPosition.x - position.x) * 0.3}px)` }}
-                      />
-                      <div 
-                        className="absolute w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" 
-                        style={{ top: '100px', left: `calc(50% + ${(nextPosition.x - position.x) * 0.6}px)`, animationDelay: '0.3s' }}
-                      />
-                    </>
-                  )}
-                </>
-              )}
               
               {/* Lesson node container */}
               <div 
@@ -399,7 +383,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
             className="absolute flex flex-col items-center animate-bounce-gentle"
             style={{
               left: '50%',
-              top: `${80 + lessons.length * 160 + 80}px`,
+              top: `${80 + lessons.length * 140 + 80}px`,
               transform: 'translateX(-50%)',
             }}
           >
