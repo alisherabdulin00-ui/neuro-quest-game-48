@@ -216,7 +216,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 bg-primary/20 rounded-full"
+              className="absolute w-2 h-2 bg-primary/30 rounded-full"
               style={{
                 left: `${20 + (i * 15)}%`,
                 top: `${10 + (i * 120)}px`
@@ -316,11 +316,11 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 
                 {/* Lesson info card */}
                 <div className="mt-4 text-center">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-white/20">
-                    <p className="text-xs font-bold text-gray-800 mb-1 leading-tight">
+                  <div className="bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border">
+                    <p className="text-xs font-bold text-card-foreground mb-1 leading-tight">
                       {lesson.title}
                     </p>
-                    <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
+                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                       <span>⏱️</span>
                       {lesson.duration_minutes} мин
                     </p>
@@ -330,7 +330,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 {/* Progress indicator for completed lessons */}
                 {isCompleted && (
                   <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium shadow-sm">
+                    <div className="bg-success/10 text-success text-xs px-2 py-1 rounded-full font-medium shadow-sm border border-success/20">
                       Завершено! 🎉
                     </div>
                   </div>
@@ -354,9 +354,9 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
               <span className="text-2xl">🏆</span>
             </div>
             <div className="mt-3 text-center">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-2 shadow-lg">
-                <p className="text-sm font-bold text-yellow-800">Поздравляем!</p>
-                <p className="text-xs text-yellow-700">Курс завершен</p>
+              <div className="bg-warning/10 border border-warning/20 rounded-lg px-4 py-2 shadow-lg">
+                <p className="text-sm font-bold text-warning-foreground">Поздравляем!</p>
+                <p className="text-xs text-muted-foreground">Курс завершен</p>
               </div>
             </div>
           </div>
