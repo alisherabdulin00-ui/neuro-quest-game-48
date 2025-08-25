@@ -169,11 +169,16 @@ const Dashboard = () => {
         <div className="space-y-6 p-4">
           {courses.map(course => <div key={course.id} className="space-y-4">
               {/* Course Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-lg">
-                <Badge variant="secondary" className="bg-white/20 text-white mb-2 text-xs">
-                  AI MASTERY • LEVEL 1
-                </Badge>
-                <h1 className="text-lg font-semibold">{course.title}</h1>
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-t-lg">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-white/80 uppercase tracking-wide">
+                    Chapter 1
+                  </p>
+                  <h1 className="text-3xl font-bold leading-tight">{course.title}</h1>
+                  <p className="text-white/90 text-base">
+                    {course.description}
+                  </p>
+                </div>
               </div>
               
               {/* Learning Path */}
