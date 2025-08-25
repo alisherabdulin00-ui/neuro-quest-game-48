@@ -217,14 +217,7 @@ const LearningPath = ({
   return <div className="relative px-4 py-8 bg-background">
       {/* Curved learning path container */}
       <div className="relative w-full max-w-md mx-auto" style={{ minHeight: `${lessons.length * 140 + 400}px` }}>
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Floating particles */}
-          {[...Array(6)].map((_, i) => <div key={i} className="absolute w-2 h-2 bg-primary/30 rounded-full" style={{
-          left: `${20 + i * 15}%`,
-          top: `${10 + i * 120}px`
-        }} />)}
-        </div>
+      
 
         {/* Curved dashed connection path */}
         <svg className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-40" width="400" height={`${lessons.length * 140 + 200}`} style={{
