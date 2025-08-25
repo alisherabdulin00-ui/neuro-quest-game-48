@@ -193,164 +193,112 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
-  // Calculate flowing path position
-  const calculateFlowPosition = (index: number) => {
-    if (index === 0) {
-      // First lesson at top center
-      return { x: 0, y: 0 };
-    }
-    
-    const baseSpacing = 120; // Base horizontal spacing
-    const verticalStep = 100; // Vertical step between lessons
-    const horizontalOffset = 150; // How far left/right from center
-    
-    // Create flowing zigzag pattern
-    const isEven = index % 2 === 0;
-    const groupIndex = Math.floor((index - 1) / 2);
-    
-    return {
-      x: isEven ? -horizontalOffset : horizontalOffset,
-      y: (groupIndex + 1) * verticalStep
-    };
-  };
-
   return (
-    <div className="relative px-4 py-8 overflow-hidden bg-background">
-      {/* Flowing learning path container */}
-      <div className="relative w-full max-w-3xl mx-auto min-h-screen">
-        {/* Connection lines SVG */}
-        <svg 
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none"
-          width="700" 
-          height={`${lessons.length * 100 + 300}`}
-          style={{ zIndex: 0 }}
-        >
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-             refX="9" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="hsl(var(--primary))" opacity="0.6" />
-            </marker>
-          </defs>
-          
-          {/* Draw smooth flowing paths */}
+    <div className="px-4 py-8 bg-background">
+      {/* Mobile-first vertical learning path */}
+      <div className="max-w-md mx-auto">
+        {/* Connection lines */}
+        <div className="relative">
           {lessons.map((_, index) => {
-            if (index === lessons.length - 1) return null; // No line after last lesson
-            
-            const currentPos = calculateFlowPosition(index);
-            const nextPos = calculateFlowPosition(index + 1);
-            
-            const startX = 350 + currentPos.x;
-            const startY = 80 + currentPos.y + 40; // Offset for node center
-            const endX = 350 + nextPos.x;
-            const endY = 80 + nextPos.y + 40;
-            
-            // Create smooth curved path
-            const controlPoint1X = startX + (endX - startX) * 0.25;
-            const controlPoint1Y = startY + (endY - startY) * 0.25;
-            const controlPoint2X = startX + (endX - startX) * 0.75;
-            const controlPoint2Y = startY + (endY - startY) * 0.75;
+            if (index === lessons.length - 1) return null;
             
             return (
-              <path
-                key={`line-${index}`}
-                d={`M ${startX} ${startY} C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${endX} ${endY}`}
-                stroke="hsl(var(--primary))"
-                strokeWidth="3"
-                fill="none"
-                opacity="0.6"
-                markerEnd="url(#arrowhead)"
-              />
+              <div
+                key={`connection-${index}`}
+                className="absolute left-1/2 transform -translate-x-1/2 z-0"
+                style={{
+                  top: `${(index + 1) * 140 - 20}px`,
+                  height: '60px'
+                }}
+              >
+                <div className="w-0.5 h-full bg-primary/30 relative">
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 rotate-45 bg-primary/30"></div>
+                </div>
+              </div>
             );
           })}
-        </svg>
+        </div>
 
-        {/* Lesson nodes with flowing positioning */}
-        {lessons.map((lesson, index) => {
-          const Icon = getLessonIcon(lesson.lesson_type, index);
-          const isCompleted = isLessonCompleted(lesson.id);
-          const unlocked = isLessonUnlocked(index);
-          const position = calculateFlowPosition(index);
-          
-          console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
-          
-          return (
-            <div
-              key={lesson.id}
-              className="absolute"
-              style={{
-                left: `calc(50% + ${position.x}px)`,
-                top: `${80 + position.y}px`,
-                transform: 'translateX(-50%)'
-              }}
-            >
-              
-              {/* Lesson node container */}
-              <div 
-                className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}
+        {/* Lesson nodes */}
+        <div className="space-y-8">
+          {lessons.map((lesson, index) => {
+            const Icon = getLessonIcon(lesson.lesson_type, index);
+            const isCompleted = isLessonCompleted(lesson.id);
+            const unlocked = isLessonUnlocked(index);
+            
+            console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
+            
+            return (
+              <div
+                key={lesson.id}
+                className="relative flex flex-col items-center"
+                style={{ minHeight: '140px' }}
               >
-                {/* Enhanced 3D lesson orb */}
-                <div className={`
-                  relative w-20 h-20 rounded-2xl flex items-center justify-center
-                  ${isCompleted 
-                    ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
-                    : unlocked
-                    ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700'
-                    : 'bg-indigo-300 text-indigo-100 opacity-60 border-[3px] border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400'
-                  }
-                `}>
-                  
-                  {/* Icon */}
-                  <div className="relative z-20">
-                    {isCompleted ? (
-                      <CheckCircle2 className="w-8 h-8" />
-                    ) : unlocked ? (
-                      <Icon className="w-8 h-8" />
-                    ) : (
-                      <Lock className="w-8 h-8" />
-                    )}
-                  </div>
-                </div>
-                
-                {/* Lesson info card */}
-                <div className="mt-4 text-center">
-                  <div className="bg-card/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border border-border min-w-[160px] max-w-[200px]">
-                    <p className="text-sm font-bold text-card-foreground leading-tight">
-                      {lesson.title}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Progress indicator for completed lessons */}
-                {isCompleted && (
-                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-success/10 text-success text-xs px-2 py-1 rounded-full font-medium shadow-sm border border-success/20">
-                      Завершено! 🎉
+                {/* Lesson node */}
+                <div 
+                  className={`relative flex flex-col items-center group z-10 ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}
+                >
+                  {/* 3D lesson button */}
+                  <div className={`
+                    relative w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-200
+                    ${unlocked ? 'group-hover:scale-105 group-active:scale-95' : ''}
+                    ${isCompleted 
+                      ? 'bg-primary text-primary-foreground border-[3px] border-primary/80 shadow-[0px_4px_0px_0px] shadow-primary/80' 
+                      : unlocked
+                      ? 'bg-primary text-primary-foreground border-[3px] border-primary/80 shadow-[0px_4px_0px_0px] shadow-primary/80'
+                      : 'bg-muted text-muted-foreground opacity-60 border-[3px] border-muted shadow-[0px_4px_0px_0px] shadow-muted'
+                    }
+                  `}>
+                    
+                    {/* Icon */}
+                    <div className="relative z-20">
+                      {isCompleted ? (
+                        <CheckCircle2 className="w-7 h-7" />
+                      ) : unlocked ? (
+                        <Icon className="w-7 h-7" />
+                      ) : (
+                        <Lock className="w-7 h-7" />
+                      )}
                     </div>
                   </div>
-                )}
+                  
+                  {/* Lesson info */}
+                  <div className="mt-3 text-center">
+                    <div className="bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border max-w-[280px]">
+                      <p className="text-sm font-semibold text-card-foreground leading-tight">
+                        {lesson.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {lesson.duration_minutes} мин
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Progress indicator */}
+                  {isCompleted && (
+                    <div className="mt-2">
+                      <div className="bg-success/10 text-success text-xs px-2 py-1 rounded-full font-medium shadow-sm border border-success/20">
+                        ✓ Завершено
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
         
-        {/* End celebration */}
+        {/* Course completion celebration */}
         {lessons.length > 0 && (
-          <div
-            className="absolute flex flex-col items-center"
-            style={{
-              left: '50%',
-              top: `${80 + lessons.length * 100 + 100}px`,
-              transform: 'translateX(-50%)',
-            }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40">
-              <span className="text-2xl">🏆</span>
+          <div className="flex flex-col items-center mt-12 pb-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40">
+              <span className="text-3xl">🏆</span>
             </div>
-            <div className="mt-3 text-center">
-              <div className="bg-warning/10 border border-warning/20 rounded-lg px-4 py-2 shadow-lg">
-                <p className="text-sm font-bold text-warning-foreground">Поздравляем!</p>
-                <p className="text-xs text-muted-foreground">Курс завершен</p>
+            <div className="mt-4 text-center">
+              <div className="bg-warning/10 border border-warning/20 rounded-lg px-4 py-3 shadow-lg">
+                <p className="text-base font-bold text-warning-foreground">Поздравляем!</p>
+                <p className="text-sm text-muted-foreground">Курс завершен</p>
               </div>
             </div>
           </div>
