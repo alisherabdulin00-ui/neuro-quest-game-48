@@ -17,9 +17,9 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 84% 4.9%;
 
-    --primary: 246 83% 65%;
+    --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 246 100% 85%;
+    --primary-glow: 199 100% 85%;
 
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 84% 4.9%;
@@ -41,15 +41,15 @@ All colors MUST be HSL.
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 246 83% 65%;
+    --ring: 199 89% 48%;
 
     /* Custom design tokens */
-    --gradient-primary: linear-gradient(180deg, hsl(246 83% 65%), hsl(246 83% 55%));
+    --gradient-primary: linear-gradient(180deg, hsl(199 89% 48%), hsl(199 89% 38%));
     --gradient-secondary: hsl(217 32% 17%);
-    --gradient-hero: hsl(246 83% 65%);
-    --gradient-glow: hsl(246 83% 65% / 0.05);
+    --gradient-hero: hsl(199 89% 48%);
+    --gradient-glow: hsl(199 89% 48% / 0.05);
     
-    --shadow-glow: 0 2px 8px hsl(246 83% 65% / 0.1);
+    --shadow-glow: 0 2px 8px hsl(199 89% 48% / 0.1);
     --shadow-card: 0 2px 8px hsl(220 27% 5% / 0.1);
     --shadow-elevated: 0 4px 16px hsl(220 27% 5% / 0.1);
     
@@ -85,9 +85,9 @@ All colors MUST be HSL.
     --popover: 220 23% 8%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 246 83% 65%;
+    --primary: 199 89% 48%;
     --primary-foreground: 220 27% 5%;
-    --primary-glow: 246 100% 85%;
+    --primary-glow: 199 100% 85%;
 
     --secondary: 217 32% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -109,7 +109,7 @@ All colors MUST be HSL.
 
     --border: 217 32% 17%;
     --input: 217 32% 17%;
-    --ring: 246 83% 65%;
+    --ring: 199 89% 48%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
