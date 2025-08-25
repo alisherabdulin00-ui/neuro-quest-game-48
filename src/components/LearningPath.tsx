@@ -308,7 +308,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
               >
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
-                  relative w-20 h-20 rounded-2xl flex items-center justify-center
+                  relative w-20 h-20 rounded-3xl flex items-center justify-center
                   ${isCompleted 
                     ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
                     : unlocked
