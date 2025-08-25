@@ -169,7 +169,7 @@ const Dashboard = () => {
         <div className="space-y-6 p-4">
           {courses.map(course => <div key={course.id} className="space-y-4">
               {/* Course Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-t-lg">
+              <div className="bg-indigo-600 text-white p-8 rounded-3xl border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-white/80 uppercase tracking-wide">
                     Chapter 1
@@ -182,7 +182,7 @@ const Dashboard = () => {
               </div>
               
               {/* Learning Path */}
-              <div className="rounded-b-lg p-0 bg-gray-800">
+              <div className="p-0 bg-gray-800">
                 <LearningPath courseId={course.id} />
               </div>
             </div>)}
