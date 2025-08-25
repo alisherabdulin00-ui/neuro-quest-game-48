@@ -234,17 +234,17 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           ))}
         </div>
 
-        {/* Zigzag connection path */}
+        {/* Curved dashed connection path */}
         <svg 
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-20"
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-40"
           width="400" 
           height={`${lessons.length * 140 + 200}`}
           style={{ zIndex: 0 }}
         >
           <defs>
             <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.3 }} />
-              <stop offset="100%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.1 }} />
+              <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.6 }} />
+              <stop offset="100%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.3 }} />
             </linearGradient>
           </defs>
           <path
@@ -254,24 +254,30 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
               const baseY = 80;
               
               if (index === 0) {
-                return `M ${baseX + pos.x} ${baseY + pos.y}`;
+                return `M ${baseX + pos.x} ${baseY + pos.y + 40}`; // Start from bottom of first node
               } else {
                 const prevPos = calculateZigzagPosition(index - 1);
-                // Create smooth bezier curve for diagonal connections
-                const controlPointOffset = 40;
                 const currentX = baseX + pos.x;
-                const currentY = baseY + pos.y;
+                const currentY = baseY + pos.y - 40; // End at top of current node
                 const prevX = baseX + prevPos.x;
-                const prevY = baseY + prevPos.y;
+                const prevY = baseY + prevPos.y + 40; // Start from bottom of previous node
                 
-                // Add control points for smooth curves
-                return `Q ${prevX} ${prevY + controlPointOffset} ${currentX} ${currentY}`;
+                // Create smooth S-curve using cubic bezier
+                const midY = (prevY + currentY) / 2;
+                const controlPoint1X = prevX;
+                const controlPoint1Y = prevY + 60;
+                const controlPoint2X = currentX;
+                const controlPoint2Y = currentY - 60;
+                
+                return `C ${controlPoint1X} ${controlPoint1Y} ${controlPoint2X} ${controlPoint2Y} ${currentX} ${currentY}`;
               }
             }).join(' ')}
             stroke="url(#pathGradient)"
             strokeWidth="3"
             fill="none"
             strokeLinecap="round"
+            strokeDasharray="8 6"
+            strokeDashoffset="0"
           />
         </svg>
 
