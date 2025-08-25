@@ -280,12 +280,11 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 <div className={`
                   relative w-20 h-20 rounded-full flex items-center justify-center 
                   ${isCompleted 
-                    ? 'bg-emerald-500 text-white shadow-[0_6px_0_#10b981]' 
+                    ? 'bg-emerald-500 text-white shadow-[0_6px_0_#059669]' 
                     : unlocked
-                    ? 'bg-primary text-white shadow-[0_6px_0_hsl(var(--primary-foreground))]'
-                    : 'bg-slate-400 text-gray-200 shadow-[0_6px_0_#64748b] opacity-60'
+                    ? 'bg-primary text-white shadow-[0_6px_0_hsl(var(--primary)/0.8)]'
+                    : 'bg-slate-400 text-gray-200 shadow-[0_6px_0_#475569] opacity-60'
                   }
-                  border-2 border-white
                 `}>
                   
                   {/* Icon */}
