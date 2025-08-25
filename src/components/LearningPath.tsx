@@ -284,12 +284,12 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
               >
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
-                  relative w-20 h-16 rounded-full flex items-center justify-center 
+                  relative w-20 h-20 rounded-xl flex items-center justify-center 
                   ${isCompleted 
-                    ? 'bg-emerald-500 text-white shadow-[0_6px_0_#059669]' 
+                    ? 'bg-emerald-500 text-white shadow-[0_6px_0_#059669] border-[3px] border-emerald-600' 
                     : unlocked
-                    ? 'bg-primary text-white shadow-[0_6px_0_hsl(var(--primary)/0.8)]'
-                    : 'bg-slate-400 text-gray-200 shadow-[0_6px_0_#475569] opacity-60'
+                    ? 'bg-primary text-white shadow-[0_6px_0_hsl(var(--primary)/0.8)] border-[3px] border-primary'
+                    : 'bg-slate-400 text-gray-200 shadow-[0_6px_0_#475569] opacity-60 border-[3px] border-slate-600'
                   }
                 `}>
                   
