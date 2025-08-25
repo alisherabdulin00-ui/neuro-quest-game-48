@@ -228,7 +228,7 @@ const LearningPath = ({
 
         {/* Curved dashed connection path */}
         <svg className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-40" width="400" height={`${lessons.length * 140 + 200}`} style={{
-        zIndex: 1
+        zIndex: 0
       }}>
           <defs>
             <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -278,7 +278,7 @@ const LearningPath = ({
           unlocked,
           index
         });
-        return <div key={lesson.id} className="absolute z-10" style={{
+        return <div key={lesson.id} className="absolute" style={{
           left: `calc(50% + ${position.x}px)`,
           top: `${80 + position.y}px`,
           transform: 'translateX(-50%)'
