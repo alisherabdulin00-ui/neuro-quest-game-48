@@ -286,10 +286,10 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                 <div className={`
                   relative w-20 h-20 rounded-2xl flex items-center justify-center
                   ${isCompleted 
-                    ? 'bg-indigo-500 text-white shadow-indigo-800 border-[3px] border-indigo-600' 
+                    ? 'bg-indigo-600 text-white shadow-indigo-700 border-[3px] border-indigo-700' 
                     : unlocked
-                    ? 'bg-indigo-500 text-white shadow-indigo-800 border-[3px] border-indigo-800'
-                    : 'bg-indigo-300 text-indigo-100 shadow-indigo-500 opacity-60 border-[3px] border-indigo-400'
+                    ? 'bg-indigo-600 text-white shadow-indigo-700 border-[3px] border-indigo-700'
+                    : 'bg-indigo-300 text-indigo-100 shadow-indigo-400 opacity-60 border-[3px] border-indigo-400'
                   }
                 `}>
                   
