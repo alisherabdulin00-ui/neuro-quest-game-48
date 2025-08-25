@@ -193,23 +193,26 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
-  // Calculate smooth curved path position for each lesson
-  const calculateCurvePosition = (index: number) => {
-    const amplitude = 120; // How far lessons swing left/right (increased)
-    const verticalSpacing = 140; // Vertical distance between lessons (reduced for smoother flow)
-    const frequency = 0.8; // Controls the curve frequency
+  // Calculate zigzag position for structured learning path
+  const calculateZigzagPosition = (index: number) => {
+    const verticalSpacing = 140; // Vertical distance between lessons
+    const horizontalOffset = 100; // Horizontal offset for left/right positions
     
-    // Use sinusoidal function for smooth curve
-    const x = amplitude * Math.sin(index * frequency);
+    let x = 0; // Default center position
+    
+    // Pattern: Center (0) → Right (1) → Center (2) → Left (3) → Center (4) → Right (5) ...
+    const position = index % 4;
+    
+    if (position === 1) { // Right position (1, 5, 9, 13...)
+      x = horizontalOffset;
+    } else if (position === 3) { // Left position (3, 7, 11, 15...)
+      x = -horizontalOffset;
+    }
+    // else x remains 0 for center positions (0, 2, 4, 6...)
+    
     const y = index * verticalSpacing;
     
-    // Add subtle randomization for organic feel
-    const organicVariation = Math.sin(index * 1.3) * 15;
-    
-    return { 
-      x: x + organicVariation, 
-      y: y 
-    };
+    return { x, y };
   };
 
   return (
@@ -231,7 +234,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           ))}
         </div>
 
-        {/* Optional subtle background path */}
+        {/* Zigzag connection path */}
         <svg 
           className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-20"
           width="400" 
@@ -239,21 +242,36 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           style={{ zIndex: 0 }}
         >
           <defs>
-            <pattern id="dashed-pattern" patternUnits="userSpaceOnUse" width="8" height="8">
-              <circle cx="4" cy="4" r="1" fill="currentColor" opacity="0.3"/>
-            </pattern>
+            <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.3 }} />
+              <stop offset="100%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.1 }} />
+            </linearGradient>
           </defs>
           <path
             d={lessons.map((_, index) => {
-              const pos = calculateCurvePosition(index);
-              return index === 0 
-                ? `M ${200 + pos.x} ${80 + pos.y}`
-                : `L ${200 + pos.x} ${80 + pos.y}`;
+              const pos = calculateZigzagPosition(index);
+              const baseX = 200;
+              const baseY = 80;
+              
+              if (index === 0) {
+                return `M ${baseX + pos.x} ${baseY + pos.y}`;
+              } else {
+                const prevPos = calculateZigzagPosition(index - 1);
+                // Create smooth bezier curve for diagonal connections
+                const controlPointOffset = 40;
+                const currentX = baseX + pos.x;
+                const currentY = baseY + pos.y;
+                const prevX = baseX + prevPos.x;
+                const prevY = baseY + prevPos.y;
+                
+                // Add control points for smooth curves
+                return `Q ${prevX} ${prevY + controlPointOffset} ${currentX} ${currentY}`;
+              }
             }).join(' ')}
-            stroke="url(#dashed-pattern)"
-            strokeWidth="2"
+            stroke="url(#pathGradient)"
+            strokeWidth="3"
             fill="none"
-            className="text-primary/30"
+            strokeLinecap="round"
           />
         </svg>
 
@@ -262,7 +280,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isCompleted = isLessonCompleted(lesson.id);
           const unlocked = isLessonUnlocked(index);
-          const position = calculateCurvePosition(index);
+          const position = calculateZigzagPosition(index);
           
           console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
           
