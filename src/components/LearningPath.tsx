@@ -214,9 +214,9 @@ const LearningPath = ({
       y
     };
   };
-  return <div className="relative px-4 py-8 overflow-hidden bg-background">
+  return <div className="relative px-4 py-8 bg-background">
       {/* Curved learning path container */}
-      <div className="relative w-full max-w-md mx-auto min-h-screen">
+      <div className="relative w-full max-w-md mx-auto" style={{ minHeight: `${lessons.length * 140 + 400}px` }}>
         {/* Background decorative elements */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Floating particles */}
