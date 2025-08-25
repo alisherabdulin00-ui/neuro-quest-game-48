@@ -304,11 +304,6 @@ const LearningPath = ({
                     {lesson.title}
                   </p>
                 </div>
-                
-                {/* Progress indicator for completed lessons */}
-                {isCompleted && <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-success/10 text-success text-xs px-2 py-1 rounded-full font-medium shadow-sm border border-success/20">getЗавершено! 🎉</div>
-                  </div>}
               </div>
             </div>;
       })}
