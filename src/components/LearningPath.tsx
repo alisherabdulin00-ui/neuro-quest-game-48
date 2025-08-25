@@ -193,30 +193,36 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
-  // Calculate grid position for 2-column layout
-  const calculateGridPosition = (index: number) => {
-    const columnWidth = 180; // Width per column
-    const verticalSpacing = 140; // Vertical distance between rows
-    const row = Math.floor(index / 2);
-    const isLeftColumn = index % 2 === 0;
+  // Calculate flowing path position
+  const calculateFlowPosition = (index: number) => {
+    if (index === 0) {
+      // First lesson at top center
+      return { x: 0, y: 0 };
+    }
+    
+    const baseSpacing = 120; // Base horizontal spacing
+    const verticalStep = 100; // Vertical step between lessons
+    const horizontalOffset = 150; // How far left/right from center
+    
+    // Create flowing zigzag pattern
+    const isEven = index % 2 === 0;
+    const groupIndex = Math.floor((index - 1) / 2);
     
     return {
-      x: isLeftColumn ? -columnWidth / 2 : columnWidth / 2,
-      y: row * verticalSpacing,
-      row,
-      isLeftColumn
+      x: isEven ? -horizontalOffset : horizontalOffset,
+      y: (groupIndex + 1) * verticalStep
     };
   };
 
   return (
     <div className="relative px-4 py-8 overflow-hidden bg-background">
-      {/* Grid learning path container */}
-      <div className="relative w-full max-w-2xl mx-auto min-h-screen">
+      {/* Flowing learning path container */}
+      <div className="relative w-full max-w-3xl mx-auto min-h-screen">
         {/* Connection lines SVG */}
         <svg 
           className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none"
-          width="600" 
-          height={`${Math.ceil(lessons.length / 2) * 140 + 200}`}
+          width="700" 
+          height={`${lessons.length * 100 + 300}`}
           style={{ zIndex: 0 }}
         >
           <defs>
@@ -226,58 +232,44 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
             </marker>
           </defs>
           
-          {/* Draw connection paths */}
+          {/* Draw smooth flowing paths */}
           {lessons.map((_, index) => {
             if (index === lessons.length - 1) return null; // No line after last lesson
             
-            const currentPos = calculateGridPosition(index);
-            const nextPos = calculateGridPosition(index + 1);
+            const currentPos = calculateFlowPosition(index);
+            const nextPos = calculateFlowPosition(index + 1);
             
-            const startX = 300 + currentPos.x;
+            const startX = 350 + currentPos.x;
             const startY = 80 + currentPos.y + 40; // Offset for node center
-            const endX = 300 + nextPos.x;
+            const endX = 350 + nextPos.x;
             const endY = 80 + nextPos.y + 40;
             
-            // Different path types based on layout
-            if (currentPos.row === nextPos.row) {
-              // Same row - straight horizontal line
-              return (
-                <line
-                  key={`line-${index}`}
-                  x1={startX}
-                  y1={startY}
-                  x2={endX}
-                  y2={endY}
-                  stroke="hsl(var(--primary))"
-                  strokeWidth="3"
-                  opacity="0.6"
-                  markerEnd="url(#arrowhead)"
-                />
-              );
-            } else {
-              // Different rows - L-shaped path
-              const midY = startY + (endY - startY) / 2;
-              return (
-                <path
-                  key={`line-${index}`}
-                  d={`M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`}
-                  stroke="hsl(var(--primary))"
-                  strokeWidth="3"
-                  fill="none"
-                  opacity="0.6"
-                  markerEnd="url(#arrowhead)"
-                />
-              );
-            }
+            // Create smooth curved path
+            const controlPoint1X = startX + (endX - startX) * 0.25;
+            const controlPoint1Y = startY + (endY - startY) * 0.25;
+            const controlPoint2X = startX + (endX - startX) * 0.75;
+            const controlPoint2Y = startY + (endY - startY) * 0.75;
+            
+            return (
+              <path
+                key={`line-${index}`}
+                d={`M ${startX} ${startY} C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${endX} ${endY}`}
+                stroke="hsl(var(--primary))"
+                strokeWidth="3"
+                fill="none"
+                opacity="0.6"
+                markerEnd="url(#arrowhead)"
+              />
+            );
           })}
         </svg>
 
-        {/* Lesson nodes with grid positioning */}
+        {/* Lesson nodes with flowing positioning */}
         {lessons.map((lesson, index) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isCompleted = isLessonCompleted(lesson.id);
           const unlocked = isLessonUnlocked(index);
-          const position = calculateGridPosition(index);
+          const position = calculateFlowPosition(index);
           
           console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
           
@@ -348,7 +340,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
             className="absolute flex flex-col items-center"
             style={{
               left: '50%',
-              top: `${80 + Math.ceil(lessons.length / 2) * 140 + 80}px`,
+              top: `${80 + lessons.length * 100 + 100}px`,
               transform: 'translateX(-50%)',
             }}
           >
