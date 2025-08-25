@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Play, BookOpen, FileText, Video, CheckCircle2, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
 interface Lesson {
   id: string;
   title: string;
@@ -10,53 +11,53 @@ interface Lesson {
   order_index: number;
   duration_minutes: number;
 }
+
 interface UserProgress {
   lesson_id: string;
   progress_percentage: number;
   completed: boolean;
   completed_at: string | null;
 }
+
 interface LearningPathProps {
   courseId: string;
 }
-const LearningPath = ({
-  courseId
-}: LearningPathProps) => {
+
+const LearningPath = ({ courseId }: LearningPathProps) => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
-  console.log('LearningPath render:', {
-    courseId,
-    user: user?.id,
-    userProgress: userProgress.length
-  });
+  const { toast } = useToast();
+
+  console.log('LearningPath render:', { courseId, user: user?.id, userProgress: userProgress.length });
+
   useEffect(() => {
     checkUser();
   }, [courseId]);
+
   const checkUser = async () => {
-    const {
-      data: {
-        session
-      }
-    } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       setUser(session.user);
-      await Promise.all([fetchLessons(), fetchUserProgress(session.user.id)]);
+      await Promise.all([
+        fetchLessons(),
+        fetchUserProgress(session.user.id)
+      ]);
     } else {
       await fetchLessons();
     }
   };
+
   const fetchLessons = async () => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('lessons').select('*').eq('course_id', courseId).order('order_index');
+      const { data, error } = await supabase
+        .from('lessons')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('order_index');
+
       if (error) throw error;
       setLessons(data || []);
     } catch (error) {
@@ -65,29 +66,30 @@ const LearningPath = ({
       setLoading(false);
     }
   };
+
   const fetchUserProgress = async (userId: string) => {
     try {
       console.log('Fetching progress for user:', userId);
-      const {
-        data,
-        error
-      } = await supabase.from('user_progress').select('lesson_id, progress_percentage, completed, completed_at').eq('user_id', userId);
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('lesson_id, progress_percentage, completed, completed_at')
+        .eq('user_id', userId);
+
       if (error) {
         console.error('Error fetching user progress:', error);
         return;
       }
+
       console.log('Progress data fetched:', data);
       setUserProgress(data || []);
     } catch (error) {
       console.error('Error fetching progress:', error);
     }
   };
+
   const updateLessonProgress = async (lessonId: string, completed: boolean = true) => {
-    console.log('updateLessonProgress called with:', {
-      lessonId,
-      completed,
-      user: user?.id
-    });
+    console.log('updateLessonProgress called with:', { lessonId, completed, user: user?.id });
+    
     if (!user) {
       toast({
         title: "Требуется авторизация",
@@ -96,26 +98,20 @@ const LearningPath = ({
       });
       return;
     }
+
     try {
-      console.log('Calling edge function with:', {
-        lessonId,
-        progressPercentage: 100,
-        completed
-      });
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('update-lesson-progress', {
+      console.log('Calling edge function with:', { lessonId, progressPercentage: 100, completed });
+      
+      const { data, error } = await supabase.functions.invoke('update-lesson-progress', {
         body: {
           lessonId,
           progressPercentage: 100,
           completed
         }
       });
-      console.log('Edge function response:', {
-        data,
-        error
-      });
+
+      console.log('Edge function response:', { data, error });
+
       if (error) {
         console.error('Error updating progress:', error);
         toast({
@@ -129,10 +125,12 @@ const LearningPath = ({
       // Refresh user progress
       console.log('Refreshing user progress for user:', user.id);
       await fetchUserProgress(user.id);
+
       toast({
         title: completed ? "Урок завершен!" : "Прогресс сохранен",
-        description: completed ? "Урок отмечен как завершенный" : "Ваш прогресс сохранен"
+        description: completed ? "Урок отмечен как завершенный" : "Ваш прогресс сохранен",
       });
+
     } catch (error) {
       console.error('Error updating lesson progress:', error);
       toast({
@@ -142,17 +140,20 @@ const LearningPath = ({
       });
     }
   };
+
   const getLessonProgress = (lessonId: string) => {
     const progress = userProgress.find(p => p.lesson_id === lessonId);
     console.log(`Progress for lesson ${lessonId}:`, progress);
     return progress;
   };
+
   const isLessonCompleted = (lessonId: string) => {
     const progress = getLessonProgress(lessonId);
     const completed = progress?.completed || false;
     console.log(`Lesson ${lessonId} completed:`, completed);
     return completed;
   };
+
   const isLessonUnlocked = (lessonIndex: number) => {
     if (lessonIndex === 0) return true; // First lesson is always unlocked
     const previousLesson = lessons[lessonIndex - 1];
@@ -160,28 +161,30 @@ const LearningPath = ({
     console.log(`Lesson at index ${lessonIndex} unlocked:`, unlocked);
     return unlocked;
   };
+
   const getLessonIcon = (type: string, index: number) => {
     if (index === 0) return Play;
+    
     switch (type) {
-      case 'video':
-        return Video;
-      case 'reading':
-        return BookOpen;
-      case 'quiz':
-        return FileText;
-      default:
-        return BookOpen;
+      case 'video': return Video;
+      case 'reading': return BookOpen;
+      case 'quiz': return FileText;
+      default: return BookOpen;
     }
   };
+
   const handleLessonClick = (lessonId: string, unlocked: boolean) => {
     if (unlocked) {
       navigate(`/lesson/${lessonId}`);
     }
   };
+
   if (loading) {
-    return <div className="flex justify-center py-8">
+    return (
+      <div className="flex justify-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>;
+      </div>
+    );
   }
 
   // Calculate smooth curved path position for each lesson
@@ -189,112 +192,127 @@ const LearningPath = ({
     const amplitude = 120; // How far lessons swing left/right (increased)
     const verticalSpacing = 140; // Vertical distance between lessons (reduced for smoother flow)
     const frequency = 0.8; // Controls the curve frequency
-
+    
     // Use sinusoidal function for smooth curve
     const x = amplitude * Math.sin(index * frequency);
     const y = index * verticalSpacing;
-
+    
     // Add subtle randomization for organic feel
     const organicVariation = Math.sin(index * 1.3) * 15;
-    return {
-      x: x + organicVariation,
-      y: y
+    
+    return { 
+      x: x + organicVariation, 
+      y: y 
     };
   };
-  return <div className="relative px-4 py-8 overflow-hidden ">
+
+  return (
+    <div className="relative px-4 py-8 overflow-hidden">
       {/* Curved learning path container */}
       <div className="relative w-full max-w-md mx-auto min-h-screen">
         {/* Background decorative elements */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Floating particles */}
-          {[...Array(6)].map((_, i) => <div key={i} className="absolute w-2 h-2 bg-primary/20 rounded-full animate-float" style={{
-          left: `${20 + i * 15}%`,
-          top: `${10 + i * 120}px`,
-          animationDelay: `${i * 0.5}s`,
-          animationDuration: `${3 + i * 0.5}s`
-        }} />)}
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-primary/20 rounded-full"
+              style={{
+                left: `${20 + (i * 15)}%`,
+                top: `${10 + (i * 120)}px`
+              }}
+            />
+          ))}
         </div>
 
         {/* Optional subtle background path */}
-        <svg className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-20" width="400" height={`${lessons.length * 140 + 200}`} style={{
-        zIndex: 0
-      }}>
+        <svg 
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-20"
+          width="400" 
+          height={`${lessons.length * 140 + 200}`}
+          style={{ zIndex: 0 }}
+        >
           <defs>
             <pattern id="dashed-pattern" patternUnits="userSpaceOnUse" width="8" height="8">
-              <circle cx="4" cy="4" r="1" fill="currentColor" opacity="0.3" />
+              <circle cx="4" cy="4" r="1" fill="currentColor" opacity="0.3"/>
             </pattern>
           </defs>
-          <path d={lessons.map((_, index) => {
-          const pos = calculateCurvePosition(index);
-          return index === 0 ? `M ${200 + pos.x} ${80 + pos.y}` : `L ${200 + pos.x} ${80 + pos.y}`;
-        }).join(' ')} stroke="url(#dashed-pattern)" strokeWidth="2" fill="none" className="text-primary/30" />
+          <path
+            d={lessons.map((_, index) => {
+              const pos = calculateCurvePosition(index);
+              return index === 0 
+                ? `M ${200 + pos.x} ${80 + pos.y}`
+                : `L ${200 + pos.x} ${80 + pos.y}`;
+            }).join(' ')}
+            stroke="url(#dashed-pattern)"
+            strokeWidth="2"
+            fill="none"
+            className="text-primary/30"
+          />
         </svg>
 
         {/* Lesson nodes with curved positioning */}
         {lessons.map((lesson, index) => {
-        const Icon = getLessonIcon(lesson.lesson_type, index);
-        const isCompleted = isLessonCompleted(lesson.id);
-        const unlocked = isLessonUnlocked(index);
-        const position = calculateCurvePosition(index);
-        console.log(`Lesson ${lesson.title}:`, {
-          id: lesson.id,
-          isCompleted,
-          unlocked,
-          index
-        });
-        return <div key={lesson.id} className="absolute transition-all duration-500 ease-out animate-fade-in" style={{
-          left: `calc(50% + ${position.x}px)`,
-          top: `${80 + position.y}px`,
-          transform: 'translateX(-50%)',
-          animationDelay: `${index * 0.1}s`
-        }}>
+          const Icon = getLessonIcon(lesson.lesson_type, index);
+          const isCompleted = isLessonCompleted(lesson.id);
+          const unlocked = isLessonUnlocked(index);
+          const position = calculateCurvePosition(index);
+          
+          console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
+          
+          return (
+            <div
+              key={lesson.id}
+              className="absolute"
+              style={{
+                left: `calc(50% + ${position.x}px)`,
+                top: `${80 + position.y}px`,
+                transform: 'translateX(-50%)'
+              }}
+            >
               
               {/* Lesson node container */}
-              <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson.id, unlocked)}>
+              <div 
+                className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                onClick={() => handleLessonClick(lesson.id, unlocked)}
+              >
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
                   relative w-20 h-20 rounded-full flex items-center justify-center 
-                  transition-all duration-500 transform-gpu
-                  ${isCompleted ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 text-white shadow-2xl shadow-emerald-500/40 animate-bounce-subtle' : unlocked ? 'bg-gradient-to-br from-blue-400 via-primary to-blue-600 text-white shadow-2xl shadow-primary/40 hover:scale-110 hover:-translate-y-2 hover:rotate-3' : 'bg-gradient-to-br from-slate-300 via-gray-400 to-slate-500 text-gray-200 shadow-xl shadow-gray-400/30 opacity-60'}
-                  border-4 border-white/30
-                  before:absolute before:inset-0 before:rounded-full 
-                  before:bg-gradient-to-t before:from-black/20 before:via-transparent before:to-white/40
-                  after:absolute after:inset-2 after:rounded-full 
-                  after:bg-gradient-to-br after:from-white/30 after:to-transparent
+                  ${isCompleted 
+                    ? 'bg-emerald-500 text-white shadow-[0_6px_0_#059669]' 
+                    : unlocked
+                    ? 'bg-primary text-white shadow-[0_6px_0_hsl(var(--primary)/0.8)]'
+                    : 'bg-slate-400 text-gray-200 shadow-[0_6px_0_#475569] opacity-60'
+                  }
                 `}>
                   
-                  {/* Glowing ring effect for active lessons */}
-                  {unlocked && !isCompleted && <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 animate-spin-slow opacity-75"></div>}
-                  
-                  {/* Inner highlight */}
-                  <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white/40 via-transparent to-black/10 opacity-80"></div>
-                  
-                  {/* Icon with enhanced styling */}
-                  <div className="relative z-20 transform transition-transform duration-300 group-hover:scale-110">
-                    {isCompleted ? <CheckCircle2 className="w-8 h-8 drop-shadow-lg filter brightness-110" /> : unlocked ? <Icon className="w-8 h-8 drop-shadow-lg filter brightness-110" /> : <Lock className="w-8 h-8 drop-shadow-lg" />}
+                  {/* Icon */}
+                  <div className="relative z-20">
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-8 h-8" />
+                    ) : unlocked ? (
+                      <Icon className="w-8 h-8" />
+                    ) : (
+                      <Lock className="w-8 h-8" />
+                    )}
                   </div>
-                  
-                  {/* Enhanced 3D shadow */}
-                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-black/30 rounded-full blur-md"></div>
-                  
-                  {/* Completion sparkle effect */}
-                  {isCompleted && <div className="absolute inset-0 rounded-full">
-                      {[...Array(4)].map((_, sparkleIndex) => <div key={sparkleIndex} className="absolute w-1 h-1 bg-yellow-300 rounded-full animate-sparkle" style={{
-                  left: `${20 + sparkleIndex * 15}%`,
-                  top: `${15 + sparkleIndex * 20}%`,
-                  animationDelay: `${sparkleIndex * 0.5}s`
-                }} />)}
-                    </div>}
                 </div>
                 
                 {/* Floating complete button */}
-                {unlocked && !isCompleted && user && <button onClick={e => {
-              e.stopPropagation();
-              console.log('Button clicked for lesson:', lesson.id);
-              updateLessonProgress(lesson.id);
-            }} className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 rounded-full flex items-center justify-center text-white text-xs transition-all duration-300 z-30 shadow-lg hover:scale-110 hover:-translate-y-1 border-2 border-white/50" title="Отметить как завершенный">
+                {unlocked && !isCompleted && user && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('Button clicked for lesson:', lesson.id);
+                      updateLessonProgress(lesson.id);
+                    }}
+                    className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 rounded-full flex items-center justify-center text-white text-xs z-30 shadow-lg border-2 border-white/50"
+                    title="Отметить как завершенный"
+                  >
                     ✓
-                  </button>}
+                  </button>
+                )}
                 
                 {/* Lesson info card */}
                 <div className="mt-4 text-center">
@@ -310,22 +328,29 @@ const LearningPath = ({
                 </div>
                 
                 {/* Progress indicator for completed lessons */}
-                {isCompleted && <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                {isCompleted && (
+                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
                     <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium shadow-sm">
                       Завершено! 🎉
                     </div>
-                  </div>}
+                  </div>
+                )}
               </div>
-            </div>;
-      })}
+            </div>
+          );
+        })}
         
         {/* End celebration */}
-        {lessons.length > 0 && <div className="absolute flex flex-col items-center animate-bounce-gentle" style={{
-        left: '50%',
-        top: `${80 + lessons.length * 140 + 80}px`,
-        transform: 'translateX(-50%)'
-      }}>
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40 animate-bounce-gentle">
+        {lessons.length > 0 && (
+          <div
+            className="absolute flex flex-col items-center"
+            style={{
+              left: '50%',
+              top: `${80 + lessons.length * 140 + 80}px`,
+              transform: 'translateX(-50%)',
+            }}
+          >
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40">
               <span className="text-2xl">🏆</span>
             </div>
             <div className="mt-3 text-center">
@@ -334,8 +359,11 @@ const LearningPath = ({
                 <p className="text-xs text-yellow-700">Курс завершен</p>
               </div>
             </div>
-          </div>}
+          </div>
+        )}
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default LearningPath;
