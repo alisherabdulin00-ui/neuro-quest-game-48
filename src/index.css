@@ -8,39 +8,39 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 13% 9%;
+    --background: 220 27% 5%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 9%;
+    --card: 220 23% 8%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 9%;
+    --popover: 220 23% 8%;
+    --popover-foreground: 210 40% 98%;
 
     --primary: 246 83% 65%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 220 27% 5%;
     --primary-glow: 246 100% 85%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 13% 9%;
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
 
     --accent: 305 85% 70%;
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: 220 27% 5%;
 
     --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
+    --success-foreground: 210 40% 98%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning-foreground: 220 27% 5%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
     --ring: 246 83% 65%;
 
     /* Custom design tokens */
