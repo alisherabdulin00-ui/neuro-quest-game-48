@@ -187,65 +187,169 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
+  // Calculate curved path position for each lesson
+  const calculateCurvePosition = (index: number, total: number) => {
+    // Create alternating positions for the snake-like path
+    const amplitude = 120; // How far lessons swing left/right
+    const verticalSpacing = 180; // Vertical distance between lessons
+    
+    // Create S-curve using sine wave
+    const normalizedIndex = index / Math.max(1, total - 1);
+    const x = Math.sin(normalizedIndex * Math.PI * 2) * amplitude;
+    const y = index * verticalSpacing;
+    
+    return { x, y };
+  };
+
   return (
-    <div className="relative px-4 py-6">
-      {/* Learning path with connecting lines */}
-      <div className="relative max-w-xs mx-auto">
+    <div className="relative px-4 py-8 overflow-hidden">
+      {/* Curved learning path container */}
+      <div className="relative w-full max-w-md mx-auto min-h-screen">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Floating particles */}
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-primary/20 rounded-full animate-float"
+              style={{
+                left: `${20 + (i * 15)}%`,
+                top: `${10 + (i * 120)}px`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: `${3 + (i * 0.5)}s`
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Lesson nodes with curved positioning */}
         {lessons.map((lesson, index) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isCompleted = isLessonCompleted(lesson.id);
           const unlocked = isLessonUnlocked(index);
+          const position = calculateCurvePosition(index, lessons.length);
           
           console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
           
           return (
-            <div key={lesson.id} className="relative mb-16 last:mb-0">
-              {/* Vertical connecting line */}
+            <div
+              key={lesson.id}
+              className="absolute transition-all duration-500 ease-out"
+              style={{
+                left: `calc(50% + ${position.x}px)`,
+                top: `${position.y}px`,
+                transform: 'translateX(-50%)',
+              }}
+            >
+              {/* Curved connecting path */}
               {index < lessons.length - 1 && (
-                <div className={`absolute left-1/2 top-24 transform -translate-x-0.5 w-1 h-12 rounded-full ${
-                  isCompleted ? 'bg-gradient-to-b from-green-400 to-green-500' : 'bg-gradient-to-b from-muted-foreground/20 to-muted-foreground/10'
-                }`} />
+                <>
+                  {/* Main path line */}
+                  <svg
+                    className="absolute top-16 left-1/2 transform -translate-x-1/2 pointer-events-none"
+                    width="300"
+                    height="200"
+                    viewBox="0 0 300 200"
+                    style={{ zIndex: 1 }}
+                  >
+                    <defs>
+                      <linearGradient id={`pathGradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor={isCompleted ? "#10b981" : "#e2e8f0"} />
+                        <stop offset="100%" stopColor={isCompleted ? "#059669" : "#cbd5e1"} />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d={`M 150 0 Q ${150 + (position.x > 0 ? 80 : -80)} 100 ${150 + (calculateCurvePosition(index + 1, lessons.length).x - position.x)} 180`}
+                      stroke={`url(#pathGradient-${index})`}
+                      strokeWidth="4"
+                      fill="none"
+                      strokeLinecap="round"
+                      className={isCompleted ? "drop-shadow-sm" : ""}
+                    />
+                  </svg>
+                  
+                  {/* Progress dots along path */}
+                  {isCompleted && (
+                    <div className="absolute top-24 left-1/2 transform -translate-x-1/2">
+                      {[...Array(3)].map((_, dotIndex) => (
+                        <div
+                          key={dotIndex}
+                          className="absolute w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"
+                          style={{
+                            left: `${dotIndex * 15}px`,
+                            top: `${dotIndex * 25}px`,
+                            animationDelay: `${dotIndex * 0.3}s`
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
               
-              {/* Lesson item - centered */}
+              {/* Lesson node container */}
               <div 
-                className={`flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                 onClick={() => handleLessonClick(lesson.id, unlocked)}
               >
-                {/* Lesson box with 3D effect */}
+                {/* Enhanced 3D lesson orb */}
                 <div className={`
-                  relative w-24 h-24 rounded-full flex items-center justify-center 
-                  transition-all duration-300 transform
+                  relative w-20 h-20 rounded-full flex items-center justify-center 
+                  transition-all duration-500 transform-gpu
                   ${isCompleted 
-                    ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30' 
+                    ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 text-white shadow-2xl shadow-emerald-500/40 animate-bounce-subtle' 
                     : unlocked
-                    ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30 group-hover:scale-110 group-hover:-translate-y-1'
-                    : 'bg-gradient-to-br from-gray-400 to-gray-500 text-gray-300 shadow-lg shadow-gray-400/20 opacity-50'
+                    ? 'bg-gradient-to-br from-blue-400 via-primary to-blue-600 text-white shadow-2xl shadow-primary/40 hover:scale-110 hover:-translate-y-2 hover:rotate-3'
+                    : 'bg-gradient-to-br from-slate-300 via-gray-400 to-slate-500 text-gray-200 shadow-xl shadow-gray-400/30 opacity-60'
                   }
-                  border-4 border-white/20
+                  border-4 border-white/30
                   before:absolute before:inset-0 before:rounded-full 
-                  before:bg-gradient-to-t before:from-black/10 before:to-white/20
-                  before:opacity-50
+                  before:bg-gradient-to-t before:from-black/20 before:via-transparent before:to-white/40
+                  after:absolute after:inset-2 after:rounded-full 
+                  after:bg-gradient-to-br after:from-white/30 after:to-transparent
                 `}>
-                  {/* Inner glow effect */}
-                  <div className="absolute inset-1 rounded-full bg-gradient-to-t from-transparent to-white/30 opacity-60"></div>
                   
-                  {/* Icon */}
-                  <div className="relative z-10">
+                  {/* Glowing ring effect for active lessons */}
+                  {unlocked && !isCompleted && (
+                    <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 animate-spin-slow opacity-75"></div>
+                  )}
+                  
+                  {/* Inner highlight */}
+                  <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white/40 via-transparent to-black/10 opacity-80"></div>
+                  
+                  {/* Icon with enhanced styling */}
+                  <div className="relative z-20 transform transition-transform duration-300 group-hover:scale-110">
                     {isCompleted ? (
-                      <CheckCircle2 className="w-10 h-10 drop-shadow-sm" />
+                      <CheckCircle2 className="w-8 h-8 drop-shadow-lg filter brightness-110" />
                     ) : unlocked ? (
-                      <Icon className="w-10 h-10 drop-shadow-sm" />
+                      <Icon className="w-8 h-8 drop-shadow-lg filter brightness-110" />
                     ) : (
-                      <Lock className="w-10 h-10 drop-shadow-sm" />
+                      <Lock className="w-8 h-8 drop-shadow-lg" />
                     )}
                   </div>
                   
-                  {/* Bottom shadow for 3D effect */}
-                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-3 bg-black/20 rounded-full blur-sm"></div>
+                  {/* Enhanced 3D shadow */}
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-black/30 rounded-full blur-md"></div>
+                  
+                  {/* Completion sparkle effect */}
+                  {isCompleted && (
+                    <div className="absolute inset-0 rounded-full">
+                      {[...Array(4)].map((_, sparkleIndex) => (
+                        <div
+                          key={sparkleIndex}
+                          className="absolute w-1 h-1 bg-yellow-300 rounded-full animate-sparkle"
+                          style={{
+                            left: `${20 + sparkleIndex * 15}%`,
+                            top: `${15 + sparkleIndex * 20}%`,
+                            animationDelay: `${sparkleIndex * 0.5}s`
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 
-                {/* Complete Button for unlocked lessons - always show for non-completed if user is logged in */}
+                {/* Floating complete button */}
                 {unlocked && !isCompleted && user && (
                   <button
                     onClick={(e) => {
@@ -253,26 +357,60 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                       console.log('Button clicked for lesson:', lesson.id);
                       updateLessonProgress(lesson.id);
                     }}
-                    className="absolute top-0 right-4 w-8 h-8 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white text-sm transition-colors z-20 shadow-lg"
+                    className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 rounded-full flex items-center justify-center text-white text-xs transition-all duration-300 z-30 shadow-lg hover:scale-110 hover:-translate-y-1 border-2 border-white/50"
                     title="Отметить как завершенный"
                   >
                     ✓
                   </button>
                 )}
                 
-                {/* Lesson title and duration */}
-                <div className="mt-6 text-center max-w-[120px]">
-                  <p className="text-sm font-semibold text-foreground mb-1 leading-tight">
-                    {lesson.title}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {lesson.duration_minutes} мин
-                  </p>
+                {/* Lesson info card */}
+                <div className="mt-4 text-center">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-white/20">
+                    <p className="text-xs font-bold text-gray-800 mb-1 leading-tight">
+                      {lesson.title}
+                    </p>
+                    <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
+                      <span>⏱️</span>
+                      {lesson.duration_minutes} мин
+                    </p>
+                  </div>
                 </div>
+                
+                {/* Progress indicator for completed lessons */}
+                {isCompleted && (
+                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium shadow-sm">
+                      Завершено! 🎉
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
+        
+        {/* End of path celebration */}
+        {lessons.length > 0 && (
+          <div
+            className="absolute flex flex-col items-center"
+            style={{
+              left: '50%',
+              top: `${lessons.length * 180 + 100}px`,
+              transform: 'translateX(-50%)',
+            }}
+          >
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40 animate-bounce-gentle">
+              <span className="text-2xl">🏆</span>
+            </div>
+            <div className="mt-3 text-center">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-2 shadow-lg">
+                <p className="text-sm font-bold text-yellow-800">Поздравляем!</p>
+                <p className="text-xs text-yellow-700">Курс завершен</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
