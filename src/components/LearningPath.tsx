@@ -193,76 +193,91 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
-  // Calculate smooth curved path position for each lesson
-  const calculateCurvePosition = (index: number) => {
-    const amplitude = 120; // How far lessons swing left/right (increased)
-    const verticalSpacing = 140; // Vertical distance between lessons (reduced for smoother flow)
-    const frequency = 0.8; // Controls the curve frequency
+  // Calculate grid position for 2-column layout
+  const calculateGridPosition = (index: number) => {
+    const columnWidth = 180; // Width per column
+    const verticalSpacing = 140; // Vertical distance between rows
+    const row = Math.floor(index / 2);
+    const isLeftColumn = index % 2 === 0;
     
-    // Use sinusoidal function for smooth curve
-    const x = amplitude * Math.sin(index * frequency);
-    const y = index * verticalSpacing;
-    
-    // Add subtle randomization for organic feel
-    const organicVariation = Math.sin(index * 1.3) * 15;
-    
-    return { 
-      x: x + organicVariation, 
-      y: y 
+    return {
+      x: isLeftColumn ? -columnWidth / 2 : columnWidth / 2,
+      y: row * verticalSpacing,
+      row,
+      isLeftColumn
     };
   };
 
   return (
     <div className="relative px-4 py-8 overflow-hidden bg-background">
-      {/* Curved learning path container */}
-      <div className="relative w-full max-w-md mx-auto min-h-screen">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Floating particles */}
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-primary/30 rounded-full"
-              style={{
-                left: `${20 + (i * 15)}%`,
-                top: `${10 + (i * 120)}px`
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Optional subtle background path */}
+      {/* Grid learning path container */}
+      <div className="relative w-full max-w-2xl mx-auto min-h-screen">
+        {/* Connection lines SVG */}
         <svg 
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none opacity-20"
-          width="400" 
-          height={`${lessons.length * 140 + 200}`}
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none"
+          width="600" 
+          height={`${Math.ceil(lessons.length / 2) * 140 + 200}`}
           style={{ zIndex: 0 }}
         >
           <defs>
-            <pattern id="dashed-pattern" patternUnits="userSpaceOnUse" width="8" height="8">
-              <circle cx="4" cy="4" r="1" fill="currentColor" opacity="0.3"/>
-            </pattern>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+             refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="hsl(var(--primary))" opacity="0.6" />
+            </marker>
           </defs>
-          <path
-            d={lessons.map((_, index) => {
-              const pos = calculateCurvePosition(index);
-              return index === 0 
-                ? `M ${200 + pos.x} ${80 + pos.y}`
-                : `L ${200 + pos.x} ${80 + pos.y}`;
-            }).join(' ')}
-            stroke="url(#dashed-pattern)"
-            strokeWidth="2"
-            fill="none"
-            className="text-primary/30"
-          />
+          
+          {/* Draw connection paths */}
+          {lessons.map((_, index) => {
+            if (index === lessons.length - 1) return null; // No line after last lesson
+            
+            const currentPos = calculateGridPosition(index);
+            const nextPos = calculateGridPosition(index + 1);
+            
+            const startX = 300 + currentPos.x;
+            const startY = 80 + currentPos.y + 40; // Offset for node center
+            const endX = 300 + nextPos.x;
+            const endY = 80 + nextPos.y + 40;
+            
+            // Different path types based on layout
+            if (currentPos.row === nextPos.row) {
+              // Same row - straight horizontal line
+              return (
+                <line
+                  key={`line-${index}`}
+                  x1={startX}
+                  y1={startY}
+                  x2={endX}
+                  y2={endY}
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="3"
+                  opacity="0.6"
+                  markerEnd="url(#arrowhead)"
+                />
+              );
+            } else {
+              // Different rows - L-shaped path
+              const midY = startY + (endY - startY) / 2;
+              return (
+                <path
+                  key={`line-${index}`}
+                  d={`M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`}
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="3"
+                  fill="none"
+                  opacity="0.6"
+                  markerEnd="url(#arrowhead)"
+                />
+              );
+            }
+          })}
         </svg>
 
-        {/* Lesson nodes with curved positioning */}
+        {/* Lesson nodes with grid positioning */}
         {lessons.map((lesson, index) => {
           const Icon = getLessonIcon(lesson.lesson_type, index);
           const isCompleted = isLessonCompleted(lesson.id);
           const unlocked = isLessonUnlocked(index);
-          const position = calculateCurvePosition(index);
+          const position = calculateGridPosition(index);
           
           console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
           
@@ -333,7 +348,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
             className="absolute flex flex-col items-center"
             style={{
               left: '50%',
-              top: `${80 + lessons.length * 140 + 80}px`,
+              top: `${80 + Math.ceil(lessons.length / 2) * 140 + 80}px`,
               transform: 'translateX(-50%)',
             }}
           >
