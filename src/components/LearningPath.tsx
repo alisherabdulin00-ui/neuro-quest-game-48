@@ -193,112 +193,216 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     );
   }
 
+  // Calculate structured path positions similar to the image
+  const calculatePathPosition = (index: number) => {
+    const containerWidth = 300;
+    const verticalSpacing = 180;
+    
+    // Pattern: center -> right -> left -> right -> left...
+    let x = 0;
+    
+    if (index === 0) {
+      // First lesson (Start) at center top
+      x = 0;
+    } else if (index % 2 === 1) {
+      // Odd lessons go to the right
+      x = containerWidth * 0.3;
+    } else {
+      // Even lessons go to the left
+      x = -containerWidth * 0.3;
+    }
+    
+    const y = index * verticalSpacing;
+    
+    return { x, y };
+  };
+
+  // Generate path connections
+  const generatePathConnections = () => {
+    if (lessons.length <= 1) return "";
+    
+    let pathData = "";
+    
+    for (let i = 0; i < lessons.length - 1; i++) {
+      const currentPos = calculatePathPosition(i);
+      const nextPos = calculatePathPosition(i + 1);
+      
+      const startX = currentPos.x;
+      const startY = currentPos.y + 40; // Offset for node radius
+      const endX = nextPos.x;
+      const endY = nextPos.y - 40; // Offset for node radius
+      
+      // Create curved path between nodes
+      const midY = (startY + endY) / 2;
+      const controlPoint1X = startX;
+      const controlPoint1Y = midY;
+      const controlPoint2X = endX;
+      const controlPoint2Y = midY;
+      
+      if (i === 0) {
+        pathData = `M ${startX} ${startY}`;
+      }
+      
+      pathData += ` C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${endX} ${endY}`;
+    }
+    
+    return pathData;
+  };
+
   return (
-    <div className="px-4 py-8 bg-background">
-      {/* Mobile-first vertical learning path */}
-      <div className="max-w-md mx-auto">
-        {/* Connection lines */}
-        <div className="relative">
-          {lessons.map((_, index) => {
-            if (index === lessons.length - 1) return null;
-            
-            return (
-              <div
-                key={`connection-${index}`}
-                className="absolute left-1/2 transform -translate-x-1/2 z-0"
-                style={{
-                  top: `${(index + 1) * 140 - 20}px`,
-                  height: '60px'
-                }}
-              >
-                <div className="w-0.5 h-full bg-primary/30 relative">
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 rotate-45 bg-primary/30"></div>
-                </div>
-              </div>
-            );
-          })}
+    <div className="relative px-4 py-8 overflow-hidden bg-background">
+      {/* Structured learning path container */}
+      <div className="relative w-full max-w-md mx-auto min-h-screen">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Floating particles */}
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-primary/30 rounded-full animate-pulse"
+              style={{
+                left: `${20 + (i * 15)}%`,
+                top: `${10 + (i * 150)}px`,
+                animationDelay: `${i * 0.5}s`
+              }}
+            />
+          ))}
         </div>
 
-        {/* Lesson nodes */}
-        <div className="space-y-8">
-          {lessons.map((lesson, index) => {
-            const Icon = getLessonIcon(lesson.lesson_type, index);
-            const isCompleted = isLessonCompleted(lesson.id);
-            const unlocked = isLessonUnlocked(index);
-            
-            console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
-            
-            return (
-              <div
-                key={lesson.id}
-                className="relative flex flex-col items-center"
-                style={{ minHeight: '140px' }}
+        {/* Path connections SVG */}
+        <svg 
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none"
+          width="400" 
+          height={`${lessons.length * 180 + 200}`}
+          style={{ zIndex: 0 }}
+        >
+          <defs>
+            <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="rgb(99 102 241)" stopOpacity="0.6" />
+              <stop offset="50%" stopColor="rgb(99 102 241)" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="rgb(99 102 241)" stopOpacity="0.2" />
+            </linearGradient>
+          </defs>
+          <path
+            d={generatePathConnections()}
+            stroke="url(#pathGradient)"
+            strokeWidth="3"
+            fill="none"
+            strokeDasharray="8,4"
+            className="animate-pulse"
+          />
+        </svg>
+
+        {/* Lesson nodes with structured positioning */}
+        {lessons.map((lesson, index) => {
+          const Icon = getLessonIcon(lesson.lesson_type, index);
+          const isCompleted = isLessonCompleted(lesson.id);
+          const unlocked = isLessonUnlocked(index);
+          const position = calculatePathPosition(index);
+          
+          console.log(`Lesson ${lesson.title}:`, { id: lesson.id, isCompleted, unlocked, index });
+          
+          return (
+            <div
+              key={lesson.id}
+              className="absolute transition-all duration-500 ease-in-out"
+              style={{
+                left: `calc(50% + ${position.x}px)`,
+                top: `${80 + position.y}px`,
+                transform: 'translateX(-50%)'
+              }}
+            >
+              
+              {/* Lesson node container */}
+              <div 
+                className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed'} transition-transform duration-300`}
+                onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}
               >
-                {/* Lesson node */}
-                <div 
-                  className={`relative flex flex-col items-center group z-10 ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                  onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}
-                >
-                  {/* 3D lesson button */}
-                  <div className={`
-                    relative w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-200
-                    ${unlocked ? 'group-hover:scale-105 group-active:scale-95' : ''}
-                    ${isCompleted 
-                      ? 'bg-primary text-primary-foreground border-[3px] border-primary/80 shadow-[0px_4px_0px_0px] shadow-primary/80' 
-                      : unlocked
-                      ? 'bg-primary text-primary-foreground border-[3px] border-primary/80 shadow-[0px_4px_0px_0px] shadow-primary/80'
-                      : 'bg-muted text-muted-foreground opacity-60 border-[3px] border-muted shadow-[0px_4px_0px_0px] shadow-muted'
-                    }
-                  `}>
-                    
-                    {/* Icon */}
-                    <div className="relative z-20">
-                      {isCompleted ? (
-                        <CheckCircle2 className="w-7 h-7" />
-                      ) : unlocked ? (
-                        <Icon className="w-7 h-7" />
-                      ) : (
-                        <Lock className="w-7 h-7" />
-                      )}
-                    </div>
-                  </div>
+                {/* Enhanced lesson node */}
+                <div className={`
+                  relative w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300
+                  ${isCompleted 
+                    ? 'bg-gradient-to-br from-green-500 to-green-600 text-white border-[3px] border-green-700 shadow-[0px_4px_0px_0px] shadow-green-700' 
+                    : unlocked
+                    ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700 hover:shadow-[0px_6px_0px_0px] hover:shadow-indigo-700 hover:-translate-y-1'
+                    : 'bg-gradient-to-br from-slate-400 to-slate-500 text-slate-200 opacity-60 border-[3px] border-slate-500 shadow-[0px_4px_0px_0px] shadow-slate-500'
+                  }
+                `}>
                   
-                  {/* Lesson info */}
-                  <div className="mt-3 text-center">
-                    <div className="bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border max-w-[280px]">
-                      <p className="text-sm font-semibold text-card-foreground leading-tight">
-                        {lesson.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {lesson.duration_minutes} мин
-                      </p>
-                    </div>
-                  </div>
+                  {/* Glow effect for unlocked lessons */}
+                  {unlocked && !isCompleted && (
+                    <div className="absolute inset-0 rounded-2xl bg-indigo-400 opacity-30 animate-ping"></div>
+                  )}
                   
-                  {/* Progress indicator */}
-                  {isCompleted && (
-                    <div className="mt-2">
-                      <div className="bg-success/10 text-success text-xs px-2 py-1 rounded-full font-medium shadow-sm border border-success/20">
-                        ✓ Завершено
-                      </div>
+                  {/* Icon */}
+                  <div className="relative z-20">
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-8 h-8" />
+                    ) : unlocked ? (
+                      <Icon className="w-8 h-8" />
+                    ) : (
+                      <Lock className="w-8 h-8" />
+                    )}
+                  </div>
+
+                  {/* Special styling for first lesson */}
+                  {index === 0 && (
+                    <div className="absolute -top-3 -right-3 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">
+                      START
                     </div>
                   )}
                 </div>
+                
+                {/* Lesson info card */}
+                <div className="mt-4 text-center max-w-[140px]">
+                  <div className="bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border transition-all duration-300 group-hover:shadow-xl">
+                    <p className="text-xs font-bold text-card-foreground mb-1 leading-tight">
+                      {lesson.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                      <span>⏱️</span>
+                      {lesson.duration_minutes} мин
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Progress indicator for completed lessons */}
+                {isCompleted && (
+                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium shadow-sm border border-green-200">
+                      Завершено! ✅
+                    </div>
+                  </div>
+                )}
+
+                {/* Connection indicator */}
+                {index < lessons.length - 1 && (
+                  <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10">
+                    <div className={`w-1 h-8 ${isCompleted ? 'bg-green-400' : 'bg-indigo-300'} rounded-full`}></div>
+                  </div>
+                )}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
         
-        {/* Course completion celebration */}
+        {/* End celebration */}
         {lessons.length > 0 && (
-          <div className="flex flex-col items-center mt-12 pb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40">
+          <div
+            className="absolute flex flex-col items-center"
+            style={{
+              left: '50%',
+              top: `${80 + lessons.length * 180 + 80}px`,
+              transform: 'translateX(-50%)',
+            }}
+          >
+            <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-2xl shadow-orange-500/40 animate-pulse">
               <span className="text-3xl">🏆</span>
             </div>
             <div className="mt-4 text-center">
-              <div className="bg-warning/10 border border-warning/20 rounded-lg px-4 py-3 shadow-lg">
-                <p className="text-base font-bold text-warning-foreground">Поздравляем!</p>
-                <p className="text-sm text-muted-foreground">Курс завершен</p>
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg px-6 py-3 shadow-lg">
+                <p className="text-lg font-bold text-yellow-800">Поздравляем!</p>
+                <p className="text-sm text-orange-700">Курс завершен успешно</p>
               </div>
             </div>
           </div>
