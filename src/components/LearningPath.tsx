@@ -173,9 +173,15 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
     }
   };
 
-  const handleLessonClick = (lessonId: string, unlocked: boolean) => {
+  const handleLessonClick = (lesson: Lesson, unlocked: boolean, isCompleted: boolean) => {
     if (unlocked) {
-      navigate(`/lesson/${lessonId}`);
+      if (!isCompleted && user) {
+        // If lesson is not completed and user is logged in, mark as complete
+        updateLessonProgress(lesson.id);
+      } else {
+        // Otherwise navigate to lesson
+        navigate(`/lesson/${lesson.id}`);
+      }
     }
   };
 
@@ -274,7 +280,7 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
               {/* Lesson node container */}
               <div 
                 className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => handleLessonClick(lesson.id, unlocked)}
+                onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}
               >
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
@@ -298,21 +304,6 @@ const LearningPath = ({ courseId }: LearningPathProps) => {
                     )}
                   </div>
                 </div>
-                
-                {/* Floating complete button */}
-                {unlocked && !isCompleted && user && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('Button clicked for lesson:', lesson.id);
-                      updateLessonProgress(lesson.id);
-                    }}
-                    className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 rounded-full flex items-center justify-center text-white text-xs z-30 shadow-lg border-2 border-white/50"
-                    title="Отметить как завершенный"
-                  >
-                    ✓
-                  </button>
-                )}
                 
                 {/* Lesson info card */}
                 <div className="mt-4 text-center">
