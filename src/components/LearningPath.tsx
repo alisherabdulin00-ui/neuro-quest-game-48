@@ -291,9 +291,14 @@ const LearningPath = ({
       {/* Lesson node container */}
       <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
         
+        {/* Current lesson shadow highlight */}
+        {isCurrent && (
+          <div className="absolute top-10 left-10 w-20 h-20 rounded-full shadow-[0_0_40px_rgba(99,102,241,0.6)] blur-sm"></div>
+        )}
+        
         {/* Enhanced 3D lesson orb */}
         <div className={`relative
-          relative w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-300
+          w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-300
           ${isCompleted 
             ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
             : isCurrent 
