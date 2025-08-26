@@ -37,7 +37,6 @@ interface UserProgress {
   completed: boolean;
   completed_at: string | null;
 }
-
 interface Chapter {
   id: string;
   course_id: string;
@@ -45,7 +44,6 @@ interface Chapter {
   description: string;
   order_index: number;
 }
-
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -61,13 +59,11 @@ const Dashboard = () => {
   useEffect(() => {
     checkUser();
   }, []);
-
   useEffect(() => {
     if (selectedCourseId) {
       fetchChapters(selectedCourseId);
     }
   }, [selectedCourseId]);
-
   const checkUser = async () => {
     try {
       const {
@@ -118,7 +114,6 @@ const Dashboard = () => {
       }
     }
   };
-
   const fetchChapters = async (courseId: string) => {
     const {
       data,
@@ -130,7 +125,6 @@ const Dashboard = () => {
       setChapters(data || []);
     }
   };
-
   const fetchUserProgress = async (userId: string) => {
     const {
       data,
@@ -164,9 +158,7 @@ const Dashboard = () => {
   const completedLessons = userProgress.filter(p => p.completed).length;
   const totalProgress = userProgress.length > 0 ? userProgress.reduce((acc, p) => acc + p.progress_percentage, 0) / userProgress.length : 0;
   const userName = profile?.first_name && profile?.last_name ? `${profile.first_name} ${profile.last_name}` : profile?.telegram_username ? `@${profile.telegram_username}` : user?.email || "Пользователь";
-  
   const selectedCourse = courses.find(course => course.id === selectedCourseId);
-  
   return <div className="min-h-screen bg-background">
       {/* Mobile Header */}
       <div className="flex items-center justify-between p-4 border-b">
@@ -199,21 +191,18 @@ const Dashboard = () => {
               <SelectValue placeholder="Выберите курс" />
             </SelectTrigger>
             <SelectContent>
-              {courses.map(course => (
-                <SelectItem key={course.id} value={course.id}>
+              {courses.map(course => <SelectItem key={course.id} value={course.id}>
                   {course.title}
-                </SelectItem>
-              ))}
+                </SelectItem>)}
             </SelectContent>
           </Select>
         </div>
 
         {/* Chapters and Learning Path Content */}
         <div className="space-y-6 p-4">
-          {chapters.map(chapter => (
-            <div key={chapter.id} className="space-y-4">
+          {chapters.map(chapter => <div key={chapter.id} className="space-y-4">
               {/* Chapter Header */}
-              <div className="bg-indigo-600 text-white p-8 rounded-3xl border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700">
+              <div className="bg-indigo-600 text-white p-4 rounded-2xl border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-white/80 uppercase tracking-wide">
                     {chapter.title}
@@ -227,8 +216,7 @@ const Dashboard = () => {
               <div className="p-0 bg-gray-800">
                 <LearningPath chapterId={chapter.id} />
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
       </main>
       
