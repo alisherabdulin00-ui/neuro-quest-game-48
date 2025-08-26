@@ -218,10 +218,8 @@ const Dashboard = () => {
                   <p className="text-sm font-medium text-white/80 uppercase tracking-wide">
                     {chapter.title}
                   </p>
-                  <h1 className="text-3xl font-bold leading-tight">{chapter.title}</h1>
-                  <p className="text-white/90 text-base">
-                    {chapter.description}
-                  </p>
+                  <h1 className="text-xl font-bold leading-tight">{chapter.description}</h1>
+                 
                 </div>
               </div>
               
