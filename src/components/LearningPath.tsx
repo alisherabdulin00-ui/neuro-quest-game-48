@@ -293,7 +293,7 @@ const LearningPath = ({
                 {/* Current lesson background indicator - only behind the node */}
                 {isCurrent && <div style={{
               zIndex: -1
-            }} className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-24 h-26 rounded-[2rem] border border-primary/40" />}
+            }} className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-[96px] h-[100px] rounded-[2rem] border border-primary/40" />}
                 
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
