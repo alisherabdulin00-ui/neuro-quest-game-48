@@ -46,6 +46,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          badges: string[] | null
           bg_color: string
           color: string
           created_at: string
@@ -55,10 +56,12 @@ export type Database = {
           icon: string
           id: string
           lessons_count: number
+          order_index: number
           title: string
           updated_at: string
         }
         Insert: {
+          badges?: string[] | null
           bg_color: string
           color: string
           created_at?: string
@@ -68,10 +71,12 @@ export type Database = {
           icon: string
           id?: string
           lessons_count?: number
+          order_index?: number
           title: string
           updated_at?: string
         }
         Update: {
+          badges?: string[] | null
           bg_color?: string
           color?: string
           created_at?: string
@@ -81,6 +86,7 @@ export type Database = {
           icon?: string
           id?: string
           lessons_count?: number
+          order_index?: number
           title?: string
           updated_at?: string
         }

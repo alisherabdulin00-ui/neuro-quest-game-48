@@ -12,6 +12,7 @@ import { BookOpen, Trophy, Clock, Target, Play, CheckCircle2, User, LogOut } fro
 import Navigation from "@/components/Navigation";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import LearningPath from "@/components/LearningPath";
+import NextCourseCard from "@/components/NextCourseCard";
 interface UserProfile {
   id: string;
   first_name?: string;
@@ -29,6 +30,8 @@ interface Course {
   icon: string;
   color: string;
   bg_color: string;
+  order_index: number;
+  badges: string[];
 }
 interface UserProgress {
   id: string;
@@ -103,7 +106,7 @@ const Dashboard = () => {
     const {
       data,
       error
-    } = await supabase.from('courses').select('*').order('created_at');
+    } = await supabase.from('courses').select('*').order('order_index');
     if (error) {
       console.error("Error fetching courses:", error);
     } else {
@@ -198,9 +201,22 @@ const Dashboard = () => {
           </Select>
         </div>
 
+        {/* Course Badges */}
+        {selectedCourse?.badges && selectedCourse.badges.length > 0 && (
+          <div className="p-4">
+            <div className="flex flex-wrap gap-2">
+              {selectedCourse.badges.map((badge, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {badge}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Chapters and Learning Path Content */}
         <div className="space-y-6 p-4">
-          {chapters.map(chapter => <div key={chapter.id} className="space-y-4">
+          {chapters.map((chapter, chapterIndex) => <div key={chapter.id} className="space-y-4">
               {/* Chapter Header */}
               <div className="bg-indigo-600 text-white p-4 rounded-2xl border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700">
                 <div className="space-y-2">
@@ -216,6 +232,11 @@ const Dashboard = () => {
               <div className="p-0 bg-gray-800">
                 <LearningPath chapterId={chapter.id} />
               </div>
+
+              {/* Next Course Card - Show after last chapter */}
+              {chapterIndex === chapters.length - 1 && (
+                <NextCourseCard currentCourse={selectedCourse} allCourses={courses} />
+              )}
             </div>)}
         </div>
       </main>

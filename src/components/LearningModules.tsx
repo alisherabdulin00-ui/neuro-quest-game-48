@@ -18,6 +18,8 @@ interface Course {
   lessons_count: number;
   color: string;
   bg_color: string;
+  order_index: number;
+  badges: string[];
 }
 
 const getDifficultyColor = (difficulty: string) => {
