@@ -161,7 +161,6 @@ const LearningPath = ({
     console.log(`Lesson at index ${lessonIndex} unlocked:`, unlocked);
     return unlocked;
   };
-
   const isCurrentLesson = (lessonIndex: number) => {
     // Current lesson is the first unlocked lesson that's not completed
     const isUnlocked = isLessonUnlocked(lessonIndex);
@@ -224,7 +223,9 @@ const LearningPath = ({
   };
   return <div className="relative px-4 py-2 bg-background">
       {/* Curved learning path container */}
-      <div className="relative w-full max-w-md mx-auto" style={{ minHeight: `${lessons.length * 140 + 400}px` }}>
+      <div className="relative w-full max-w-md mx-auto" style={{
+      minHeight: `${lessons.length * 140 + 400}px`
+    }}>
       
 
         {/* Curved dashed connection path */}
@@ -290,21 +291,14 @@ const LearningPath = ({
               <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
                 
                 {/* Current lesson background indicator - only behind the node */}
-                {isCurrent && (
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-[2rem] bg-gradient-to-br from-primary/30 to-primary/20 border border-primary/40" style={{ zIndex: -1 }} />
-                )}
+                {isCurrent && <div style={{
+              zIndex: -1
+            }} className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-24 h-26 rounded-[2rem] bg-gradient-to-br from-primary/30 to-primary/20 border border-primary/40" />}
                 
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
                   relative w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-300
-                  ${isCompleted 
-                    ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
-                    : isCurrent 
-                      ? 'bg-gradient-to-br from-primary to-primary/80 text-white border-[3px] border-primary shadow-[0px_6px_0px_0px] shadow-primary/60' 
-                      : unlocked 
-                        ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
-                        : 'bg-indigo-300 text-indigo-100 border-[3px] border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400'
-                  }
+                  ${isCompleted ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' : isCurrent ? 'bg-gradient-to-br from-primary to-primary/80 text-white border-[3px] border-primary shadow-[0px_6px_0px_0px] shadow-primary/60' : unlocked ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' : 'bg-indigo-300 text-indigo-100 border-[3px] border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400'}
                 `}>
                   
                   {/* Icon */}
