@@ -161,6 +161,13 @@ const LearningPath = ({
     console.log(`Lesson at index ${lessonIndex} unlocked:`, unlocked);
     return unlocked;
   };
+
+  const isCurrentLesson = (lessonIndex: number) => {
+    // Current lesson is the first unlocked lesson that's not completed
+    const isUnlocked = isLessonUnlocked(lessonIndex);
+    const isCompleted = isLessonCompleted(lessons[lessonIndex].id);
+    return isUnlocked && !isCompleted;
+  };
   const getLessonIcon = (type: string, index: number) => {
     if (index === 0) return Play;
     switch (type) {
@@ -265,6 +272,7 @@ const LearningPath = ({
         const Icon = getLessonIcon(lesson.lesson_type, index);
         const isCompleted = isLessonCompleted(lesson.id);
         const unlocked = isLessonUnlocked(index);
+        const isCurrent = isCurrentLesson(index);
         const position = calculateZigzagPosition(index);
         console.log(`Lesson ${lesson.title}:`, {
           id: lesson.id,
@@ -278,12 +286,24 @@ const LearningPath = ({
           transform: 'translateX(-50%)'
         }}>
               
+              {/* Current lesson indicator */}
+              {isCurrent && (
+                <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-primary/20 to-primary/30 animate-pulse" />
+              )}
+              
               {/* Lesson node container */}
               <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
-                  relative w-20 h-20 rounded-3xl flex items-center justify-center
-                  ${isCompleted ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' : unlocked ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' : 'bg-indigo-300 text-indigo-100  border-[3px] border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400'}
+                  relative w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-300
+                  ${isCompleted 
+                    ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
+                    : isCurrent 
+                      ? 'bg-gradient-to-br from-primary to-primary/80 text-white border-[3px] border-primary shadow-[0px_6px_0px_0px] shadow-primary/60 scale-110' 
+                      : unlocked 
+                        ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
+                        : 'bg-indigo-300 text-indigo-100 border-[3px] border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400'
+                  }
                 `}>
                   
                   {/* Icon */}
