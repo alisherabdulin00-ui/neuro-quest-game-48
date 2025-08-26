@@ -161,6 +161,7 @@ const LearningPath = ({
     console.log(`Lesson at index ${lessonIndex} unlocked:`, unlocked);
     return unlocked;
   };
+
   const isCurrentLesson = (lessonIndex: number) => {
     // Current lesson is the first unlocked lesson that's not completed
     const isUnlocked = isLessonUnlocked(lessonIndex);
@@ -223,9 +224,7 @@ const LearningPath = ({
   };
   return <div className="relative px-4 py-2 bg-background">
       {/* Curved learning path container */}
-      <div className="relative w-full max-w-md mx-auto" style={{
-      minHeight: `${lessons.length * 140 + 400}px`
-    }}>
+      <div className="relative w-full max-w-md mx-auto" style={{ minHeight: `${lessons.length * 140 + 400}px` }}>
       
 
         {/* Curved dashed connection path */}
@@ -268,62 +267,61 @@ const LearningPath = ({
         }).join(' ')} stroke="url(#pathGradient)" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="8 6" strokeDashoffset="0" />
         </svg>
 
-       {/* Lesson nodes with curved positioning */}
-{lessons.map((lesson, index) => {
-  const Icon = getLessonIcon(lesson.lesson_type, index);
-  const isCompleted = isLessonCompleted(lesson.id);
-  const unlocked = isLessonUnlocked(index);
-  const isCurrent = isCurrentLesson(index);
-  const position = calculateZigzagPosition(index);
-  console.log(`Lesson ${lesson.title}:`, {
-    id: lesson.id,
-    isCompleted,
-    unlocked,
-    index
-  });
-  return (
-    <div key={lesson.id} className="absolute" style={{
-      left: `calc(50% + ${position.x}px)`,
-      top: `${80 + position.y}px`,
-      transform: 'translateX(-50%)'
-    }}>
-      
-      {/* Lesson node container */}
-      <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
-        
-        {/* Current lesson shadow highlight */}
-        {isCurrent && (
-          <div className="absolute top-10 left-10 w-20 h-20 rounded-full shadow-[0_0_40px_rgba(99,102,241,0.6)] blur-sm"></div>
-        )}
-        
-        {/* Enhanced 3D lesson orb */}
-        <div className={`relative
-          w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-300
-          ${isCompleted 
-            ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
-            : isCurrent 
-            ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
-            : unlocked 
-            ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
-            : 'bg-indigo-300 text-indigo-100 border-[3px] border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400'}
-        `}>
-          
-          {/* Icon */}
-          <div className="relative z-20">
-            {isCompleted ? <CheckCircle2 className="w-8 h-8" /> : unlocked ? <Icon className="w-8 h-8" /> : <Lock className="w-8 h-8" />}
-          </div>
-        </div>
-        
-        {/* Lesson title */}
-        <div className="mt-3 text-center">
-          <p className="text-xs font-medium text-foreground leading-tight max-w-[120px]">
-            {lesson.title}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-})}
+        {/* Lesson nodes with curved positioning */}
+        {lessons.map((lesson, index) => {
+        const Icon = getLessonIcon(lesson.lesson_type, index);
+        const isCompleted = isLessonCompleted(lesson.id);
+        const unlocked = isLessonUnlocked(index);
+        const isCurrent = isCurrentLesson(index);
+        const position = calculateZigzagPosition(index);
+        console.log(`Lesson ${lesson.title}:`, {
+          id: lesson.id,
+          isCompleted,
+          unlocked,
+          index
+        });
+        return <div key={lesson.id} className="absolute" style={{
+          left: `calc(50% + ${position.x}px)`,
+          top: `${80 + position.y}px`,
+          transform: 'translateX(-50%)'
+        }}>
+              
+              {/* Lesson node container */}
+              <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
+                
+                {/* Current lesson background indicator - only behind the node */}
+                {isCurrent && (
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-[2rem] bg-gradient-to-br from-primary/30 to-primary/20 border border-primary/40" style={{ zIndex: -1 }} />
+                )}
+                
+                {/* Enhanced 3D lesson orb */}
+                <div className={`
+                  relative w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-300
+                  ${isCompleted 
+                    ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
+                    : isCurrent 
+                      ? 'bg-gradient-to-br from-primary to-primary/80 text-white border-[3px] border-primary shadow-[0px_6px_0px_0px] shadow-primary/60' 
+                      : unlocked 
+                        ? 'bg-indigo-600 text-white border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700' 
+                        : 'bg-indigo-300 text-indigo-100 border-[3px] border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400'
+                  }
+                `}>
+                  
+                  {/* Icon */}
+                  <div className="relative z-20">
+                    {isCompleted ? <CheckCircle2 className="w-8 h-8" /> : unlocked ? <Icon className="w-8 h-8" /> : <Lock className="w-8 h-8" />}
+                  </div>
+                </div>
+                
+                {/* Lesson title */}
+                <div className="mt-3 text-center">
+                  <p className="text-xs font-medium text-foreground leading-tight max-w-[120px]">
+                    {lesson.title}
+                  </p>
+                </div>
+              </div>
+            </div>;
+      })}
         
 
       </div>
