@@ -215,7 +215,7 @@ const LearningPath = ({
       y
     };
   };
-  return <div className="relative px-4 py-8 bg-background">
+  return <div className="relative px-4 py-2 bg-background">
       {/* Curved learning path container */}
       <div className="relative w-full max-w-md mx-auto" style={{ minHeight: `${lessons.length * 140 + 400}px` }}>
       
@@ -302,22 +302,7 @@ const LearningPath = ({
             </div>;
       })}
         
-        {/* End celebration */}
-        {lessons.length > 0 && <div className="absolute flex flex-col items-center" style={{
-        left: '50%',
-        top: `${80 + lessons.length * 140 + 80}px`,
-        transform: 'translateX(-50%)'
-      }}>
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/40">
-              <span className="text-2xl">🏆</span>
-            </div>
-            <div className="mt-3 text-center">
-              <div className="bg-warning/10 border border-warning/20 rounded-lg px-4 py-2 shadow-lg">
-                <p className="text-sm font-bold text-warning-foreground">Поздравляем!</p>
-                <p className="text-xs text-muted-foreground">Курс завершен</p>
-              </div>
-            </div>
-          </div>}
+
       </div>
     </div>;
 };
