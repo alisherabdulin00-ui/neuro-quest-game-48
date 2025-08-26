@@ -291,9 +291,9 @@ const LearningPath = ({
               <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
                 
                 {/* Current lesson background indicator - only behind the node */}
-                {isCurrent && <div style={{
+                {isCurrent && <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-[2rem] bg-indigo-500/40" style={{
               zIndex: -1
-            }} className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-[2rem] bg-gradient-to-br from-primary/30 to-primary/20 " />}
+            }} />}
                 
                 {/* Enhanced 3D lesson orb */}
                 <div className={`
