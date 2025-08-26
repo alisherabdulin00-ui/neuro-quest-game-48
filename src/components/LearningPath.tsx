@@ -295,7 +295,7 @@ const LearningPath = ({
         });
         return <div key={lesson.id} className="absolute" style={{
           left: `calc(50% + ${position.x}px)`,
-          top: `${80 + position.y}px`,
+          top: `${40 + position.y}px`,
           transform: 'translateX(-50%)'
         }}>
               
