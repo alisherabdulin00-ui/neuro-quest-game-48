@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, User, Settings } from "lucide-react";
+import { 
+  CpuChipIcon, 
+  Bars3Icon, 
+  UserIcon, 
+  Cog6ToothIcon 
+} from "@heroicons/react/24/solid";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -20,7 +25,7 @@ const Navigation = () => {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <div className="p-2 bg-primary rounded-lg">
-              <Brain className="w-6 h-6 text-primary-foreground" />
+              <CpuChipIcon className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold text-foreground">Нейро-Квест</span>
           </div>
@@ -41,12 +46,12 @@ const Navigation = () => {
           {/* Right side */}
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="hidden md:flex">
-              <Settings className="w-5 h-5" />
+              <Cog6ToothIcon className="w-5 h-5" />
             </Button>
             
             <Button variant="game" className="hidden md:flex" asChild>
               <Link to="/auth">
-                <User className="w-4 h-4 mr-2" />
+                <UserIcon className="w-4 h-4 mr-2" />
                 Войти
               </Link>
             </Button>
@@ -62,7 +67,7 @@ const Navigation = () => {
               className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              <Menu className="w-5 h-5" />
+              <Bars3Icon className="w-5 h-5" />
             </Button>
           </div>
         </div>
@@ -84,12 +89,12 @@ const Navigation = () => {
               <div className="flex flex-col gap-2 pt-4 border-t border-border/50">
                 <Button variant="game" className="justify-start" asChild>
                   <Link to="/auth">
-                    <User className="w-4 h-4 mr-2" />
+                    <UserIcon className="w-4 h-4 mr-2" />
                     Войти
                   </Link>
                 </Button>
                 <Button variant="ghost" className="justify-start">
-                  <Settings className="w-4 h-4 mr-2" />
+                  <Cog6ToothIcon className="w-4 h-4 mr-2" />
                   Настройки
                 </Button>
               </div>

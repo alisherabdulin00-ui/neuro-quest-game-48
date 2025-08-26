@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Play, BookOpen, FileText, Video, CheckCircle2, Lock } from "lucide-react";
+import { 
+  PlayIcon, 
+  BookOpenIcon, 
+  DocumentTextIcon, 
+  VideoCameraIcon, 
+  CheckCircleIcon, 
+  LockClosedIcon 
+} from "@heroicons/react/24/solid";
 import { useToast } from "@/hooks/use-toast";
 interface Lesson {
   id: string;
@@ -168,16 +175,16 @@ const LearningPath = ({
     return isUnlocked && !isCompleted;
   };
   const getLessonIcon = (type: string, index: number) => {
-    if (index === 0) return Play;
+    if (index === 0) return PlayIcon;
     switch (type) {
       case 'video':
-        return Video;
+        return VideoCameraIcon;
       case 'reading':
-        return BookOpen;
+        return BookOpenIcon;
       case 'quiz':
-        return FileText;
+        return DocumentTextIcon;
       default:
-        return BookOpen;
+        return BookOpenIcon;
     }
   };
   const handleLessonClick = (lesson: Lesson, unlocked: boolean, isCompleted: boolean) => {
@@ -303,7 +310,7 @@ const LearningPath = ({
                   
                   {/* Icon */}
                   <div className="relative z-20">
-                    {isCompleted ? <CheckCircle2 className="w-8 h-8" /> : unlocked ? <Icon className="w-8 h-8" /> : <Lock className="w-8 h-8" />}
+                    {isCompleted ? <CheckCircleIcon className="w-8 h-8" /> : unlocked ? <Icon className="w-8 h-8" /> : <LockClosedIcon className="w-8 h-8" />}
                   </div>
                 </div>
                 

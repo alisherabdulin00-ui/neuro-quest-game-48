@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { BookOpen, Brain } from "lucide-react";
+import { BookOpenIcon, CpuChipIcon } from "@heroicons/react/24/solid";
 import { cn } from "@/lib/utils";
 
 const MobileBottomNav = () => {
@@ -7,12 +7,12 @@ const MobileBottomNav = () => {
     {
       name: "Обучение",
       href: "/dashboard",
-      icon: BookOpen,
+      icon: BookOpenIcon,
     },
     {
       name: "ИИ-инструменты",
       href: "/ai-tools",
-      icon: Brain,
+      icon: CpuChipIcon,
     },
   ];
 
