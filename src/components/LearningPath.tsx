@@ -162,7 +162,12 @@ const LearningPath = ({
     return completed;
   };
   const isLessonUnlocked = (lessonIndex: number) => {
-    if (lessonIndex === 0) return true; // First lesson is always unlocked
+    // Only unlock the very first lesson if it's the first lesson of the course
+    if (lessonIndex === 0) {
+      const currentLesson = lessons[0];
+      // Check if this is the first lesson of the first chapter (order_index 0)
+      return currentLesson?.order_index === 0;
+    }
     const previousLesson = lessons[lessonIndex - 1];
     const unlocked = previousLesson ? isLessonCompleted(previousLesson.id) : false;
     console.log(`Lesson at index ${lessonIndex} unlocked:`, unlocked);
