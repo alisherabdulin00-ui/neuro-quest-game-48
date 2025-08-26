@@ -231,7 +231,7 @@ const LearningPath = ({
   return <div className="relative px-4 py-2 bg-background">
       {/* Curved learning path container */}
       <div className="relative w-full max-w-md mx-auto" style={{
-      minHeight: `${lessons.length * 140 + 400}px`
+      minHeight: `${lessons.length * 140 + 50}px`
     }}>
       
 
