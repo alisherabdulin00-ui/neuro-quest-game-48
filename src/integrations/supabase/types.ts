@@ -134,6 +134,7 @@ export type Database = {
           id: string
           lesson_type: string
           order_index: number
+          points: number
           title: string
           updated_at: string
         }
@@ -145,6 +146,7 @@ export type Database = {
           id?: string
           lesson_type: string
           order_index: number
+          points?: number
           title: string
           updated_at?: string
         }
@@ -156,6 +158,7 @@ export type Database = {
           id?: string
           lesson_type?: string
           order_index?: number
+          points?: number
           title?: string
           updated_at?: string
         }
@@ -197,6 +200,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_points: {
+        Row: {
+          created_at: string
+          id: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           completed: boolean
@@ -204,6 +231,7 @@ export type Database = {
           created_at: string
           id: string
           lesson_id: string
+          points_earned: number
           progress_percentage: number
           updated_at: string
           user_id: string
@@ -214,6 +242,7 @@ export type Database = {
           created_at?: string
           id?: string
           lesson_id: string
+          points_earned?: number
           progress_percentage?: number
           updated_at?: string
           user_id: string
@@ -224,6 +253,7 @@ export type Database = {
           created_at?: string
           id?: string
           lesson_id?: string
+          points_earned?: number
           progress_percentage?: number
           updated_at?: string
           user_id?: string
