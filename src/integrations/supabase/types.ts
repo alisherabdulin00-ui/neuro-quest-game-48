@@ -92,6 +92,39 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_blocks: {
+        Row: {
+          block_type: string
+          content: Json
+          created_at: string
+          id: string
+          lesson_id: string
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          block_type: string
+          content: Json
+          created_at?: string
+          id?: string
+          lesson_id: string
+          order_index: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          block_type?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_content: {
         Row: {
           content: string

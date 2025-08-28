@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Clock, BookOpen, CheckCircle, Play, Video, FileText, Presentation } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, Heart, Zap, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
-import { VideoContent } from "@/components/LessonContent/VideoContent";
-import { SlidesContent } from "@/components/LessonContent/SlidesContent";
-import { QuizContent } from "@/components/LessonContent/QuizContent";
+import { BlockRenderer, LessonBlock } from "@/components/LessonBlocks";
 
 interface Lesson {
   id: string;
@@ -18,15 +15,6 @@ interface Lesson {
   description: string;
   order_index: number;
   duration_minutes: number;
-  lesson_type: string;
-}
-
-interface LessonContent {
-  id: string;
-  content_type: string;
-  title: string;
-  content: string;
-  order_index: number;
 }
 
 interface Course {
@@ -34,44 +22,17 @@ interface Course {
   title: string;
 }
 
-const getLessonTypeColor = (type: string) => {
-  switch (type) {
-    case "video": return "bg-red-100 text-red-700";
-    case "slides": return "bg-purple-100 text-purple-700";
-    case "quiz": return "bg-green-100 text-green-700";
-    case "reading": return "bg-blue-100 text-blue-700";
-    default: return "bg-muted text-muted-foreground";
-  }
-};
-
-const getLessonTypeName = (type: string) => {
-  switch (type) {
-    case "video": return "Видео";
-    case "slides": return "Слайды";
-    case "quiz": return "Тест";
-    case "reading": return "Чтение";
-    default: return type;
-  }
-};
-
-const getLessonTypeIcon = (type: string) => {
-  switch (type) {
-    case "video": return Video;
-    case "slides": return Presentation;
-    case "quiz": return FileText;
-    case "reading": return BookOpen;
-    default: return BookOpen;
-  }
-};
-
 const Lesson = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [course, setCourse] = useState<Course | null>(null);
-  const [lessonContent, setLessonContent] = useState<LessonContent[]>([]);
-  const [currentContentIndex, setCurrentContentIndex] = useState(0);
+  const [blocks, setBlocks] = useState<LessonBlock[]>([]);
+  const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hearts, setHearts] = useState(5);
+  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -107,15 +68,15 @@ const Lesson = () => {
         if (courseError) throw courseError;
         setCourse(courseData);
 
-        // Fetch lesson content
-        const { data: contentData, error: contentError } = await supabase
-          .from('lesson_content')
+        // Fetch lesson blocks
+        const { data: blocksData, error: blocksError } = await supabase
+          .from('lesson_blocks')
           .select('*')
           .eq('lesson_id', lessonId)
           .order('order_index');
 
-        if (contentError) throw contentError;
-        setLessonContent(contentData || []);
+        if (blocksError) throw blocksError;
+        setBlocks((blocksData || []) as LessonBlock[]);
       } catch (error) {
         console.error('Error fetching lesson data:', error);
       } finally {
@@ -126,18 +87,14 @@ const Lesson = () => {
     fetchLessonData();
   }, [lessonId]);
 
-  const currentContent = lessonContent[currentContentIndex];
-  const progress = lessonContent.length > 0 ? ((currentContentIndex + 1) / lessonContent.length) * 100 : 0;
+  const currentBlock = blocks[currentBlockIndex];
+  const progress = blocks.length > 0 ? ((currentBlockIndex + 1) / blocks.length) * 100 : 0;
 
   const handleNext = () => {
-    if (currentContentIndex < lessonContent.length - 1) {
-      setCurrentContentIndex(currentContentIndex + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentContentIndex > 0) {
-      setCurrentContentIndex(currentContentIndex - 1);
+    if (currentBlockIndex < blocks.length - 1) {
+      setCurrentBlockIndex(currentBlockIndex + 1);
+      // Award XP for completing a block
+      setXp(prev => prev + 10);
     }
   };
 
@@ -154,7 +111,7 @@ const Lesson = () => {
       // Save lesson completion progress
       const { error } = await supabase.functions.invoke('update-lesson-progress', {
         body: {
-          lessonId: lesson.id,
+          lessonId: lesson?.id,
           progressPercentage: 100,
           completed: true
         }
@@ -163,6 +120,10 @@ const Lesson = () => {
       if (error) {
         console.error('Error saving progress:', error);
       }
+
+      // Award completion XP and streak
+      setXp(prev => prev + 50);
+      setStreak(prev => prev + 1);
     } catch (error) {
       console.error('Error completing lesson:', error);
     } finally {
@@ -201,151 +162,73 @@ const Lesson = () => {
     );
   }
 
-  const isLastContent = currentContentIndex === lessonContent.length - 1;
+  const isLastBlock = currentBlockIndex === blocks.length - 1;
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
       <main className="max-w-4xl mx-auto px-6 py-20">
-        {/* Header */}
+        {/* Header with Duolingo-style UI */}
         <div className="mb-8">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/dashboard')}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад к обучению
-          </Button>
-
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold">{lesson.title}</h1>
-              <Badge className={getLessonTypeColor(lesson.lesson_type)}>
-                {getLessonTypeName(lesson.lesson_type)}
-              </Badge>
-            </div>
-            
-            <p className="text-lg text-muted-foreground mb-4">
-              {lesson.description}
-            </p>
-            
-            <div className="flex items-center gap-6 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                <span>Курс: {course.title}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                <span>{lesson.duration_minutes} минут</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Progress */}
-          <Card className="mb-8">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Прогресс урока</span>
-                <span className="text-sm text-muted-foreground">
-                  {currentContentIndex + 1} из {lessonContent.length}
-                </span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Content */}
-        <div className="mb-8">
-          {lesson.lesson_type === 'video' && lessonContent.length > 0 && (
-            <VideoContent 
-              videoUrl={lessonContent[0].content}
-              title={lessonContent[0].title}
-            />
-          )}
-
-          {lesson.lesson_type === 'slides' && (
-            <SlidesContent slides={lessonContent} />
-          )}
-
-          {lesson.lesson_type === 'quiz' && (
-            <QuizContent questions={lessonContent} />
-          )}
-
-          {lesson.lesson_type === 'reading' && currentContent && (
-            <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <BookOpen className="h-5 w-5" />
-                  {currentContent.title}
-                  <Badge className={getLessonTypeColor(lesson.lesson_type)}>
-                    {getLessonTypeName(lesson.lesson_type)}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="prose max-w-none">
-                <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                  {currentContent.content}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {!currentContent && lessonContent.length === 0 && (
-            <Card className="mb-8">
-              <CardContent className="p-12 text-center">
-                <h3 className="text-xl font-semibold mb-4">Контент урока пуст</h3>
-                <p className="text-muted-foreground">
-                  Этот урок еще не заполнен контентом.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Navigation - only show for reading lessons */}
-        {lesson.lesson_type === 'reading' && lessonContent.length > 1 && (
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-6">
             <Button 
-              variant="outline" 
-              onClick={handlePrevious}
-              disabled={currentContentIndex === 0}
+              variant="ghost" 
+              onClick={() => navigate('/dashboard')}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Назад
             </Button>
 
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Слайд {currentContentIndex + 1} из {lessonContent.length}
-              </p>
+            {/* Hearts, XP, Streak */}
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Heart className="w-5 h-5 text-red-500" fill="currentColor" />
+                <span className="font-bold text-red-500">{hearts}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-orange-500" />
+                <span className="font-bold text-orange-500">{xp}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Flame className="w-5 h-5 text-orange-600" />
+                <span className="font-bold text-orange-600">{streak}</span>
+              </div>
             </div>
-
-            {isLastContent ? (
-              <Button onClick={handleComplete}>
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Завершить урок
-              </Button>
-            ) : (
-              <Button onClick={handleNext}>
-                Далее
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
           </div>
-        )}
 
-        {/* Complete button for video, slides and quiz lessons */}
-        {(lesson.lesson_type === 'video' || lesson.lesson_type === 'slides' || lesson.lesson_type === 'quiz') && (
-          <div className="text-center">
-            <Button onClick={handleComplete} size="lg">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Завершить урок
-            </Button>
+          {/* Progress */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">{lesson?.title}</span>
+              <span className="text-sm text-muted-foreground">
+                {currentBlockIndex + 1} / {blocks.length}
+              </span>
+            </div>
+            <Progress value={progress} className="h-3" />
           </div>
-        )}
+        </div>
+
+        {/* Block Content */}
+        <div className="mb-8">
+          {currentBlock ? (
+            <BlockRenderer 
+              block={currentBlock}
+              onNext={handleNext}
+              onComplete={handleComplete}
+              isLastBlock={isLastBlock}
+            />
+          ) : blocks.length === 0 ? (
+            <Card className="mb-8">
+              <CardContent className="p-12 text-center">
+                <h3 className="text-xl font-semibold mb-4">Урок пуст</h3>
+                <p className="text-muted-foreground">
+                  Этот урок еще не содержит блоков.
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
       </main>
     </div>
   );
