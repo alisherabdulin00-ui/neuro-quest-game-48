@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, CheckCircle } from "lucide-react";
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 import { LessonBlock } from "./BlockRenderer";
 
 interface PracticeBlockProps {
@@ -46,7 +47,8 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
           {/* Question Header */}
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
-              ✨ ВОПРОС
+              <QuestionMarkCircleIcon className="w-4 h-4 mr-2 text-indigo-600" />
+              ВОПРОС
             </div>
             <h1 className="text-2xl font-bold text-gray-800 leading-tight">
               {data.question}
@@ -59,21 +61,21 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
               const isSelected = selectedAnswer === index;
               const isCorrectOption = index === data.correct;
               
-              let cardClasses = "w-full p-6 text-left rounded-2xl border-2 transition-all duration-200 font-medium text-lg";
+              let cardClasses = "w-full p-6 text-left rounded-2xl border-2 transition-all duration-200 font-medium text-lg cursor-pointer";
               
               if (showResult) {
                 if (isCorrectOption) {
-                  cardClasses += " border-green-500 bg-green-50 text-green-800 shadow-[0px_4px_0px_0px] shadow-green-200";
+                  cardClasses += " border-green-500 bg-green-50 text-green-800 shadow-[0px_4px_0px_0px] shadow-green-500";
                 } else if (isSelected && !isCorrectOption) {
-                  cardClasses += " border-red-500 bg-red-50 text-red-800 shadow-[0px_4px_0px_0px] shadow-red-200";
+                  cardClasses += " border-red-500 bg-red-50 text-red-800 shadow-[0px_4px_0px_0px] shadow-red-500";
                 } else {
-                  cardClasses += " border-gray-200 bg-gray-50 text-gray-500";
+                  cardClasses += " border-gray-200 bg-gray-50 text-gray-500 shadow-[0px_2px_0px_0px] shadow-gray-300";
                 }
               } else {
                 if (isSelected) {
-                  cardClasses += " border-indigo-500 bg-indigo-50 text-indigo-800 shadow-[0px_4px_0px_0px] shadow-indigo-200";
+                  cardClasses += " border-indigo-500 bg-indigo-50 text-indigo-800 shadow-[0px_4px_0px_0px] shadow-indigo-500";
                 } else {
-                  cardClasses += " border-gray-200 bg-white text-gray-800 hover:border-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-200 cursor-pointer";
+                  cardClasses += " border-gray-200 bg-white text-gray-800 hover:border-indigo-300 hover:shadow-[0px_4px_0px_0px] hover:shadow-indigo-200 active:shadow-[0px_2px_0px_0px] active:shadow-indigo-200 active:translate-y-[2px]";
                 }
               }
               
