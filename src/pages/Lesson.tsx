@@ -134,7 +134,7 @@ const Lesson = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
@@ -146,7 +146,7 @@ const Lesson = () => {
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Урок не найден</h1>
           <Button 
             onClick={() => navigate('/dashboard')} 
-            className="bg-green-500 hover:bg-green-600 text-white border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+            className="bg-indigo-500 hover:bg-indigo-600 text-white border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Вернуться к курсам
@@ -175,7 +175,7 @@ const Lesson = () => {
           <div className="flex-1 mx-4">
             <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
               <div 
-                className="h-full bg-green-500 transition-all duration-500 ease-out rounded-full"
+                className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-500 ease-out rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </div>

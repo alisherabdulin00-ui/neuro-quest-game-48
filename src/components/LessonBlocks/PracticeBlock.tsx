@@ -45,7 +45,7 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
         <div className="w-full max-h-full overflow-y-auto px-2">
           {/* Question Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
               ✨ ВОПРОС
             </div>
             <h1 className="text-2xl font-bold text-gray-800 leading-tight">
@@ -71,7 +71,7 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
                 }
               } else {
                 if (isSelected) {
-                  cardClasses += " border-blue-500 bg-blue-50 text-blue-800 shadow-[0px_4px_0px_0px] shadow-blue-200";
+                  cardClasses += " border-indigo-500 bg-indigo-50 text-indigo-800 shadow-[0px_4px_0px_0px] shadow-indigo-200";
                 } else {
                   cardClasses += " border-gray-200 bg-white text-gray-800 hover:border-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-200 cursor-pointer";
                 }
@@ -129,7 +129,7 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
           {isLastBlock ? (
             <Button 
               onClick={handleContinue} 
-              className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
             >
               <CheckCircle className="w-5 h-5 mr-2" />
               Завершить урок
@@ -137,7 +137,7 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
           ) : (
             <Button 
               onClick={handleContinue} 
-              className="bg-green-500 hover:bg-green-600 text-white px-16 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
             >
               Продолжить
             </Button>

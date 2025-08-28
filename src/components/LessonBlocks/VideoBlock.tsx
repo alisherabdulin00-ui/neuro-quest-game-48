@@ -33,7 +33,7 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
         <div className="w-full max-h-full overflow-y-auto px-2">
           {/* Video Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
               🎬 ВИДЕО
             </div>
             {data.title && (
@@ -70,7 +70,7 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
         {isLastBlock ? (
           <Button 
             onClick={handleContinue} 
-            className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+            className="bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
           >
             <CheckCircle className="w-5 h-5 mr-2" />
             Завершить урок
@@ -78,7 +78,7 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
         ) : (
           <Button 
             onClick={handleContinue} 
-            className="bg-green-500 hover:bg-green-600 text-white px-16 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+            className="bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
           >
             Продолжить
           </Button>

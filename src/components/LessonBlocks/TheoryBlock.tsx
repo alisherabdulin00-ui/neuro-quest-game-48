@@ -47,7 +47,7 @@ export const TheoryBlock = ({
                 </p>
                 {data.points && data.points.length > 0 && <ul className="space-y-3">
                     {data.points.map((point, idx) => <li key={idx} className="flex items-start text-base text-gray-700">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-3 mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 rounded-full bg-indigo-500 mr-3 mt-2 flex-shrink-0"></div>
                         {point}
                       </li>)}
                   </ul>}
@@ -73,7 +73,7 @@ export const TheoryBlock = ({
                 </p>
                 {data.points && data.points.length > 0 && <ul className="space-y-3">
                     {data.points.map((point, idx) => <li key={idx} className="flex items-start text-base text-gray-700">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-3 mt-2 flex-shrink-0"></div>
+                         <div className="w-2 h-2 rounded-full bg-indigo-500 mr-3 mt-2 flex-shrink-0"></div>
                         {point}
                       </li>)}
                   </ul>}
@@ -94,7 +94,7 @@ export const TheoryBlock = ({
             {data.points && data.points.length > 0 && <div className="space-y-4 text-left">
                 <ul className="space-y-4">
                   {data.points.map((point, idx) => <li key={idx} className="flex items-start text-base text-gray-700">
-                      <div className="w-2 h-2 rounded-full bg-green-500 mr-3 mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 rounded-full bg-indigo-500 mr-3 mt-2 flex-shrink-0"></div>
                       {point}
                     </li>)}
                 </ul>
@@ -112,10 +112,10 @@ export const TheoryBlock = ({
       
       {/* Bottom Button */}
       <div className="flex justify-center py-1">
-        {isLastBlock ? <Button onClick={onComplete} className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
+        {isLastBlock ? <Button onClick={onComplete} className="bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
             <CheckCircle className="w-5 h-5 mr-2" />
             Завершить урок
-          </Button> : <Button onClick={onNext} className="bg-indigo-500 hover:bg-green-600 text-white px-16 py-4 text-lg w-full font-bold border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl">
+          </Button> : <Button onClick={onNext} className="bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg w-full font-bold border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl">
             Продолжить
           </Button>}
       </div>
