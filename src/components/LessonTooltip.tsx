@@ -8,6 +8,7 @@ interface Lesson {
   order_index: number;
   duration_minutes: number;
   chapter_id: string;
+  points: number;
 }
 
 interface LessonTooltipProps {
@@ -46,10 +47,16 @@ const LessonTooltip = ({
               {lesson.title}
             </h3>
             
-            {/* Lesson progress indicator */}
-            <p className="text-sm text-gray-600">
-              Урок {lessonIndex + 1} из {totalLessons}
-            </p>
+            {/* Lesson progress and points */}
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">
+                Урок {lessonIndex + 1} из {totalLessons}
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-yellow-400"></div>
+                <span className="text-sm font-medium text-gray-700">+{lesson.points} очков</span>
+              </div>
+            </div>
             
             {/* Start button */}
             <Button 

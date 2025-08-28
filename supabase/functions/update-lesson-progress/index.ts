@@ -9,6 +9,7 @@ interface UpdateProgressRequest {
   lessonId: string;
   progressPercentage?: number;
   completed?: boolean;
+  pointsEarned?: number;
 }
 
 Deno.serve(async (req) => {
@@ -42,7 +43,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { lessonId, progressPercentage = 100, completed = true }: UpdateProgressRequest = await req.json();
+    const { lessonId, progressPercentage = 100, completed = true, pointsEarned = 0 }: UpdateProgressRequest = await req.json();
 
     if (!lessonId) {
       return new Response(
@@ -71,7 +72,8 @@ Deno.serve(async (req) => {
       progress_percentage: progressPercentage,
       completed,
       completed_at: completed ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      points_earned: pointsEarned
     };
 
     if (existingProgress) {
@@ -83,7 +85,8 @@ Deno.serve(async (req) => {
           progress_percentage: progressPercentage,
           completed,
           completed_at: completed ? new Date().toISOString() : null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          points_earned: pointsEarned
         })
         .eq('user_id', user.id)
         .eq('lesson_id', lessonId)

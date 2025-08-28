@@ -18,6 +18,7 @@ interface Lesson {
   order_index: number;
   duration_minutes: number;
   chapter_id: string;
+  points: number;
 }
 interface UserProgress {
   lesson_id: string;
@@ -66,7 +67,7 @@ const LearningPath = ({
       const {
         data,
         error
-      } = await supabase.from('lessons').select('*').eq('chapter_id', chapterId).order('order_index');
+      } = await supabase.from('lessons').select('id, title, lesson_type, order_index, duration_minutes, chapter_id, points').eq('chapter_id', chapterId).order('order_index');
       if (error) throw error;
       setLessons(data || []);
     } catch (error) {
@@ -112,6 +113,10 @@ const LearningPath = ({
         progressPercentage: 100,
         completed
       });
+      // Get lesson points for tracking
+      const lesson = lessons.find(l => l.id === lessonId);
+      const lessonPoints = lesson?.points || 0;
+
       const {
         data,
         error
@@ -119,7 +124,8 @@ const LearningPath = ({
         body: {
           lessonId,
           progressPercentage: 100,
-          completed
+          completed,
+          pointsEarned: completed ? lessonPoints : 0
         }
       });
       console.log('Edge function response:', {

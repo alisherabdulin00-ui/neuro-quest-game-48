@@ -13,6 +13,7 @@ import Navigation from "@/components/Navigation";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import LearningPath from "@/components/LearningPath";
 import NextCourseCard from "@/components/NextCourseCard";
+import UserPointsDisplay from "@/components/UserPointsDisplay";
 interface UserProfile {
   id: string;
   first_name?: string;
@@ -171,11 +172,14 @@ const Dashboard = () => {
           </svg>
         </button>
         
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{selectedCourse?.title || "Выберите курс"}</span>
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{selectedCourse?.title || "Выберите курс"}</span>
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
+          <UserPointsDisplay userId={user?.id} />
         </div>
         
         <button className="p-2" onClick={handleLogout}>
