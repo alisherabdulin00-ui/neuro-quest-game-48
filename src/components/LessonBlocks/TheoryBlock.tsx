@@ -83,7 +83,7 @@ export const TheoryBlock = ({
       default:
         // text-only
         return <div className="text-center space-y-8 max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">
+            <h1 className="text-2xl text-start font-bold text-gray-800 mb-8">
               {data.title}
             </h1>
             
@@ -104,7 +104,7 @@ export const TheoryBlock = ({
   };
   return <div className="h-full flex flex-col">
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center py-8 overflow-hidden">
+      <div className="flex-1 flex items-center justify-center py-2 overflow-hidden">
         <div className="w-full max-h-full overflow-y-auto">
           {renderContent()}
         </div>
