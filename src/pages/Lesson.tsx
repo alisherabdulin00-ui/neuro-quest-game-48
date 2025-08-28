@@ -159,9 +159,9 @@ const Lesson = () => {
   const isLastBlock = currentBlockIndex === blocks.length - 1;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
       {/* Duolingo-style Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 sticky top-0 z-50">
+      <div className="bg-white border-b border-gray-200 px-4 py-4 flex-shrink-0">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Button 
             variant="ghost" 
@@ -189,22 +189,26 @@ const Lesson = () => {
       </div>
 
       {/* Clean Lesson Content */}
-      <div className="max-w-2xl mx-auto px-6 py-8">
-        {currentBlock ? (
-          <BlockRenderer 
-            block={currentBlock}
-            onNext={handleNext}
-            onComplete={handleComplete}
-            isLastBlock={isLastBlock}
-          />
-        ) : blocks.length === 0 ? (
-          <div className="text-center py-16">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Урок пуст</h3>
-            <p className="text-gray-600">
-              Этот урок еще не содержит блоков.
-            </p>
-          </div>
-        ) : null}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="max-w-2xl mx-auto px-6 w-full h-full flex flex-col">
+          {currentBlock ? (
+            <BlockRenderer 
+              block={currentBlock}
+              onNext={handleNext}
+              onComplete={handleComplete}
+              isLastBlock={isLastBlock}
+            />
+          ) : blocks.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">Урок пуст</h3>
+                <p className="text-gray-600">
+                  Этот урок еще не содержит блоков.
+                </p>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

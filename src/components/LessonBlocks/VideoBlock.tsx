@@ -27,41 +27,46 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
   };
 
   return (
-    <div className="w-full space-y-12">
-      {/* Video Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-6">
-          🎬 ВИДЕО
-        </div>
-        {data.title && (
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            {data.title}
-          </h1>
-        )}
-        {data.description && (
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {data.description}
-          </p>
-        )}
-      </div>
+    <div className="h-full flex flex-col">
+      {/* Content */}
+      <div className="flex-1 flex flex-col justify-center overflow-hidden">
+        <div className="w-full max-h-full overflow-y-auto px-2">
+          {/* Video Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-6">
+              🎬 ВИДЕО
+            </div>
+            {data.title && (
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                {data.title}
+              </h1>
+            )}
+            {data.description && (
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                {data.description}
+              </p>
+            )}
+          </div>
 
-      {/* Video Container */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-2xl bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-gray-100">
-          <div className="aspect-video">
-            <iframe
-              src={data.videoUrl}
-              title={data.title || block.title}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+          {/* Video Container */}
+          <div className="flex justify-center">
+            <div className="w-full max-w-2xl bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-gray-100">
+              <div className="aspect-video">
+                <iframe
+                  src={data.videoUrl}
+                  title={data.title || block.title}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
       {/* Continue Button */}
-      <div className="flex justify-center pt-8">
+      <div className="flex justify-center py-6 flex-shrink-0">
         {isLastBlock ? (
           <Button 
             onClick={handleContinue} 

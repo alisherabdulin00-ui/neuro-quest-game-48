@@ -143,14 +143,16 @@ export const TheoryBlock = ({ block, onNext, isLastBlock, onComplete }: TheoryBl
   };
 
   return (
-    <div className="w-full space-y-12">
+    <div className="h-full flex flex-col">
       {/* Content */}
-      <div className="py-8">
-        {renderContent()}
+      <div className="flex-1 flex items-center justify-center py-8 overflow-hidden">
+        <div className="w-full max-h-full overflow-y-auto">
+          {renderContent()}
+        </div>
       </div>
       
       {/* Bottom Button */}
-      <div className="flex justify-center pt-8">
+      <div className="flex justify-center py-6 flex-shrink-0">
         {isLastBlock ? (
           <Button 
             onClick={onComplete} 
