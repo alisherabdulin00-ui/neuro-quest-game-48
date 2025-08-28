@@ -83,11 +83,11 @@ export const TheoryBlock = ({
       default:
         // text-only
         return <div className="text-center space-y-8 max-w-2xl mx-auto">
-            <h1 className="text-2xl text-start font-bold text-gray-800 mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-8">
               {data.title}
             </h1>
             
-            <p className="text-base text-gray-700 leading-relaxed mb-8 text-left">
+            <p className="text-lg text-gray-700 leading-relaxed mb-8 text-left">
               {data.content}
             </p>
             
@@ -104,18 +104,18 @@ export const TheoryBlock = ({
   };
   return <div className="h-full flex flex-col">
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center py-2 overflow-hidden">
+      <div className="flex-1 flex items-center justify-center py-8 overflow-hidden">
         <div className="w-full max-h-full overflow-y-auto">
           {renderContent()}
         </div>
       </div>
       
       {/* Bottom Button */}
-      <div className="flex justify-center py-6 flex-shrink-0">
+      <div className="flex justify-center py-4 ">
         {isLastBlock ? <Button onClick={onComplete} className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
             <CheckCircle className="w-5 h-5 mr-2" />
             Завершить урок
-          </Button> : <Button onClick={onNext} className="bg-green-500 hover:bg-green-600 text-white px-16 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
+          </Button> : <Button onClick={onNext} className="bg-indigo-500 hover:bg-green-600 text-white px-16 py-4 text-lg w-full font-bold border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl">
             Продолжить
           </Button>}
       </div>
