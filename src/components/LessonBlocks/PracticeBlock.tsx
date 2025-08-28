@@ -75,7 +75,7 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
                 if (isSelected) {
                   cardClasses += " border-indigo-500 bg-indigo-50 text-indigo-800 shadow-[0px_4px_0px_0px] shadow-indigo-500";
                 } else {
-                  cardClasses += " border-gray-200 bg-white text-gray-800 hover:border-indigo-300 hover:shadow-[0px_4px_0px_0px] hover:shadow-indigo-200 active:shadow-[0px_2px_0px_0px] active:shadow-indigo-200 active:translate-y-[2px]";
+                  cardClasses += " border-gray-200 bg-white text-gray-800 shadow-[0px_4px_0px_0px] shadow-gray-200 hover:border-indigo-300 hover:shadow-[0px_4px_0px_0px] hover:shadow-indigo-200 active:shadow-[0px_2px_0px_0px] active:shadow-indigo-200 active:translate-y-[2px]";
                 }
               }
               
