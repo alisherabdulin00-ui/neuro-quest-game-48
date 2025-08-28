@@ -141,9 +141,33 @@ const Lesson = () => {
     }
   };
 
-  const handleComplete = () => {
-    // В будущем здесь можно добавить логику сохранения прогресса
-    navigate('/dashboard');
+  const handleComplete = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Navigate without saving progress if not logged in
+        navigate('/dashboard');
+        return;
+      }
+
+      // Save lesson completion progress
+      const { error } = await supabase.functions.invoke('update-lesson-progress', {
+        body: {
+          lessonId: lesson.id,
+          progressPercentage: 100,
+          completed: true
+        }
+      });
+
+      if (error) {
+        console.error('Error saving progress:', error);
+      }
+    } catch (error) {
+      console.error('Error completing lesson:', error);
+    } finally {
+      navigate('/dashboard');
+    }
   };
 
   if (loading) {

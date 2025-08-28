@@ -194,13 +194,8 @@ const LearningPath = ({
   };
   const handleLessonClick = (lesson: Lesson, unlocked: boolean, isCompleted: boolean) => {
     if (unlocked) {
-      if (!isCompleted && user) {
-        // If lesson is not completed and user is logged in, mark as complete
-        updateLessonProgress(lesson.id);
-      } else {
-        // Otherwise navigate to lesson
-        navigate(`/lesson/${lesson.id}`);
-      }
+      // Always navigate to lesson
+      navigate(`/lesson/${lesson.id}`);
     }
   };
   if (loading) {
