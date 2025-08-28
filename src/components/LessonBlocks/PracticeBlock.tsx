@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, ArrowRight, CheckCircle } from "lucide-react";
+import { CheckCircle2, XCircle, CheckCircle } from "lucide-react";
 import { LessonBlock } from "./BlockRenderer";
 
 interface PracticeBlockProps {
@@ -40,96 +39,102 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-8">
-      <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5">
-        <CardContent className="p-8">
-          {/* Question */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">
-              {data.question}
-            </h2>
-            
-            <div className="space-y-3">
-              {data.options.map((option, index) => {
-                const isSelected = selectedAnswer === index;
-                const isCorrectOption = index === data.correct;
-                
-                let buttonStyle = "border-2 text-left h-auto p-4 justify-start hover:scale-105 transition-all duration-200";
-                
-                if (showResult) {
-                  if (isCorrectOption) {
-                    buttonStyle += " border-green-500 bg-green-50 text-green-700";
-                  } else if (isSelected && !isCorrectOption) {
-                    buttonStyle += " border-red-500 bg-red-50 text-red-700";
-                  } else {
-                    buttonStyle += " border-muted bg-muted/30 text-muted-foreground";
-                  }
-                } else {
-                  buttonStyle += isSelected 
-                    ? " border-primary bg-primary/10 text-primary" 
-                    : " border-muted hover:border-primary/50";
-                }
-                
-                return (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    className={buttonStyle}
-                    onClick={() => handleAnswerSelect(index)}
-                    disabled={showResult}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span>{option}</span>
-                      {showResult && (
-                        <div className="ml-2">
-                          {isCorrectOption ? (
-                            <CheckCircle2 className="w-5 h-5 text-green-600" />
-                          ) : isSelected ? (
-                            <XCircle className="w-5 h-5 text-red-600" />
-                          ) : null}
-                        </div>
-                      )}
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
+    <div className="w-full space-y-12">
+      {/* Question Header */}
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6">
+          ✨ ВОПРОС
+        </div>
+        <h1 className="text-2xl font-bold text-gray-800 leading-tight">
+          {data.question}
+        </h1>
+      </div>
 
-          {/* Feedback */}
-          {showResult && (
-            <div className="mb-6 p-4 rounded-lg bg-background/50">
-              <div className="flex items-center space-x-2 mb-2">
-                {isCorrect ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-red-600" />
+      {/* Answer Options */}
+      <div className="space-y-4">
+        {data.options.map((option, index) => {
+          const isSelected = selectedAnswer === index;
+          const isCorrectOption = index === data.correct;
+          
+          let cardClasses = "w-full p-6 text-left rounded-2xl border-2 transition-all duration-200 font-medium text-lg";
+          
+          if (showResult) {
+            if (isCorrectOption) {
+              cardClasses += " border-green-500 bg-green-50 text-green-800 shadow-[0px_4px_0px_0px] shadow-green-200";
+            } else if (isSelected && !isCorrectOption) {
+              cardClasses += " border-red-500 bg-red-50 text-red-800 shadow-[0px_4px_0px_0px] shadow-red-200";
+            } else {
+              cardClasses += " border-gray-200 bg-gray-50 text-gray-500";
+            }
+          } else {
+            if (isSelected) {
+              cardClasses += " border-blue-500 bg-blue-50 text-blue-800 shadow-[0px_4px_0px_0px] shadow-blue-200";
+            } else {
+              cardClasses += " border-gray-200 bg-white text-gray-800 hover:border-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-200 cursor-pointer";
+            }
+          }
+          
+          return (
+            <div
+              key={index}
+              className={cardClasses}
+              onClick={() => handleAnswerSelect(index)}
+            >
+              <div className="flex items-center justify-between">
+                <span>{option}</span>
+                {showResult && (
+                  <div className="ml-4">
+                    {isCorrectOption ? (
+                      <CheckCircle2 className="w-6 h-6 text-green-600" />
+                    ) : isSelected ? (
+                      <XCircle className="w-6 h-6 text-red-600" />
+                    ) : null}
+                  </div>
                 )}
-                <span className={`font-semibold ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                  {isCorrect ? 'Правильно!' : 'Неправильно'}
-                </span>
               </div>
-              {data.explanation && (
-                <p className="text-sm text-muted-foreground">
-                  {data.explanation}
-                </p>
-              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
-      
+          );
+        })}
+      </div>
+
+      {/* Feedback */}
       {showResult && (
-        <div className="flex justify-center">
+        <div className={`p-6 rounded-2xl ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}>
+          <div className="flex items-center space-x-3 mb-3">
+            {isCorrect ? (
+              <CheckCircle2 className="w-6 h-6 text-green-600" />
+            ) : (
+              <XCircle className="w-6 h-6 text-red-600" />
+            )}
+            <span className={`font-bold text-lg ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+              {isCorrect ? 'Отлично!' : 'Попробуйте еще раз!'}
+            </span>
+          </div>
+          {data.explanation && (
+            <p className={`text-base ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+              {data.explanation}
+            </p>
+          )}
+        </div>
+      )}
+      
+      {/* Continue Button */}
+      {showResult && (
+        <div className="flex justify-center pt-4">
           {isLastBlock ? (
-            <Button onClick={handleContinue} size="lg">
-              <CheckCircle className="w-4 h-4 mr-2" />
+            <Button 
+              onClick={handleContinue} 
+              className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+            >
+              <CheckCircle className="w-5 h-5 mr-2" />
               Завершить урок
             </Button>
           ) : (
-            <Button onClick={handleContinue} size="lg">
-              Далее
-              <ArrowRight className="w-4 h-4 ml-2" />
+            <Button 
+              onClick={handleContinue} 
+              className="bg-green-500 hover:bg-green-600 text-white px-16 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+            >
+              Продолжить
             </Button>
           )}
         </div>

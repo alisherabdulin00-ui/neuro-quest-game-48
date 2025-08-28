@@ -133,30 +133,24 @@ const Lesson = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <Navigation />
-        <div className="max-w-4xl mx-auto px-6 py-20">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Загружаем урок...</p>
-          </div>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
       </div>
     );
   }
 
   if (!lesson || !course) {
     return (
-      <div className="min-h-screen">
-        <Navigation />
-        <div className="max-w-4xl mx-auto px-6 py-20">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Урок не найден</h1>
-            <Button onClick={() => navigate('/')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Вернуться на главную
-            </Button>
-          </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Урок не найден</h1>
+          <Button 
+            onClick={() => navigate('/dashboard')} 
+            className="bg-green-500 hover:bg-green-600 text-white border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Вернуться к курсам
+          </Button>
         </div>
       </div>
     );
@@ -165,71 +159,53 @@ const Lesson = () => {
   const isLastBlock = currentBlockIndex === blocks.length - 1;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <main className="max-w-4xl mx-auto px-6 py-20">
-        {/* Header with Duolingo-style UI */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/dashboard')}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад
-            </Button>
-
-            {/* Hearts, XP, Streak */}
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-red-500" fill="currentColor" />
-                <span className="font-bold text-red-500">{hearts}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-orange-500" />
-                <span className="font-bold text-orange-500">{xp}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Flame className="w-5 h-5 text-orange-600" />
-                <span className="font-bold text-orange-600">{streak}</span>
-              </div>
+    <div className="min-h-screen bg-white">
+      {/* Duolingo-style Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-4 sticky top-0 z-50">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/dashboard')}
+            className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-2 h-auto"
+          >
+            ✕
+          </Button>
+          
+          <div className="flex-1 mx-4">
+            <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
+              <div 
+                className="h-full bg-green-500 transition-all duration-500 ease-out rounded-full"
+                style={{ width: `${progress}%` }}
+              />
             </div>
           </div>
-
-          {/* Progress */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">{lesson?.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {currentBlockIndex + 1} / {blocks.length}
-              </span>
-            </div>
-            <Progress value={progress} className="h-3" />
+          
+          <div className="flex items-center space-x-1">
+            <Heart className="w-6 h-6 text-pink-500 fill-current" />
+            <span className="font-bold text-pink-500 text-lg">{hearts}</span>
           </div>
         </div>
+      </div>
 
-        {/* Block Content */}
-        <div className="mb-8">
-          {currentBlock ? (
-            <BlockRenderer 
-              block={currentBlock}
-              onNext={handleNext}
-              onComplete={handleComplete}
-              isLastBlock={isLastBlock}
-            />
-          ) : blocks.length === 0 ? (
-            <Card className="mb-8">
-              <CardContent className="p-12 text-center">
-                <h3 className="text-xl font-semibold mb-4">Урок пуст</h3>
-                <p className="text-muted-foreground">
-                  Этот урок еще не содержит блоков.
-                </p>
-              </CardContent>
-            </Card>
-          ) : null}
-        </div>
-      </main>
+      {/* Clean Lesson Content */}
+      <div className="max-w-2xl mx-auto px-6 py-8">
+        {currentBlock ? (
+          <BlockRenderer 
+            block={currentBlock}
+            onNext={handleNext}
+            onComplete={handleComplete}
+            isLastBlock={isLastBlock}
+          />
+        ) : blocks.length === 0 ? (
+          <div className="text-center py-16">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">Урок пуст</h3>
+            <p className="text-gray-600">
+              Этот урок еще не содержит блоков.
+            </p>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };

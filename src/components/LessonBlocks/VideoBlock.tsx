@@ -1,6 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { LessonBlock } from "./BlockRenderer";
 
 interface VideoBlockProps {
@@ -28,23 +27,28 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
-      <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5">
-        <CardContent className="p-8">
-          {data.title && (
-            <div className="mb-6 text-center">
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                {data.title}
-              </h2>
-              {data.description && (
-                <p className="text-muted-foreground">
-                  {data.description}
-                </p>
-              )}
-            </div>
-          )}
-          
-          <div className="aspect-[9/16] max-h-[70vh] mx-auto bg-background rounded-xl overflow-hidden shadow-lg">
+    <div className="w-full space-y-12">
+      {/* Video Header */}
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-6">
+          🎬 ВИДЕО
+        </div>
+        {data.title && (
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            {data.title}
+          </h1>
+        )}
+        {data.description && (
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            {data.description}
+          </p>
+        )}
+      </div>
+
+      {/* Video Container */}
+      <div className="flex justify-center">
+        <div className="w-full max-w-2xl bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-gray-100">
+          <div className="aspect-video">
             <iframe
               src={data.videoUrl}
               title={data.title || block.title}
@@ -53,19 +57,25 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
               allowFullScreen
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
-      <div className="flex justify-center">
+      {/* Continue Button */}
+      <div className="flex justify-center pt-8">
         {isLastBlock ? (
-          <Button onClick={handleContinue} size="lg">
-            <CheckCircle className="w-4 h-4 mr-2" />
+          <Button 
+            onClick={handleContinue} 
+            className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+          >
+            <CheckCircle className="w-5 h-5 mr-2" />
             Завершить урок
           </Button>
         ) : (
-          <Button onClick={handleContinue} size="lg">
-            Далее
-            <ArrowRight className="w-4 h-4 ml-2" />
+          <Button 
+            onClick={handleContinue} 
+            className="bg-green-500 hover:bg-green-600 text-white px-16 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+          >
+            Продолжить
           </Button>
         )}
       </div>
