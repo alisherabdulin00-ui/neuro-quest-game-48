@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { CheckCircle, BookOpen } from "lucide-react";
+import { CheckCircle } from "lucide-react";
+import { BookOpenIcon } from "@heroicons/react/24/solid";
 import { LessonBlock } from "./BlockRenderer";
 interface TheoryBlockProps {
   block: LessonBlock;
@@ -28,7 +29,7 @@ export const TheoryBlock = ({
       case 'image-only':
         return <div className="text-center space-y-6">
             <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
-              <BookOpen className="w-4 h-4 mr-2 text-indigo-600" />
+              <BookOpenIcon className="w-4 h-4 mr-2 text-indigo-600" />
               ТЕОРИЯ
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
@@ -42,7 +43,7 @@ export const TheoryBlock = ({
         return <div className="space-y-2 mt-2">
             <div className="text-center mb-4">
               <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
-                <BookOpen className="w-4 h-4 mr-2 text-indigo-600" />
+                <BookOpenIcon className="w-4 h-4 mr-2 text-indigo-600" />
                 ТЕОРИЯ
               </div>
             </div>
@@ -71,7 +72,7 @@ export const TheoryBlock = ({
         return <div className="space-y-6">
             <div className="text-center mb-4">
               <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
-                <BookOpen className="w-4 h-4 mr-2 text-indigo-600" />
+                <BookOpenIcon className="w-4 h-4 mr-2 text-indigo-600" />
                 ТЕОРИЯ
               </div>
             </div>
@@ -100,7 +101,7 @@ export const TheoryBlock = ({
         // text-only
         return <div className="text-center space-y-6 max-w-2xl mx-auto">
             <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
-              <BookOpen className="w-4 h-4 mr-2 text-indigo-600" />
+              <BookOpenIcon className="w-4 h-4 mr-2 text-indigo-600" />
               ТЕОРИЯ
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
