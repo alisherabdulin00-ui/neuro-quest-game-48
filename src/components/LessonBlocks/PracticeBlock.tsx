@@ -44,8 +44,8 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
       <div className="flex-1 flex flex-col justify-center overflow-hidden">
         <div className="w-full max-h-full overflow-y-auto px-2">
           {/* Question Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
               ✨ ВОПРОС
             </div>
             <h1 className="text-2xl font-bold text-gray-800 leading-tight">
@@ -54,7 +54,7 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
           </div>
 
           {/* Answer Options */}
-          <div className="space-y-4 mb-8">
+          <div className="space-y-3 mb-6">
             {data.options.map((option, index) => {
               const isSelected = selectedAnswer === index;
               const isCorrectOption = index === data.correct;
@@ -125,7 +125,7 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
       
       {/* Continue Button */}
       {showResult && (
-        <div className="flex justify-center py-6 flex-shrink-0">
+        <div className="flex justify-center py-4 flex-shrink-0">
           {isLastBlock ? (
             <Button 
               onClick={handleContinue} 

@@ -161,7 +161,7 @@ const Lesson = () => {
   return (
     <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
       {/* Duolingo-style Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 flex-shrink-0">
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Button 
             variant="ghost" 
