@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Trophy, Clock, Target, Play, CheckCircle2, User, LogOut } from "lucide-react";
 import Navigation from "@/components/Navigation";
@@ -165,20 +167,28 @@ const Dashboard = () => {
   const selectedCourse = courses.find(course => course.id === selectedCourseId);
   return <div className="min-h-screen bg-background">
       {/* Mobile Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <button className="p-2">
-          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-        
+      <div className="flex items-center justify-between p-4 border-b bg-background">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">{selectedCourse?.title || "Выберите курс"}</span>
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <span className="font-medium text-foreground">{selectedCourse?.title || "Выберите курс"}</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64 bg-background border border-border shadow-lg z-50">
+              {courses.map(course => (
+                <DropdownMenuItem 
+                  key={course.id} 
+                  onClick={() => setSelectedCourseId(course.id)}
+                  className="p-3 cursor-pointer hover:bg-muted focus:bg-muted"
+                >
+                  <div>
+                    <div className="font-medium text-foreground">{course.title}</div>
+                    <div className="text-sm text-muted-foreground">{course.description}</div>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <UserPointsDisplay userId={user?.id} />
         </div>
         
@@ -191,19 +201,6 @@ const Dashboard = () => {
       </div>
 
       <main className="pb-20">
-        {/* Course Selection */}
-        <div className="p-4">
-          <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Выберите курс" />
-            </SelectTrigger>
-            <SelectContent>
-              {courses.map(course => <SelectItem key={course.id} value={course.id}>
-                  {course.title}
-                </SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Course Badges */}
         {selectedCourse?.badges && selectedCourse.badges.length > 0 && (
