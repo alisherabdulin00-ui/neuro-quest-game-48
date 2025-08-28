@@ -87,7 +87,7 @@ export const TheoryBlock = ({
               {data.title}
             </h1>
             
-            <p className="text-lg text-gray-700 leading-relaxed mb-8 text-left">
+            <p className="text-base text-gray-700 leading-relaxed mb-8 text-left">
               {data.content}
             </p>
             
