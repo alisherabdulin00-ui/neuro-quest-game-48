@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { lessonId, progressPercentage = 100, completed = true, pointsEarned = 0 }: UpdateProgressRequest = await req.json();
+    const { lessonId, progressPercentage = 100, completed = true }: UpdateProgressRequest = await req.json();
 
     if (!lessonId) {
       return new Response(
@@ -56,6 +56,27 @@ Deno.serve(async (req) => {
     }
 
     console.log(`Updating progress for user ${user.id}, lesson ${lessonId}`);
+
+    // Fetch lesson data to get points
+    const { data: lessonData, error: lessonError } = await supabaseClient
+      .from('lessons')
+      .select('points')
+      .eq('id', lessonId)
+      .single();
+
+    if (lessonError) {
+      console.error('Error fetching lesson data:', lessonError);
+      return new Response(
+        JSON.stringify({ error: 'Lesson not found' }),
+        { 
+          status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const pointsEarned = completed ? lessonData.points : 0;
+    console.log(`Lesson points: ${lessonData.points}, will earn: ${pointsEarned}`);
 
     // Check if progress record already exists
     const { data: existingProgress, error: fetchError } = await supabaseClient
