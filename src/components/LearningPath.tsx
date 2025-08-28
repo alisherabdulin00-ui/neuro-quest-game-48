@@ -10,6 +10,7 @@ import {
   LockClosedIcon 
 } from "@heroicons/react/24/solid";
 import { useToast } from "@/hooks/use-toast";
+import LessonTooltip from "./LessonTooltip";
 interface Lesson {
   id: string;
   title: string;
@@ -34,6 +35,7 @@ const LearningPath = ({
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const navigate = useNavigate();
   const {
     toast
@@ -194,9 +196,14 @@ const LearningPath = ({
   };
   const handleLessonClick = (lesson: Lesson, unlocked: boolean, isCompleted: boolean) => {
     if (unlocked) {
-      // Always navigate to lesson
-      navigate(`/lesson/${lesson.id}`);
+      // Show tooltip instead of navigating immediately
+      setActiveTooltip(activeTooltip === lesson.id ? null : lesson.id);
     }
+  };
+
+  const handleStartLesson = (lessonId: string) => {
+    setActiveTooltip(null);
+    navigate(`/lesson/${lessonId}`);
   };
   if (loading) {
     return <div className="flex justify-center py-8">
@@ -295,7 +302,15 @@ const LearningPath = ({
         }}>
               
               {/* Lesson node container */}
-              <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
+              <LessonTooltip
+                lesson={lesson}
+                lessonIndex={index}
+                totalLessons={lessons.length}
+                onStart={() => handleStartLesson(lesson.id)}
+                open={activeTooltip === lesson.id}
+                onOpenChange={(open) => setActiveTooltip(open ? lesson.id : null)}
+              >
+                <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
                 
               
                 
@@ -317,7 +332,8 @@ const LearningPath = ({
                     {lesson.title}
                   </p>
                 </div>
-              </div>
+                </div>
+              </LessonTooltip>
             </div>;
       })}
         
