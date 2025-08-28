@@ -27,6 +27,9 @@ export const TheoryBlock = ({
     switch (layout) {
       case 'image-only':
         return <div className="text-center space-y-8">
+            <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
+              📚 ТЕОРИЯ
+            </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-8">
               {data.title}
             </h1>
@@ -36,6 +39,11 @@ export const TheoryBlock = ({
           </div>;
       case 'text-image':
         return <div className="space-y-3 mt-2">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
+                📚 ТЕОРИЯ
+              </div>
+            </div>
             <h1 className="text-2xl font-bold text-gray-800 text-center text-start">
               {data.title}
             </h1>
@@ -47,7 +55,7 @@ export const TheoryBlock = ({
                 </p>
                 {data.points && data.points.length > 0 && <ul className="space-y-3">
                     {data.points.map((point, idx) => <li key={idx} className="flex items-start text-base text-gray-700">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-3 mt-2 flex-shrink-0"></div>
+                         <div className="w-2 h-2 rounded-full bg-indigo-500 mr-3 mt-2 flex-shrink-0"></div>
                         {point}
                       </li>)}
                   </ul>}
@@ -59,6 +67,11 @@ export const TheoryBlock = ({
           </div>;
       case 'image-text':
         return <div className="space-y-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
+                📚 ТЕОРИЯ
+              </div>
+            </div>
             <h1 className="text-3xl font-bold text-gray-800 text-center">
               {data.title}
             </h1>
@@ -73,7 +86,7 @@ export const TheoryBlock = ({
                 </p>
                 {data.points && data.points.length > 0 && <ul className="space-y-3">
                     {data.points.map((point, idx) => <li key={idx} className="flex items-start text-base text-gray-700">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-3 mt-2 flex-shrink-0"></div>
+                         <div className="w-2 h-2 rounded-full bg-indigo-500 mr-3 mt-2 flex-shrink-0"></div>
                         {point}
                       </li>)}
                   </ul>}
@@ -83,6 +96,9 @@ export const TheoryBlock = ({
       default:
         // text-only
         return <div className="text-center space-y-8 max-w-2xl mx-auto">
+            <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-6">
+              📚 ТЕОРИЯ
+            </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-8">
               {data.title}
             </h1>
@@ -94,7 +110,7 @@ export const TheoryBlock = ({
             {data.points && data.points.length > 0 && <div className="space-y-4 text-left">
                 <ul className="space-y-4">
                   {data.points.map((point, idx) => <li key={idx} className="flex items-start text-base text-gray-700">
-                      <div className="w-2 h-2 rounded-full bg-green-500 mr-3 mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 rounded-full bg-indigo-500 mr-3 mt-2 flex-shrink-0"></div>
                       {point}
                     </li>)}
                 </ul>
@@ -112,10 +128,10 @@ export const TheoryBlock = ({
       
       {/* Bottom Button */}
       <div className="flex justify-center py-4 ">
-        {isLastBlock ? <Button onClick={onComplete} className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
+        {isLastBlock ? <Button onClick={onComplete} className="bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
             <CheckCircle className="w-5 h-5 mr-2" />
             Завершить урок
-          </Button> : <Button onClick={onNext} className="bg-indigo-500 hover:bg-green-600 text-white px-16 py-4 text-lg w-full font-bold border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl">
+          </Button> : <Button onClick={onNext} className="bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg w-full font-bold border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl">
             Продолжить
           </Button>}
       </div>
