@@ -126,13 +126,13 @@ export const TheoryBlock = ({
    return <div className="h-full flex flex-col">
       {/* Content */}
       <div className="flex-1 flex items-center justify-center py-4 overflow-hidden">
-        <div className="w-full max-h-full overflow-y-auto">
+        <div className="w-full max-h-full overflow-y-auto px-6">
           {renderContent()}
         </div>
       </div>
       
       {/* Bottom Button */}
-      <div className="flex justify-center py-3">
+      <div className="flex justify-center py-3 px-6">
         {isLastBlock ? <Button onClick={onComplete} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
             <CheckCircle className="w-5 h-5 mr-2" />
             Завершить урок

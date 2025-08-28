@@ -30,7 +30,7 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
     <div className="h-full flex flex-col">
       {/* Content */}
       <div className="flex-1 flex flex-col justify-center overflow-hidden">
-        <div className="w-full max-h-full overflow-y-auto px-2">
+        <div className="w-full max-h-full overflow-y-auto px-6">
           {/* Video Header */}
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
@@ -66,7 +66,7 @@ export const VideoBlock = ({ block, onNext, isLastBlock, onComplete }: VideoBloc
       </div>
       
       {/* Continue Button */}
-      <div className="flex justify-center py-4 flex-shrink-0">
+      <div className="flex justify-center py-4 px-6 flex-shrink-0">
         {isLastBlock ? (
           <Button 
             onClick={handleContinue} 
