@@ -104,18 +104,18 @@ export const TheoryBlock = ({
   };
   return <div className="h-full flex flex-col">
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center py-8 overflow-hidden">
+      <div className="flex-1 flex items-center justify-center py-0 overflow-hidden">
         <div className="w-full max-h-full overflow-y-auto">
           {renderContent()}
         </div>
       </div>
       
       {/* Bottom Button */}
-      <div className="flex justify-center py-4">
+      <div className="flex justify-center py-1">
         {isLastBlock ? <Button onClick={onComplete} className="bg-green-500 hover:bg-green-600 text-white px-12 py-4 text-lg font-bold rounded-2xl border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
             <CheckCircle className="w-5 h-5 mr-2" />
             Завершить урок
-          </Button> : <Button onClick={onNext} className="bg-indigo-600 hover:bg-indigo-700 text-white px-16 py-4 text-lg w-full font-bold border-none shadow-[0px_4px_0px_0px] shadow-indigo-700 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-700 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-700 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl">
+          </Button> : <Button onClick={onNext} className="bg-indigo-500 hover:bg-green-600 text-white px-16 py-4 text-lg w-full font-bold border-none shadow-[0px_4px_0px_0px] shadow-green-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-green-600 active:shadow-[0px_0px_0px_0px] active:shadow-green-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl">
             Продолжить
           </Button>}
       </div>
