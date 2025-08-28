@@ -125,44 +125,6 @@ export type Database = {
         }
         Relationships: []
       }
-      lesson_content: {
-        Row: {
-          content: string
-          content_type: string
-          created_at: string
-          id: string
-          lesson_id: string
-          order_index: number
-          title: string
-        }
-        Insert: {
-          content: string
-          content_type: string
-          created_at?: string
-          id?: string
-          lesson_id: string
-          order_index: number
-          title: string
-        }
-        Update: {
-          content?: string
-          content_type?: string
-          created_at?: string
-          id?: string
-          lesson_id?: string
-          order_index?: number
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lesson_content_lesson_id_fkey"
-            columns: ["lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       lessons: {
         Row: {
           chapter_id: string
