@@ -1,48 +1,58 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Brain, Sparkles, MessageSquare, FileText, Image, Code } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Brain, Bot, Send, Loader2 } from "lucide-react";
+import { useState } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
 const AITools = () => {
-  const aiTools = [
-    {
-      id: "chat-assistant",
-      name: "ИИ-Ассистент",
-      description: "Персональный помощник для ответов на вопросы по обучению",
-      icon: MessageSquare,
-      color: "bg-blue-500",
-      status: "Доступно",
-      features: ["Ответы на вопросы", "Объяснения концепций", "Помощь с заданиями"]
-    },
-    {
-      id: "code-generator",
-      name: "Генератор кода",
-      description: "Создание и объяснение кода на разных языках программирования",
-      icon: Code,
-      color: "bg-green-500",
-      status: "Доступно",
-      features: ["Генерация кода", "Отладка", "Объяснения алгоритмов"]
-    },
-    {
-      id: "text-analyzer",
-      name: "Анализатор текста",
-      description: "Анализ и улучшение текстов, проверка грамматики",
-      icon: FileText,
-      color: "bg-purple-500",
-      status: "Скоро",
-      features: ["Проверка грамматики", "Стилистический анализ", "Рерайтинг"]
-    },
-    {
-      id: "image-generator",
-      name: "Генератор изображений",
-      description: "Создание изображений и диаграмм для обучения",
-      icon: Image,
-      color: "bg-orange-500",
-      status: "Скоро",
-      features: ["Создание диаграмм", "Иллюстрации", "Инфографика"]
-    }
+  const [prompt, setPrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState("gpt-5-2025-08-07");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [response, setResponse] = useState("");
+
+  const openAIModels = [
+    { value: "gpt-5-2025-08-07", label: "GPT-5 (флагманская модель)" },
+    { value: "gpt-5-mini-2025-08-07", label: "GPT-5 Mini (быстрая)" },
+    { value: "gpt-5-nano-2025-08-07", label: "GPT-5 Nano (очень быстрая)" },
+    { value: "gpt-4.1-2025-04-14", label: "GPT-4.1 (надежная)" },
+    { value: "o3-2025-04-16", label: "O3 (для сложных задач)" },
+    { value: "o4-mini-2025-04-16", label: "O4 Mini (быстрое мышление)" }
   ];
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsGenerating(true);
+    setResponse("");
+    
+    try {
+      const result = await fetch('/api/generate-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          model: selectedModel
+        })
+      });
+      
+      if (!result.ok) {
+        throw new Error('Ошибка при генерации текста');
+      }
+      
+      const data = await result.json();
+      setResponse(data.response);
+    } catch (error) {
+      console.error('Error generating text:', error);
+      setResponse('Произошла ошибка при генерации текста. Попробуйте еще раз.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 pb-20">
@@ -53,84 +63,92 @@ const AITools = () => {
               <Brain className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">ИИ-инструменты</h1>
-              <p className="text-sm text-muted-foreground">Умные помощники для обучения</p>
+              <h1 className="text-2xl font-bold">ИИ-боты</h1>
+              <p className="text-sm text-muted-foreground">Генерация текста с помощью ИИ</p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 gap-6">
-          {aiTools.map((tool) => {
-            const Icon = tool.icon;
-            const isAvailable = tool.status === "Доступно";
-            
-            return (
-              <Card key={tool.id} className="relative overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-xl ${tool.color} text-white`}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl">{tool.name}</CardTitle>
-                        <CardDescription className="mt-1">
-                          {tool.description}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <Badge 
-                      variant={isAvailable ? "default" : "secondary"}
-                      className="shrink-0"
-                    >
-                      {tool.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium mb-2">Возможности:</h4>
-                      <ul className="text-sm text-muted-foreground space-y-1">
-                        {tool.features.map((feature, index) => (
-                          <li key={index} className="flex items-center gap-2">
-                            <Sparkles className="w-3 h-3 text-primary" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <Button 
-                      className="w-full" 
-                      disabled={!isAvailable}
-                      variant={isAvailable ? "default" : "secondary"}
-                    >
-                      {isAvailable ? "Использовать" : "Скоро доступно"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        {/* Text Generation Bot */}
+        <Card className="relative overflow-hidden">
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-primary text-primary-foreground">
+                <Bot className="w-6 h-6" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">Текстовый ИИ-бот</CardTitle>
+                <CardDescription className="mt-1">
+                  Генерация текста с помощью передовых языковых моделей OpenAI
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="space-y-6">
+            {/* Model Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="model-select">Выберите модель</Label>
+              <Select value={selectedModel} onValueChange={setSelectedModel}>
+                <SelectTrigger id="model-select">
+                  <SelectValue placeholder="Выберите модель ИИ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {openAIModels.map((model) => (
+                    <SelectItem key={model.value} value={model.value}>
+                      {model.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="mt-12 text-center">
-          <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-center gap-2">
-                <Brain className="w-5 h-5" />
-                Больше инструментов скоро
-              </CardTitle>
-              <CardDescription>
-                Мы постоянно работаем над добавлением новых ИИ-инструментов для улучшения вашего обучения
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+            {/* Prompt Input */}
+            <div className="space-y-2">
+              <Label htmlFor="prompt">Ваш запрос</Label>
+              <Textarea
+                id="prompt"
+                placeholder="Опишите, что вы хотите, чтобы ИИ сгенерировал..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                className="min-h-[120px] resize-none"
+              />
+            </div>
+
+            {/* Generate Button */}
+            <Button 
+              onClick={handleGenerate}
+              disabled={!prompt.trim() || isGenerating}
+              className="w-full"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Генерирую...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Генерировать
+                </>
+              )}
+            </Button>
+
+            {/* Response */}
+            {response && (
+              <div className="space-y-2">
+                <Label>Ответ ИИ</Label>
+                <div className="p-4 bg-muted rounded-lg border">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {response}
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
 
       <MobileBottomNav />
