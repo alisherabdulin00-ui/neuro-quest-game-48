@@ -15,7 +15,7 @@ import Navigation from "@/components/Navigation";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import LearningPath from "@/components/LearningPath";
 import NextCourseCard from "@/components/NextCourseCard";
-import UserPointsDisplay from "@/components/UserPointsDisplay";
+import UserCoinsDisplay from "@/components/UserCoinsDisplay";
 interface UserProfile {
   id: string;
   first_name?: string;
@@ -189,7 +189,7 @@ const Dashboard = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <UserPointsDisplay userId={user?.id} />
+          <UserCoinsDisplay userId={user?.id} />
         </div>
         
        

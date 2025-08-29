@@ -1,12 +1,46 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Model pricing in USD per 1M tokens
+const modelPrices = {
+  'gpt-5-2025-08-07': { input: 1.25, output: 10.00 },
+  'gpt-5-mini-2025-08-07': { input: 0.25, output: 2.00 },
+  'gpt-5-nano-2025-08-07': { input: 0.05, output: 0.40 },
+  'gpt-4.1-2025-04-14': { input: 2.00, output: 8.00 },
+  'gpt-4.1-mini-2025-04-14': { input: 0.40, output: 1.60 },
+  'gpt-4o': { input: 2.50, output: 10.00 },
+  'gpt-4o-mini': { input: 0.15, output: 0.60 },
+  'o3-2025-04-16': { input: 150.00, output: 600.00 },
+  'o4-mini-2025-04-16': { input: 150.00, output: 600.00 },
+};
+
+function calculateCost(inputTokens: number, outputTokens: number, model: string, multiplier = 3) {
+  const prices = modelPrices[model as keyof typeof modelPrices];
+  if (!prices) {
+    throw new Error(`Unknown model: ${model}`);
+  }
+  
+  const costInput = (inputTokens / 1_000_000) * prices.input;
+  const costOutput = (outputTokens / 1_000_000) * prices.output;
+  const totalUsd = (costInput + costOutput) * multiplier;
+  
+  const coinRate = 0.001; // $0.001 per coin
+  const coins = Math.round(totalUsd / coinRate);
+  
+  return { coins, totalUsd };
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -26,7 +60,81 @@ serve(async (req) => {
       );
     }
 
+    // Get user ID from auth header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Требуется авторизация для использования AI' }), 
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     const { prompt, model = 'gpt-5-2025-08-07' } = await req.json();
+
+    // Get user from auth token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (authError || !user) {
+      console.error('Auth error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Ошибка авторизации' }), 
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Check user's current coin balance
+    const { data: userPoints, error: pointsError } = await supabase
+      .from('user_points')
+      .select('total_points')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (pointsError) {
+      console.error('Error fetching user points:', pointsError);
+      return new Response(
+        JSON.stringify({ error: 'Ошибка получения баланса монет' }), 
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const currentCoins = userPoints?.total_points || 0;
+
+    // Check user subscription for limits
+    const { data: subscription, error: subError } = await supabase
+      .from('user_subscriptions')
+      .select('subscription_tier, max_coins')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (subError) {
+      console.error('Error fetching subscription:', subError);
+    }
+
+    const userTier = subscription?.subscription_tier || 'free';
+    const maxCoins = subscription?.max_coins || 50;
+
+    // For free tier, check if user has exceeded their limit
+    if (userTier === 'free' && currentCoins <= 0) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Недостаточно монет. Выполните уроки чтобы заработать монеты или перейдите на Pro.',
+          coinsNeeded: 1,
+          currentCoins: currentCoins
+        }), 
+        { 
+          status: 402, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
 
     if (!prompt) {
       return new Response(
@@ -126,6 +234,69 @@ serve(async (req) => {
     console.log('Generated text length:', generatedText ? generatedText.length : 'null');
     console.log('Finish reason:', finishReason);
     
+    // Extract token usage from OpenAI response
+    const inputTokens = data.usage?.prompt_tokens || 0;
+    const outputTokens = data.usage?.completion_tokens || 0;
+    
+    console.log('Token usage - Input:', inputTokens, 'Output:', outputTokens);
+    
+    // Calculate cost in coins
+    const { coins, totalUsd } = calculateCost(inputTokens, outputTokens, model);
+    console.log('Calculated cost:', coins, 'coins (', totalUsd, 'USD)');
+    
+    // For Pro users, skip coin deduction
+    if (userTier !== 'pro') {
+      // Check if user has enough coins for this request
+      if (currentCoins < coins) {
+        return new Response(
+          JSON.stringify({ 
+            error: `Недостаточно монет. Требуется: ${coins}, доступно: ${currentCoins}`,
+            coinsNeeded: coins,
+            currentCoins: currentCoins
+          }), 
+          { 
+            status: 402, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      // Deduct coins from user's balance
+      const newBalance = currentCoins - coins;
+      const { error: updateError } = await supabase
+        .from('user_points')
+        .update({ total_points: newBalance, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('Error updating user balance:', updateError);
+        return new Response(
+          JSON.stringify({ error: 'Ошибка списания монет' }), 
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+    }
+
+    // Log AI usage
+    const { error: logError } = await supabase
+      .from('ai_usage_log')
+      .insert({
+        user_id: user.id,
+        model: model,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        cost_usd: totalUsd,
+        coins_deducted: userTier === 'pro' ? 0 : coins,
+        multiplier: 3.0
+      });
+
+    if (logError) {
+      console.error('Error logging AI usage:', logError);
+    }
+    
     // Log reasoning tokens for debugging if available
     if (data.usage?.reasoning_tokens) {
       console.log('Reasoning tokens used:', data.usage.reasoning_tokens);
@@ -154,7 +325,11 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ response: generatedText.trim() }), 
+      JSON.stringify({ 
+        response: generatedText.trim(),
+        coinsDeducted: userTier === 'pro' ? 0 : coins,
+        remainingCoins: userTier === 'pro' ? 'unlimited' : (currentCoins - coins)
+      }), 
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }

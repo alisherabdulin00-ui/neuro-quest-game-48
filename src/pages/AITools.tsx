@@ -7,6 +7,9 @@ import { CpuChipIcon, PaperAirplaneIcon, ArrowPathIcon, Cog6ToothIcon, DocumentT
 import { useState, useRef, useEffect } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ReactMarkdown from 'react-markdown';
+import UserCoinsDisplay from "@/components/UserCoinsDisplay";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
@@ -21,8 +24,19 @@ const AITools = () => {
   const [selectedModel, setSelectedModel] = useState("gpt-5-2025-08-07");
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedTab, setSelectedTab] = useState("text");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userCoins, setUserCoins] = useState<number>(0);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  // Get current user
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, []);
 
   const modelsByType = {
     text: [
@@ -58,7 +72,7 @@ const AITools = () => {
   }, [selectedTab]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollAreaRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -67,60 +81,94 @@ const AITools = () => {
 
   const handleSend = async () => {
     if (!inputValue.trim() || isGenerating) return;
-    
+
+    if (!userId) {
+      toast({
+        title: "Требуется авторизация",
+        description: "Войдите в систему для использования AI",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputValue.trim(),
+      content: inputValue,
       timestamp: new Date()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
     setInputValue("");
     setIsGenerating(true);
-    
-    // Add loading message
-    const loadingMessage: Message = {
-      id: Date.now().toString() + "_loading",
-      type: 'assistant',
-      content: "Генерирую ответ...",
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, loadingMessage]);
-    
+
     try {
-      const result = await fetch(`https://pvbjsztremgynwsjokge.supabase.co/functions/v1/generate-text`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: userMessage.content,
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { data, error } = await supabase.functions.invoke('generate-text', {
+        body: { 
+          prompt: inputValue,
           model: selectedModel
-        })
+        },
+        headers: {
+          authorization: `Bearer ${session?.access_token}`
+        }
       });
-      
-      if (!result.ok) {
-        const errorData = await result.text();
-        throw new Error(`Ошибка при генерации текста: ${errorData}`);
+
+      if (error) {
+        let errorMsg = `Ошибка: ${error.message}`;
+        
+        // Handle insufficient coins error
+        if (error.message.includes('Недостаточно монет')) {
+          const coinsMatch = error.message.match(/Требуется: (\d+), доступно: (\d+)/);
+          if (coinsMatch) {
+            errorMsg = `Недостаточно монет для этого запроса. Требуется: ${coinsMatch[1]}, у вас: ${coinsMatch[2]}`;
+            toast({
+              title: "Недостаточно монет",
+              description: "Выполните уроки чтобы заработать монеты или перейдите на Pro",
+              variant: "destructive",
+            });
+          }
+        }
+        
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: errorMsg,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: data.response,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+
+        // Show coins deducted notification
+        if (data.coinsDeducted > 0) {
+          toast({
+            title: `Списано ${data.coinsDeducted} монет`,
+            description: `Остаток: ${data.remainingCoins} монет`,
+          });
+        }
+
+        // Refresh coin display
+        if ((window as any).refreshUserCoins) {
+          (window as any).refreshUserCoins();
+        }
       }
-      
-      const data = await result.json();
-      
-      // Replace loading message with actual response
-      setMessages(prev => prev.map(msg => 
-        msg.id === loadingMessage.id 
-          ? { ...msg, content: data.response, id: Date.now().toString() }
-          : msg
-      ));
     } catch (error) {
-      console.error('Error generating text:', error);
-      // Replace loading message with error
-      setMessages(prev => prev.map(msg => 
-        msg.id === loadingMessage.id 
-          ? { ...msg, content: 'Произошла ошибка при генерации текста. Попробуйте еще раз.', id: Date.now().toString() }
-          : msg
-      ));
+      console.error('Error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: 'Произошла ошибка при генерации ответа.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsGenerating(false);
     }
@@ -136,13 +184,16 @@ const AITools = () => {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center justify-between px-4">
+      <header className="bg-card border-b border-border p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-primary rounded-lg">
-              <CpuChipIcon className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <h1 className="font-semibold text-lg">ChatGPT</h1>
+            <CpuChipIcon className="w-6 h-6 text-primary" />
+            <h1 className="text-xl font-semibold text-foreground">AI Tools</h1>
+            {userId && (
+              <div className="ml-4">
+                <UserCoinsDisplay userId={userId} onCoinsUpdate={setUserCoins} />
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
@@ -264,7 +315,7 @@ const AITools = () => {
                     )}
                   </div>
                 ))}
-                <div ref={messagesEndRef} />
+                <div ref={scrollAreaRef} />
               </div>
             )}
           </div>
@@ -276,7 +327,6 @@ const AITools = () => {
         <div className="relative">
           <div className="relative flex items-center bg-muted/50 border border-border rounded-3xl shadow-sm hover:shadow-md transition-all">
             <Input
-              ref={inputRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -299,7 +349,7 @@ const AITools = () => {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground/60 text-center mt-2 px-2">
-            ChatGPT может допускать ошибки. Проверяйте важную информацию.
+            AI может допускать ошибки. Проверяйте важную информацию.
           </p>
         </div>
       </div>
