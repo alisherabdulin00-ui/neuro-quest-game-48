@@ -193,16 +193,16 @@ const AITools = () => {
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <CpuChipIcon className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-semibold text-foreground">AI Tools</h1>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <CpuChipIcon className="w-5 h-5 text-primary flex-shrink-0" />
+            <h1 className="text-lg font-semibold text-foreground truncate">AI Tools</h1>
             {userId && (
               <UserCoinsDisplay userId={userId} onCoinsUpdate={setUserCoins} />
             )}
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Select value={selectedModel} onValueChange={setSelectedModel}>
               <SelectTrigger className="w-28 h-8 text-xs border-0 bg-muted/50">
                 <SelectValue>{getSelectedModelLabel()}</SelectValue>
