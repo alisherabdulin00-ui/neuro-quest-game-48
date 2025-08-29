@@ -8,7 +8,6 @@ import { useState, useRef, useEffect } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ReactMarkdown from 'react-markdown';
 import UserCoinsDisplay from "@/components/UserCoinsDisplay";
-import UserExperienceDisplay from "@/components/UserExperienceDisplay";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -65,6 +64,12 @@ const AITools = () => {
   };
 
   const getCurrentModels = () => modelsByType[selectedTab as keyof typeof modelsByType] || modelsByType.text;
+  
+  const getSelectedModelLabel = () => {
+    const allModels = [...modelsByType.text, ...modelsByType.image, ...modelsByType.video];
+    const model = allModels.find(m => m.value === selectedModel);
+    return model?.label || selectedModel;
+  };
 
   // Auto-select first model when switching tabs
   useEffect(() => {
@@ -193,17 +198,14 @@ const AITools = () => {
             <CpuChipIcon className="w-6 h-6 text-primary" />
             <h1 className="text-xl font-semibold text-foreground">AI Tools</h1>
             {userId && (
-              <div className="ml-4">
-          <UserExperienceDisplay userId={userId} />
-          <UserCoinsDisplay userId={userId} onCoinsUpdate={setUserCoins} />
-              </div>
+              <UserCoinsDisplay userId={userId} onCoinsUpdate={setUserCoins} />
             )}
           </div>
           
           <div className="flex items-center gap-2">
             <Select value={selectedModel} onValueChange={setSelectedModel}>
               <SelectTrigger className="w-28 h-8 text-xs border-0 bg-muted/50">
-                <SelectValue />
+                <SelectValue>{getSelectedModelLabel()}</SelectValue>
               </SelectTrigger>
               <SelectContent className="w-80">
                 <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
