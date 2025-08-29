@@ -1,33 +1,66 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { CpuChipIcon, ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CpuChipIcon, PaperAirplaneIcon, ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/solid";
+import { useState, useRef, useEffect } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ReactMarkdown from 'react-markdown';
 
+interface Message {
+  id: string;
+  type: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
 const AITools = () => {
-  const [prompt, setPrompt] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState("");
   const [selectedModel, setSelectedModel] = useState("gpt-5-2025-08-07");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [response, setResponse] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const openAIModels = [
-    { value: "gpt-5-2025-08-07", label: "GPT-5 (флагманская модель)" },
-    { value: "gpt-5-mini-2025-08-07", label: "GPT-5 Mini (быстрая)" },
-    { value: "gpt-5-nano-2025-08-07", label: "GPT-5 Nano (очень быстрая)" },
-    { value: "gpt-4.1-2025-04-14", label: "GPT-4.1 (надежная)" },
-    { value: "o3-2025-04-16", label: "O3 (для сложных задач)" },
-    { value: "o4-mini-2025-04-16", label: "O4 Mini (быстрое мышление)" }
+    { value: "gpt-5-2025-08-07", label: "GPT-5" },
+    { value: "gpt-5-mini-2025-08-07", label: "GPT-5 Mini" },
+    { value: "gpt-5-nano-2025-08-07", label: "GPT-5 Nano" },
+    { value: "gpt-4.1-2025-04-14", label: "GPT-4.1" },
+    { value: "o3-2025-04-16", label: "O3" },
+    { value: "o4-mini-2025-04-16", label: "O4 Mini" }
   ];
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isGenerating) return;
     
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: inputValue.trim(),
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
     setIsGenerating(true);
-    setResponse("");
+    
+    // Add loading message
+    const loadingMessage: Message = {
+      id: Date.now().toString() + "_loading",
+      type: 'assistant',
+      content: "Генерирую ответ...",
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, loadingMessage]);
     
     try {
       const result = await fetch(`https://pvbjsztremgynwsjokge.supabase.co/functions/v1/generate-text`, {
@@ -36,7 +69,7 @@ const AITools = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: prompt.trim(),
+          prompt: userMessage.content,
           model: selectedModel
         })
       });
@@ -47,109 +80,147 @@ const AITools = () => {
       }
       
       const data = await result.json();
-      setResponse(data.response);
+      
+      // Replace loading message with actual response
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingMessage.id 
+          ? { ...msg, content: data.response, id: Date.now().toString() }
+          : msg
+      ));
     } catch (error) {
       console.error('Error generating text:', error);
-      setResponse('Произошла ошибка при генерации текста. Попробуйте еще раз.');
+      // Replace loading message with error
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingMessage.id 
+          ? { ...msg, content: 'Произошла ошибка при генерации текста. Попробуйте еще раз.', id: Date.now().toString() }
+          : msg
+      ));
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 pb-20">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg">
-              <CpuChipIcon className="w-6 h-6 text-primary-foreground" />
+            <div className="p-1.5 bg-primary rounded-md">
+              <CpuChipIcon className="w-5 h-5 text-primary-foreground" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">ИИ-боты</h1>
-              <p className="text-sm text-muted-foreground">Генерация текста с помощью ИИ</p>
-            </div>
+            <h1 className="font-semibold">ChatGPT</h1>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger className="w-32 h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {openAIModels.map((model) => (
+                  <SelectItem key={model.value} value={model.value} className="text-xs">
+                    {model.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Cog6ToothIcon className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
-        {/* Text Generation Bot */}
-        <Card className="relative overflow-hidden">
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-primary text-primary-foreground">
-                <ChatBubbleLeftRightIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <CardTitle className="text-xl">Текстовый ИИ-бот</CardTitle>
-                <CardDescription className="mt-1">
-                  Генерация текста с помощью передовых языковых моделей OpenAI
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            {/* Model Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="model-select">Выберите модель</Label>
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger id="model-select">
-                  <SelectValue placeholder="Выберите модель ИИ" />
-                </SelectTrigger>
-                <SelectContent>
-                  {openAIModels.map((model) => (
-                    <SelectItem key={model.value} value={model.value}>
-                      {model.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Prompt Input */}
-            <div className="space-y-2">
-              <Label htmlFor="prompt">Ваш запрос</Label>
-              <Textarea
-                id="prompt"
-                placeholder="Опишите, что вы хотите, чтобы ИИ сгенерировал..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[120px] resize-none"
-              />
-            </div>
-
-            {/* Generate Button */}
-            <Button 
-              onClick={handleGenerate}
-              disabled={!prompt.trim() || isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? (
-                <>
-                  <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
-                  Генерирую...
-                </>
-              ) : (
-                <>
-                  <PaperAirplaneIcon className="w-4 h-4 mr-2" />
-                  Генерировать
-                </>
-              )}
-            </Button>
-
-            {/* Response */}
-            {response && (
-              <div className="space-y-2">
-                <Label>Ответ ИИ</Label>
-                <div className="p-4 bg-muted rounded-lg border prose prose-sm max-w-none dark:prose-invert">
-                  <ReactMarkdown>{response}</ReactMarkdown>
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="max-w-3xl mx-auto px-4 py-6">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+                <div className="p-4 bg-muted rounded-full">
+                  <CpuChipIcon className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Как дела?</h2>
+                  <p className="text-muted-foreground">Задайте любой вопрос, чтобы начать</p>
                 </div>
               </div>
+            ) : (
+              <div className="space-y-6">
+                {messages.map((message) => (
+                  <div key={message.id} className="group">
+                    <div className={`flex gap-4 ${message.type === 'user' ? 'justify-end' : ''}`}>
+                      {message.type === 'assistant' && (
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                          <CpuChipIcon className="w-4 h-4 text-primary-foreground" />
+                        </div>
+                      )}
+                      <div className={`flex-1 ${message.type === 'user' ? 'max-w-xs' : 'max-w-none'}`}>
+                        <div className={`rounded-lg p-3 ${
+                          message.type === 'user' 
+                            ? 'bg-primary text-primary-foreground ml-auto' 
+                            : 'bg-muted'
+                        }`}>
+                          {message.type === 'assistant' ? (
+                            <div className="prose prose-sm max-w-none dark:prose-invert">
+                              <ReactMarkdown>{message.content}</ReactMarkdown>
+                            </div>
+                          ) : (
+                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          )}
+                        </div>
+                      </div>
+                      {message.type === 'user' && (
+                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-medium">Вы</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
             )}
-          </CardContent>
-        </Card>
-      </main>
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t border-border bg-background p-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="relative">
+            <Input
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Напишите сообщение..."
+              disabled={isGenerating}
+              className="pr-12 min-h-[44px] py-3"
+            />
+            <Button
+              onClick={handleSend}
+              disabled={!inputValue.trim() || isGenerating}
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
+            >
+              {isGenerating ? (
+                <ArrowPathIcon className="w-4 h-4 animate-spin" />
+              ) : (
+                <PaperAirplaneIcon className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <MobileBottomNav />
     </div>
