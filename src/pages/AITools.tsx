@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Brain, Bot, Send, Loader2 } from "lucide-react";
+import { CpuChipIcon, ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
@@ -61,7 +61,7 @@ const AITools = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary rounded-lg">
-              <Brain className="w-6 h-6 text-primary-foreground" />
+              <CpuChipIcon className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">ИИ-боты</h1>
@@ -77,7 +77,7 @@ const AITools = () => {
           <CardHeader>
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-primary text-primary-foreground">
-                <Bot className="w-6 h-6" />
+                <ChatBubbleLeftRightIcon className="w-6 h-6" />
               </div>
               <div>
                 <CardTitle className="text-xl">Текстовый ИИ-бот</CardTitle>
@@ -126,12 +126,12 @@ const AITools = () => {
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
                   Генерирую...
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4 mr-2" />
+                  <PaperAirplaneIcon className="w-4 h-4 mr-2" />
                   Генерировать
                 </>
               )}
