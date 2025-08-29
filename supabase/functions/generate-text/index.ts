@@ -63,6 +63,7 @@ serve(async (req) => {
     }
 
     console.log('Sending request to OpenAI with model:', model);
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -72,6 +73,8 @@ serve(async (req) => {
       },
       body: JSON.stringify(requestBody),
     });
+
+    console.log('OpenAI response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.text();
@@ -89,6 +92,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log('OpenAI response data:', JSON.stringify(data, null, 2));
     
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
       console.error('Unexpected OpenAI response structure:', data);
@@ -102,6 +106,7 @@ serve(async (req) => {
     }
 
     const generatedText = data.choices[0].message.content;
+    console.log('Generated text length:', generatedText ? generatedText.length : 'null');
 
     return new Response(
       JSON.stringify({ response: generatedText }), 
