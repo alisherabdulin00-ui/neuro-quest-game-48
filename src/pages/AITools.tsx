@@ -156,24 +156,28 @@ const AITools = () => {
             ) : (
               <div className="space-y-4 pb-4">
                 {messages.map((message) => (
-                  <div key={message.id} className="flex gap-3">
+                  <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {message.type === 'assistant' && (
                       <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
                         <CpuChipIcon className="w-3.5 h-3.5 text-primary-foreground" />
                       </div>
                     )}
-                    <div className={`flex-1 ${message.type === 'user' ? 'flex justify-end' : ''}`}>
-                      <div className={`rounded-2xl px-4 py-3 max-w-[85%] ${
+                    <div className={`${
+                      message.type === 'user' 
+                        ? 'max-w-[80%] sm:max-w-[70%]' 
+                        : 'max-w-[85%] sm:max-w-[75%] flex-1'
+                    }`}>
+                      <div className={`rounded-2xl px-4 py-3 ${
                         message.type === 'user' 
                           ? 'bg-primary text-primary-foreground' 
                           : 'bg-muted'
                       }`}>
                         {message.type === 'assistant' ? (
-                          <div className="prose prose-sm max-w-none dark:prose-invert prose-p:leading-relaxed prose-p:m-0">
+                          <div className="prose prose-sm max-w-none dark:prose-invert prose-p:leading-relaxed prose-p:m-0 prose-p:mb-2 prose-p:last:mb-0">
                             <ReactMarkdown>{message.content}</ReactMarkdown>
                           </div>
                         ) : (
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
                         )}
                       </div>
                     </div>
