@@ -29,7 +29,7 @@ const AITools = () => {
     setResponse("");
     
     try {
-      const result = await fetch('/api/generate-text', {
+      const result = await fetch(`https://pvbjsztremgynwsjokge.supabase.co/functions/v1/generate-text`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,7 +41,8 @@ const AITools = () => {
       });
       
       if (!result.ok) {
-        throw new Error('Ошибка при генерации текста');
+        const errorData = await result.text();
+        throw new Error(`Ошибка при генерации текста: ${errorData}`);
       }
       
       const data = await result.json();
