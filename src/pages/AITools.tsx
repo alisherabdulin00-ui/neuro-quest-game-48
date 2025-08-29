@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CpuChipIcon, PaperAirplaneIcon, ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/solid";
-import { Sparkles, Image as ImageIcon, Video, Type } from "lucide-react";
+import { FileText, ImageIcon, VideoIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ReactMarkdown from 'react-markdown';
@@ -155,15 +155,15 @@ const AITools = () => {
                 <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-3 mb-2">
                     <TabsTrigger value="text" className="flex items-center gap-1 text-xs">
-                      <Type className="w-3 h-3" />
+                      <FileText className="w-3 h-3 fill-current" />
                       Текст
                     </TabsTrigger>
                     <TabsTrigger value="image" className="flex items-center gap-1 text-xs">
-                      <ImageIcon className="w-3 h-3" />
+                      <ImageIcon className="w-3 h-3 fill-current" />
                       Картинка
                     </TabsTrigger>
                     <TabsTrigger value="video" className="flex items-center gap-1 text-xs">
-                      <Video className="w-3 h-3" />
+                      <VideoIcon className="w-3 h-3 fill-current" />
                       Видео
                     </TabsTrigger>
                   </TabsList>
