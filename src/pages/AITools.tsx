@@ -44,6 +44,8 @@ const AITools = () => {
       { value: "gpt-5-mini-2025-08-07", label: "GPT-5 Mini", provider: "OpenAI" },
       { value: "gpt-5-nano-2025-08-07", label: "GPT-5 Nano", provider: "OpenAI" },
       { value: "gpt-4.1-2025-04-14", label: "GPT-4.1", provider: "OpenAI" },
+      { value: "gpt-4o", label: "GPT-4o", provider: "OpenAI" },
+      { value: "gpt-4o-mini", label: "GPT-4o Mini", provider: "OpenAI" },
       { value: "o3-2025-04-16", label: "O3", provider: "OpenAI" },
       { value: "o4-mini-2025-04-16", label: "O4 Mini", provider: "OpenAI" },
       { value: "claude-opus-4-20250514", label: "Claude 4 Opus", provider: "Anthropic" },
