@@ -38,24 +38,40 @@ serve(async (req) => {
       );
     }
 
-    // Determine if this is a newer model that uses max_completion_tokens
-    const newerModels = ['gpt-5-2025-08-07', 'gpt-5-mini-2025-08-07', 'gpt-5-nano-2025-08-07', 'gpt-4.1-2025-04-14', 'o3-2025-04-16', 'o4-mini-2025-04-16'];
-    const isNewerModel = newerModels.includes(model);
+    // Define model categories with appropriate token limits
+    const gpt5Models = ['gpt-5-2025-08-07'];
+    const gpt5MiniModels = ['gpt-5-mini-2025-08-07'];
+    const gpt5NanoModels = ['gpt-5-nano-2025-08-07'];
+    const reasoningModels = ['o3-2025-04-16', 'o4-mini-2025-04-16'];
+    const gpt4Models = ['gpt-4.1-2025-04-14', 'gpt-4.1-mini-2025-04-14'];
+    const legacyModels = ['gpt-4o', 'gpt-4o-mini'];
+
+    const isNewerModel = [...gpt5Models, ...gpt5MiniModels, ...gpt5NanoModels, ...reasoningModels, ...gpt4Models].includes(model);
 
     const requestBody: any = {
       model: model,
       messages: [
         { 
           role: 'system', 
-          content: 'Ты полезный ИИ-ассистент, который отвечает на русском языке. Давай развернутые и информативные ответы.' 
+          content: 'Отвечай на русском языке кратко и по делу.' 
         },
         { role: 'user', content: prompt }
       ],
     };
 
-    // Add appropriate token limit parameter based on model
+    // Set token limits based on model type
     if (isNewerModel) {
-      requestBody.max_completion_tokens = 2000;
+      if (gpt5Models.includes(model)) {
+        requestBody.max_completion_tokens = 8000;
+      } else if (gpt5MiniModels.includes(model)) {
+        requestBody.max_completion_tokens = 4000;
+      } else if (gpt5NanoModels.includes(model)) {
+        requestBody.max_completion_tokens = 3000;
+      } else if (reasoningModels.includes(model)) {
+        requestBody.max_completion_tokens = 6000;
+      } else if (gpt4Models.includes(model)) {
+        requestBody.max_completion_tokens = 4000;
+      }
       // Don't add temperature for newer models as it's not supported
     } else {
       requestBody.max_tokens = 2000;
@@ -106,13 +122,30 @@ serve(async (req) => {
     }
 
     const generatedText = data.choices[0].message.content;
+    const finishReason = data.choices[0].finish_reason;
     console.log('Generated text length:', generatedText ? generatedText.length : 'null');
+    console.log('Finish reason:', finishReason);
+    
+    // Log reasoning tokens for debugging if available
+    if (data.usage?.reasoning_tokens) {
+      console.log('Reasoning tokens used:', data.usage.reasoning_tokens);
+    }
 
     // Check if content is null or empty
     if (!generatedText || generatedText.trim() === '') {
-      console.error('OpenAI returned empty content');
+      console.error('OpenAI returned empty content, finish_reason:', finishReason);
+      
+      let errorMessage = 'OpenAI вернул пустой ответ.';
+      if (finishReason === 'length') {
+        errorMessage = 'Превышен лимит токенов. Попробуйте сократить запрос или использовать другую модель.';
+      } else if (finishReason === 'content_filter') {
+        errorMessage = 'Контент заблокирован фильтром безопасности.';
+      } else {
+        errorMessage += ' Попробуйте другую модель.';
+      }
+      
       return new Response(
-        JSON.stringify({ error: 'OpenAI вернул пустой ответ. Попробуйте другую модель.' }), 
+        JSON.stringify({ error: errorMessage }), 
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
