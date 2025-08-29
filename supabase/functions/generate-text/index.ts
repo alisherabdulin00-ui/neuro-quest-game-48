@@ -108,8 +108,20 @@ serve(async (req) => {
     const generatedText = data.choices[0].message.content;
     console.log('Generated text length:', generatedText ? generatedText.length : 'null');
 
+    // Check if content is null or empty
+    if (!generatedText || generatedText.trim() === '') {
+      console.error('OpenAI returned empty content');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI вернул пустой ответ. Попробуйте другую модель.' }), 
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     return new Response(
-      JSON.stringify({ response: generatedText }), 
+      JSON.stringify({ response: generatedText.trim() }), 
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
