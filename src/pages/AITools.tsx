@@ -2,7 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CpuChipIcon, PaperAirplaneIcon, ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/solid";
+import { Sparkles, Image as ImageIcon, Video, Type } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ReactMarkdown from 'react-markdown';
@@ -19,17 +21,42 @@ const AITools = () => {
   const [inputValue, setInputValue] = useState("");
   const [selectedModel, setSelectedModel] = useState("gpt-5-2025-08-07");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("text");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const openAIModels = [
-    { value: "gpt-5-2025-08-07", label: "GPT-5" },
-    { value: "gpt-5-mini-2025-08-07", label: "GPT-5 Mini" },
-    { value: "gpt-5-nano-2025-08-07", label: "GPT-5 Nano" },
-    { value: "gpt-4.1-2025-04-14", label: "GPT-4.1" },
-    { value: "o3-2025-04-16", label: "O3" },
-    { value: "o4-mini-2025-04-16", label: "O4 Mini" }
-  ];
+  const modelsByType = {
+    text: [
+      { value: "gpt-5-2025-08-07", label: "GPT-5", provider: "OpenAI" },
+      { value: "gpt-5-mini-2025-08-07", label: "GPT-5 Mini", provider: "OpenAI" },
+      { value: "gpt-5-nano-2025-08-07", label: "GPT-5 Nano", provider: "OpenAI" },
+      { value: "gpt-4.1-2025-04-14", label: "GPT-4.1", provider: "OpenAI" },
+      { value: "o3-2025-04-16", label: "O3", provider: "OpenAI" },
+      { value: "o4-mini-2025-04-16", label: "O4 Mini", provider: "OpenAI" },
+      { value: "claude-opus-4-20250514", label: "Claude 4 Opus", provider: "Anthropic" },
+      { value: "claude-sonnet-4-20250514", label: "Claude 4 Sonnet", provider: "Anthropic" },
+      { value: "claude-3-5-haiku-20241022", label: "Claude 3.5 Haiku", provider: "Anthropic" }
+    ],
+    image: [
+      { value: "gpt-image-1", label: "GPT Image 1", provider: "OpenAI" },
+      { value: "dall-e-3", label: "DALL-E 3", provider: "OpenAI" },
+      { value: "dall-e-2", label: "DALL-E 2", provider: "OpenAI" }
+    ],
+    video: [
+      { value: "sora-1", label: "Sora", provider: "OpenAI" },
+      { value: "runway-gen3", label: "Gen-3", provider: "Runway" }
+    ]
+  };
+
+  const getCurrentModels = () => modelsByType[selectedTab as keyof typeof modelsByType] || modelsByType.text;
+
+  // Auto-select first model when switching tabs
+  useEffect(() => {
+    const currentModels = getCurrentModels();
+    if (!currentModels.some(m => m.value === selectedModel)) {
+      setSelectedModel(currentModels[0]?.value || "gpt-5-2025-08-07");
+    }
+  }, [selectedTab]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -121,15 +148,65 @@ const AITools = () => {
           
           <div className="flex items-center gap-2">
             <Select value={selectedModel} onValueChange={setSelectedModel}>
-              <SelectTrigger className="w-24 h-8 text-xs border-0 bg-muted/50">
+              <SelectTrigger className="w-28 h-8 text-xs border-0 bg-muted/50">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                {openAIModels.map((model) => (
-                  <SelectItem key={model.value} value={model.value} className="text-xs">
-                    {model.label}
-                  </SelectItem>
-                ))}
+              <SelectContent className="w-80">
+                <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-2">
+                    <TabsTrigger value="text" className="flex items-center gap-1 text-xs">
+                      <Type className="w-3 h-3" />
+                      Текст
+                    </TabsTrigger>
+                    <TabsTrigger value="image" className="flex items-center gap-1 text-xs">
+                      <ImageIcon className="w-3 h-3" />
+                      Картинка
+                    </TabsTrigger>
+                    <TabsTrigger value="video" className="flex items-center gap-1 text-xs">
+                      <Video className="w-3 h-3" />
+                      Видео
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="text" className="mt-2">
+                    <div className="space-y-1">
+                      {modelsByType.text.map((model) => (
+                        <SelectItem key={model.value} value={model.value} className="text-xs">
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">{model.label}</span>
+                            <span className="text-xs text-muted-foreground">{model.provider}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="image" className="mt-2">
+                    <div className="space-y-1">
+                      {modelsByType.image.map((model) => (
+                        <SelectItem key={model.value} value={model.value} className="text-xs">
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">{model.label}</span>
+                            <span className="text-xs text-muted-foreground">{model.provider}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="video" className="mt-2">
+                    <div className="space-y-1">
+                      {modelsByType.video.map((model) => (
+                        <SelectItem key={model.value} value={model.value} className="text-xs">
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">{model.label}</span>
+                            <span className="text-xs text-muted-foreground">{model.provider}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </SelectContent>
             </Select>
             <Button variant="ghost" size="icon" className="h-8 w-8">
