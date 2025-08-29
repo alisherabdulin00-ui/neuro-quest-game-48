@@ -3,8 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CpuChipIcon, PaperAirplaneIcon, ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/solid";
-import { FileText, ImageIcon, VideoIcon } from "lucide-react";
+import { CpuChipIcon, PaperAirplaneIcon, ArrowPathIcon, Cog6ToothIcon, DocumentTextIcon, PhotoIcon, VideoCameraIcon } from "@heroicons/react/24/solid";
 import { useState, useRef, useEffect } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ReactMarkdown from 'react-markdown';
@@ -155,15 +154,15 @@ const AITools = () => {
                 <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-3 mb-2">
                     <TabsTrigger value="text" className="flex items-center gap-1 text-xs">
-                      <FileText className="w-3 h-3 fill-current" />
+                      <DocumentTextIcon className="w-3 h-3" />
                       Текст
                     </TabsTrigger>
                     <TabsTrigger value="image" className="flex items-center gap-1 text-xs">
-                      <ImageIcon className="w-3 h-3 fill-current" />
+                      <PhotoIcon className="w-3 h-3" />
                       Картинка
                     </TabsTrigger>
                     <TabsTrigger value="video" className="flex items-center gap-1 text-xs">
-                      <VideoIcon className="w-3 h-3 fill-current" />
+                      <VideoCameraIcon className="w-3 h-3" />
                       Видео
                     </TabsTrigger>
                   </TabsList>
