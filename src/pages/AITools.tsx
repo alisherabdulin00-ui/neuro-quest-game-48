@@ -194,9 +194,9 @@ const AITools = () => {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border bg-background p-4">
+      <div className="border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4">
         <div className="max-w-3xl mx-auto">
-          <div className="relative">
+          <div className="relative flex items-center bg-background border border-border rounded-2xl shadow-sm hover:shadow-md transition-shadow">
             <Input
               ref={inputRef}
               value={inputValue}
@@ -204,13 +204,14 @@ const AITools = () => {
               onKeyPress={handleKeyPress}
               placeholder="Напишите сообщение..."
               disabled={isGenerating}
-              className="pr-12 min-h-[44px] py-3"
+              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 pr-12 py-4 text-base placeholder:text-muted-foreground resize-none"
             />
             <Button
               onClick={handleSend}
               disabled={!inputValue.trim() || isGenerating}
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
+              variant="ghost"
+              className="absolute right-2 h-8 w-8 rounded-lg hover:bg-muted disabled:opacity-50"
             >
               {isGenerating ? (
                 <ArrowPathIcon className="w-4 h-4 animate-spin" />
@@ -219,6 +220,9 @@ const AITools = () => {
               )}
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            ChatGPT может допускать ошибки. Проверяйте важную информацию.
+          </p>
         </div>
       </div>
 
