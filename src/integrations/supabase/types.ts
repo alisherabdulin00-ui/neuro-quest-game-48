@@ -236,6 +236,96 @@ export type Database = {
         }
         Relationships: []
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_coins: {
+        Row: {
+          coins_earned: number
+          coins_spent: number
+          created_at: string
+          id: string
+          total_coins: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coins_earned?: number
+          coins_spent?: number
+          created_at?: string
+          id?: string
+          total_coins?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coins_earned?: number
+          coins_spent?: number
+          created_at?: string
+          id?: string
+          total_coins?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_experience: {
+        Row: {
+          created_at: string
+          id: string
+          last_activity_date: string | null
+          level: number
+          streak_count: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_activity_date?: string | null
+          level?: number
+          streak_count?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_activity_date?: string | null
+          level?: number
+          streak_count?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_points: {
         Row: {
           created_at: string

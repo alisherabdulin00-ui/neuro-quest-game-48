@@ -16,6 +16,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import LearningPath from "@/components/LearningPath";
 import NextCourseCard from "@/components/NextCourseCard";
 import UserCoinsDisplay from "@/components/UserCoinsDisplay";
+import UserExperienceDisplay from "@/components/UserExperienceDisplay";
 interface UserProfile {
   id: string;
   first_name?: string;
@@ -189,7 +190,8 @@ const Dashboard = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <UserCoinsDisplay userId={user?.id} />
+            <UserExperienceDisplay userId={user?.id} />
+            <UserCoinsDisplay userId={user?.id} />
         </div>
         
        

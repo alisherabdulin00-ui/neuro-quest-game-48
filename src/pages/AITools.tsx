@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ReactMarkdown from 'react-markdown';
 import UserCoinsDisplay from "@/components/UserCoinsDisplay";
+import UserExperienceDisplay from "@/components/UserExperienceDisplay";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -193,7 +194,8 @@ const AITools = () => {
             <h1 className="text-xl font-semibold text-foreground">AI Tools</h1>
             {userId && (
               <div className="ml-4">
-                <UserCoinsDisplay userId={userId} onCoinsUpdate={setUserCoins} />
+          <UserExperienceDisplay userId={userId} />
+          <UserCoinsDisplay userId={userId} onCoinsUpdate={setUserCoins} />
               </div>
             )}
           </div>

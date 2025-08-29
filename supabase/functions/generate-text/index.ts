@@ -88,14 +88,14 @@ serve(async (req) => {
     }
 
     // Check user's current coin balance
-    const { data: userPoints, error: pointsError } = await supabase
-      .from('user_points')
-      .select('total_points')
+    const { data: userCoins, error: coinsError } = await supabase
+      .from('user_coins')
+      .select('total_coins, coins_spent')
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (pointsError) {
-      console.error('Error fetching user points:', pointsError);
+    if (coinsError && coinsError.code !== 'PGRST116') {
+      console.error('Error fetching user coins:', coinsError);
       return new Response(
         JSON.stringify({ error: 'Ошибка получения баланса монет' }), 
         { 
@@ -105,7 +105,7 @@ serve(async (req) => {
       );
     }
 
-    const currentCoins = userPoints?.total_points || 0;
+    const currentCoins = userCoins?.total_coins || 0;
 
     // Check user subscription for limits
     const { data: subscription, error: subError } = await supabase
@@ -263,9 +263,14 @@ serve(async (req) => {
 
       // Deduct coins from user's balance
       const newBalance = currentCoins - coins;
+      const newCoinsSpent = (userCoins?.coins_spent || 0) + coins;
       const { error: updateError } = await supabase
-        .from('user_points')
-        .update({ total_points: newBalance, updated_at: new Date().toISOString() })
+        .from('user_coins')
+        .update({ 
+          total_coins: newBalance, 
+          coins_spent: newCoinsSpent,
+          updated_at: new Date().toISOString() 
+        })
         .eq('user_id', user.id);
 
       if (updateError) {

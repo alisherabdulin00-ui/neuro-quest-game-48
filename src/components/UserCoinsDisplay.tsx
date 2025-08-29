@@ -7,7 +7,7 @@ interface UserCoinsDisplayProps {
 }
 
 interface UserCoins {
-  total_points: number;
+  total_coins: number;
 }
 
 const UserCoinsDisplay = ({ userId, onCoinsUpdate }: UserCoinsDisplayProps) => {
@@ -23,8 +23,8 @@ const UserCoinsDisplay = ({ userId, onCoinsUpdate }: UserCoinsDisplayProps) => {
   const fetchUserCoins = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('user_points')
-        .select('total_points')
+        .from('user_coins')
+        .select('total_coins')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -32,7 +32,7 @@ const UserCoinsDisplay = ({ userId, onCoinsUpdate }: UserCoinsDisplayProps) => {
         console.error('Error fetching user coins:', error);
         setCoins(0);
       } else {
-        const newCoins = data?.total_points || 0;
+        const newCoins = data?.total_coins || 0;
         setCoins(newCoins);
         onCoinsUpdate?.(newCoins);
       }
@@ -70,7 +70,7 @@ const UserCoinsDisplay = ({ userId, onCoinsUpdate }: UserCoinsDisplayProps) => {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-4 h-4 rounded-full bg-amber-400 shadow-sm"></div>
+      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 shadow-sm"></div>
       <span className="text-sm font-medium text-foreground">{coins}</span>
     </div>
   );
