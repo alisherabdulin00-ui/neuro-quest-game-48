@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { CpuChipIcon, ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import ReactMarkdown from 'react-markdown';
 
 const AITools = () => {
   const [prompt, setPrompt] = useState("");
@@ -141,10 +142,8 @@ const AITools = () => {
             {response && (
               <div className="space-y-2">
                 <Label>Ответ ИИ</Label>
-                <div className="p-4 bg-muted rounded-lg border">
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {response}
-                  </p>
+                <div className="p-4 bg-muted rounded-lg border prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{response}</ReactMarkdown>
                 </div>
               </div>
             )}
