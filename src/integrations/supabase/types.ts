@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_log: {
+        Row: {
+          coins_deducted: number
+          cost_usd: number
+          created_at: string
+          id: string
+          input_tokens: number
+          model: string
+          multiplier: number
+          output_tokens: number
+          user_id: string
+        }
+        Insert: {
+          coins_deducted?: number
+          cost_usd?: number
+          created_at?: string
+          id?: string
+          input_tokens?: number
+          model: string
+          multiplier?: number
+          output_tokens?: number
+          user_id: string
+        }
+        Update: {
+          coins_deducted?: number
+          cost_usd?: number
+          created_at?: string
+          id?: string
+          input_tokens?: number
+          model?: string
+          multiplier?: number
+          output_tokens?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       chapters: {
         Row: {
           course_id: string
@@ -267,6 +303,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          max_coins: number | null
+          subscription_tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_coins?: number | null
+          subscription_tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_coins?: number | null
+          subscription_tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
