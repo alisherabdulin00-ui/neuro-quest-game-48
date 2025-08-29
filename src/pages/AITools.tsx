@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { CpuChipIcon, ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { CpuChipIcon, ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
