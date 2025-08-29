@@ -108,20 +108,20 @@ const AITools = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background pb-20">{/* Add bottom padding for mobile nav */}
+    <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-primary rounded-md">
+            <div className="p-1.5 bg-primary rounded-lg">
               <CpuChipIcon className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="font-semibold">ChatGPT</h1>
+            <h1 className="font-semibold text-lg">ChatGPT</h1>
           </div>
           
           <div className="flex items-center gap-2">
             <Select value={selectedModel} onValueChange={setSelectedModel}>
-              <SelectTrigger className="w-32 h-8 text-xs">
+              <SelectTrigger className="w-24 h-8 text-xs border-0 bg-muted/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -142,48 +142,46 @@ const AITools = () => {
       {/* Chat Messages */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="max-w-3xl mx-auto px-4 py-6">
+          <div className="px-4 py-4">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+              <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
                 <div className="p-4 bg-muted rounded-full">
                   <CpuChipIcon className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold mb-2">Как дела?</h2>
-                  <p className="text-muted-foreground">Задайте любой вопрос, чтобы начать</p>
+                  <p className="text-muted-foreground text-sm">Задайте любой вопрос, чтобы начать</p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4 pb-4">
                 {messages.map((message) => (
-                  <div key={message.id} className="group">
-                    <div className={`flex gap-4 ${message.type === 'user' ? 'justify-end' : ''}`}>
-                      {message.type === 'assistant' && (
-                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                          <CpuChipIcon className="w-4 h-4 text-primary-foreground" />
-                        </div>
-                      )}
-                      <div className={`flex-1 ${message.type === 'user' ? 'max-w-xs' : 'max-w-none'}`}>
-                        <div className={`rounded-lg p-3 ${
-                          message.type === 'user' 
-                            ? 'bg-primary text-primary-foreground ml-auto' 
-                            : 'bg-muted'
-                        }`}>
-                          {message.type === 'assistant' ? (
-                            <div className="prose prose-sm max-w-none dark:prose-invert">
-                              <ReactMarkdown>{message.content}</ReactMarkdown>
-                            </div>
-                          ) : (
-                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                          )}
-                        </div>
+                  <div key={message.id} className="flex gap-3">
+                    {message.type === 'assistant' && (
+                      <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                        <CpuChipIcon className="w-3.5 h-3.5 text-primary-foreground" />
                       </div>
-                      {message.type === 'user' && (
-                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-medium">Вы</span>
-                        </div>
-                      )}
+                    )}
+                    <div className={`flex-1 ${message.type === 'user' ? 'flex justify-end' : ''}`}>
+                      <div className={`rounded-2xl px-4 py-3 max-w-[85%] ${
+                        message.type === 'user' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-muted'
+                      }`}>
+                        {message.type === 'assistant' ? (
+                          <div className="prose prose-sm max-w-none dark:prose-invert prose-p:leading-relaxed prose-p:m-0">
+                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                        )}
+                      </div>
                     </div>
+                    {message.type === 'user' && (
+                      <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-xs font-medium">Вы</span>
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -194,9 +192,9 @@ const AITools = () => {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="relative flex items-center bg-background border border-border rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+      <div className="border-t border-border bg-background p-4 pb-24">
+        <div className="relative">
+          <div className="relative flex items-center bg-muted/50 border border-border rounded-3xl shadow-sm hover:shadow-md transition-all">
             <Input
               ref={inputRef}
               value={inputValue}
@@ -204,14 +202,14 @@ const AITools = () => {
               onKeyPress={handleKeyPress}
               placeholder="Напишите сообщение..."
               disabled={isGenerating}
-              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 pr-12 py-4 text-base placeholder:text-muted-foreground resize-none"
+              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 pr-12 py-3 text-base placeholder:text-muted-foreground/60 min-h-[48px]"
             />
             <Button
               onClick={handleSend}
               disabled={!inputValue.trim() || isGenerating}
               size="icon"
               variant="ghost"
-              className="absolute right-2 h-8 w-8 rounded-lg hover:bg-muted disabled:opacity-50"
+              className="absolute right-2 h-8 w-8 rounded-full hover:bg-muted disabled:opacity-50"
             >
               {isGenerating ? (
                 <ArrowPathIcon className="w-4 h-4 animate-spin" />
@@ -220,7 +218,7 @@ const AITools = () => {
               )}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-2">
+          <p className="text-xs text-muted-foreground/60 text-center mt-2 px-2">
             ChatGPT может допускать ошибки. Проверяйте важную информацию.
           </p>
         </div>
