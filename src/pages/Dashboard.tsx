@@ -190,7 +190,7 @@ const Dashboard = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-            <UserExperienceDisplay userId={user?.id} />
+            <UserExperienceDisplay userId={user?.id} showLevelUpModal={true} />
             <UserCoinsDisplay userId={user?.id} />
         </div>
         

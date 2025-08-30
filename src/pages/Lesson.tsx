@@ -109,7 +109,7 @@ const Lesson = () => {
       }
 
       // Save lesson completion progress
-      const { error } = await supabase.functions.invoke('update-lesson-progress', {
+      const { data, error } = await supabase.functions.invoke('update-lesson-progress', {
         body: {
           lessonId: lesson?.id,
           progressPercentage: 100,
@@ -119,9 +119,14 @@ const Lesson = () => {
 
       if (error) {
         console.error('Error saving progress:', error);
+      } else {
+        // Refresh user experience data if available
+        if (data?.experience && (window as any).refreshUserExperience) {
+          (window as any).refreshUserExperience();
+        }
       }
 
-      // Award completion XP and streak
+      // Award completion XP and streak (for UI display)
       setXp(prev => prev + 50);
       setStreak(prev => prev + 1);
     } catch (error) {

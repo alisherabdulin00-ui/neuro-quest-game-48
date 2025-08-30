@@ -135,12 +135,21 @@ Deno.serve(async (req) => {
       result = data;
     }
 
+    // Get updated user experience data to return for level up detection
+    const { data: updatedExperience } = await supabaseClient
+      .from('user_experience')
+      .select('total_xp, level, streak_count')
+      .eq('user_id', user.id)
+      .single();
+
     console.log('Progress updated successfully:', result);
+    console.log('Updated experience:', updatedExperience);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: result 
+        data: result,
+        experience: updatedExperience || null
       }),
       { 
         status: 200, 
