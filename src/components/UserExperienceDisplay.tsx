@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StarIcon, FireIcon } from "@heroicons/react/24/solid";
+import { getLevelAndProgress } from "@/lib/xp-calculations";
+import LevelProgressModal from "./LevelProgressModal";
+import LevelUpModal from "./LevelUpModal";
 
 interface UserExperienceDisplayProps {
   userId?: string;
   onExperienceUpdate?: (xp: number, level: number, streak: number) => void;
+  showLevelUpModal?: boolean;
 }
 
 interface UserExperience {
@@ -13,9 +17,12 @@ interface UserExperience {
   streak_count: number;
 }
 
-const UserExperienceDisplay = ({ userId, onExperienceUpdate }: UserExperienceDisplayProps) => {
+const UserExperienceDisplay = ({ userId, onExperienceUpdate, showLevelUpModal = false }: UserExperienceDisplayProps) => {
   const [experience, setExperience] = useState<UserExperience>({ total_xp: 0, level: 1, streak_count: 0 });
   const [loading, setLoading] = useState(true);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [previousLevel, setPreviousLevel] = useState(0);
 
   useEffect(() => {
     if (userId) {
@@ -36,6 +43,13 @@ const UserExperienceDisplay = ({ userId, onExperienceUpdate }: UserExperienceDis
         setExperience({ total_xp: 0, level: 1, streak_count: 0 });
       } else {
         const newExperience = data || { total_xp: 0, level: 1, streak_count: 0 };
+        
+        // Check for level up
+        if (showLevelUpModal && experience.level > 0 && newExperience.level > experience.level) {
+          setPreviousLevel(experience.level);
+          setShowLevelUp(true);
+        }
+        
         setExperience(newExperience);
         onExperienceUpdate?.(newExperience.total_xp, newExperience.level, newExperience.streak_count);
       }
@@ -79,38 +93,60 @@ const UserExperienceDisplay = ({ userId, onExperienceUpdate }: UserExperienceDis
     );
   }
 
-  // Calculate progress to next level
-  const currentLevelXP = (experience.level - 1) * 100;
-  const nextLevelXP = experience.level * 100;
-  const progressXP = experience.total_xp - currentLevelXP;
-  const progressPercentage = (progressXP / 100) * 100;
+  // Calculate progress using exponential system
+  const levelData = getLevelAndProgress(experience.total_xp);
+  const progressPercentage = levelData.progress * 100;
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-1">
-        <StarIcon className="w-4 h-4 text-amber-400" />
-        <span className="text-sm font-medium text-foreground">Level {experience.level}</span>
-      </div>
-      
-      {/* XP Progress Bar */}
-      <div className="flex items-center gap-2">
-        <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300"
-            style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-          />
+    <>
+      <div className="flex items-center gap-3">
+        <div 
+          className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => setShowProgressModal(true)}
+        >
+          <StarIcon className="w-4 h-4 text-amber-400" />
+          <span className="text-sm font-medium text-foreground">Level {levelData.level}</span>
         </div>
-        <span className="text-xs text-muted-foreground">{progressXP}/100</span>
+        
+        {/* XP Progress Bar */}
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => setShowProgressModal(true)}
+        >
+          <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300"
+              style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground">{levelData.xpInLevel}/{levelData.xpForNext}</span>
+        </div>
+
+        {/* Streak Counter */}
+        {experience.streak_count > 0 && (
+          <div className="flex items-center gap-1">
+            <FireIcon className="w-4 h-4 text-orange-500" />
+            <span className="text-sm font-medium text-foreground">{experience.streak_count}</span>
+          </div>
+        )}
       </div>
 
-      {/* Streak Counter */}
-      {experience.streak_count > 0 && (
-        <div className="flex items-center gap-1">
-          <FireIcon className="w-4 h-4 text-orange-500" />
-          <span className="text-sm font-medium text-foreground">{experience.streak_count}</span>
-        </div>
-      )}
-    </div>
+      {/* Level Progress Modal */}
+      <LevelProgressModal
+        open={showProgressModal}
+        onOpenChange={setShowProgressModal}
+        totalXP={experience.total_xp}
+        level={levelData.level}
+      />
+
+      {/* Level Up Modal */}
+      <LevelUpModal
+        open={showLevelUp}
+        onOpenChange={setShowLevelUp}
+        newLevel={levelData.level}
+        previousLevel={previousLevel}
+      />
+    </>
   );
 };
 
