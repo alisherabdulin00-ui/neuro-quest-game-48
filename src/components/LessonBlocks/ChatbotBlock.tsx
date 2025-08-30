@@ -108,7 +108,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       // Create context with system prompt and conversation history
       const contextMessages = [
         { role: 'system', content: data.systemPrompt },
-        ...messages.map(msg => ({
+        ...(messages || []).map(msg => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
           content: msg.content
         })),
