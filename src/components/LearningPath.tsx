@@ -315,6 +315,7 @@ const LearningPath = ({
                 onStart={() => handleStartLesson(lesson.id)}
                 open={activeTooltip === lesson.id}
                 onOpenChange={(open) => setActiveTooltip(open ? lesson.id : null)}
+                userId={user?.id}
               >
                 <div className={`relative flex flex-col items-center group ${unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={() => handleLessonClick(lesson, unlocked, isCompleted)}>
                 
