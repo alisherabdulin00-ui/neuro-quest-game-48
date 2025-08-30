@@ -273,7 +273,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       </div>
 
       {/* Suggested Questions */}
-      {data.suggestedQuestions && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
+      {data.suggestedQuestions && Array.isArray(data.suggestedQuestions) && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
         <div className="px-4 py-2 border-t border-border bg-muted/30">
           <p className="text-xs text-muted-foreground mb-2">Рекомендуемые вопросы:</p>
           <div className="flex flex-wrap gap-2">
