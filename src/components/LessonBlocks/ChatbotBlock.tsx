@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -36,6 +37,15 @@ interface ChatbotBlockProps {
 }
 
 export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: ChatbotBlockProps) => {
+  // Add null safety check for block.content
+  if (!block || !block.content) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   const data: ChatbotData = block.content;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -45,7 +55,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const minInteractions = data.minInteractions || 3;
+  const minInteractions = data?.minInteractions || 3;
   const canComplete = interactionCount >= minInteractions;
 
   // Get current user
@@ -59,7 +69,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
 
   // Add initial message if provided
   useEffect(() => {
-    if (data.initialMessage) {
+    if (data?.initialMessage) {
       const initialMsg: Message = {
         id: 'initial',
         type: 'assistant',
@@ -68,7 +78,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       };
       setMessages([initialMsg]);
     }
-  }, [data.initialMessage]);
+  }, [data?.initialMessage]);
 
   const scrollToBottom = () => {
     scrollAreaRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -107,7 +117,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       
       // Create context with system prompt and conversation history
       const contextMessages = [
-        { role: 'system', content: data.systemPrompt },
+        { role: 'system', content: data?.systemPrompt || '' },
         ...(messages || []).map(msg => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
           content: msg.content
@@ -118,8 +128,8 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       const { data: response, error } = await supabase.functions.invoke('generate-text', {
         body: { 
           prompt: messageContent,
-          model: data.model,
-          systemPrompt: data.systemPrompt,
+          model: data?.model || 'gpt-3.5-turbo',
+          systemPrompt: data?.systemPrompt || '',
           context: contextMessages
         },
         headers: {
@@ -201,14 +211,14 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
             <ChatBubbleLeftRightIcon className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-foreground">{data.title}</h2>
-            <p className="text-sm text-muted-foreground">{data.description}</p>
+            <h2 className="text-lg font-semibold text-foreground">{data?.title || 'Чат-бот'}</h2>
+            <p className="text-sm text-muted-foreground">{data?.description || 'Описание недоступно'}</p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-xs">
-            {data.model}
+            {data?.model || 'gpt-3.5-turbo'}
           </Badge>
           <Badge variant="outline" className="text-xs">
             {interactionCount}/{minInteractions} взаимодействий
@@ -273,7 +283,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       </div>
 
       {/* Suggested Questions */}
-      {data.suggestedQuestions && Array.isArray(data.suggestedQuestions) && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
+      {data?.suggestedQuestions && Array.isArray(data.suggestedQuestions) && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
         <div className="px-4 py-2 border-t border-border bg-muted/30">
           <p className="text-xs text-muted-foreground mb-2">Рекомендуемые вопросы:</p>
           <div className="flex flex-wrap gap-2">
