@@ -1,11 +1,12 @@
 import { TheoryBlock } from "./TheoryBlock";
 import { PracticeBlock } from "./PracticeBlock";
 import { VideoBlock } from "./VideoBlock";
+import { ChatbotBlock } from "./ChatbotBlock";
 
 export interface LessonBlock {
   id: string;
   lesson_id: string;
-  block_type: 'theory' | 'practice' | 'video';
+  block_type: 'theory' | 'practice' | 'video' | 'chatbot';
   order_index: number;
   title: string;
   content: any; // JSON content
@@ -26,6 +27,8 @@ export const BlockRenderer = ({ block, onComplete, onNext, isLastBlock }: BlockR
       return <PracticeBlock block={block} onNext={onNext} isLastBlock={isLastBlock} onComplete={onComplete} />;
     case 'video':
       return <VideoBlock block={block} onNext={onNext} isLastBlock={isLastBlock} onComplete={onComplete} />;
+    case 'chatbot':
+      return <ChatbotBlock block={block} onNext={onNext} isLastBlock={isLastBlock} onComplete={onComplete} />;
     default:
       return (
         <div className="text-center p-8">
