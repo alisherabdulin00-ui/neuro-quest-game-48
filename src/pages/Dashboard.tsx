@@ -170,31 +170,9 @@ const Dashboard = () => {
       {/* Mobile Header */}
       <div className="flex items-center justify-between p-4 border-b bg-background">
         <div className="flex items-center gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <span className="font-medium text-foreground">{selectedCourse?.title || "Выберите курс"}</span>
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-64 bg-background border border-border shadow-lg z-50">
-              {courses.map(course => (
-                <DropdownMenuItem 
-                  key={course.id} 
-                  onClick={() => setSelectedCourseId(course.id)}
-                  className="p-3 cursor-pointer hover:bg-muted focus:bg-muted"
-                >
-                  <div>
-                    <div className="font-medium text-foreground">{course.title}</div>
-                    <div className="text-sm text-muted-foreground">{course.description}</div>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-            <UserExperienceDisplay userId={user?.id} showLevelUpModal={true} />
-            <UserCoinsDisplay userId={user?.id} />
+          <UserExperienceDisplay userId={user?.id} showLevelUpModal={true} />
+          <UserCoinsDisplay userId={user?.id} />
         </div>
-        
-       
       </div>
 
       <main className="pb-20">
@@ -212,8 +190,32 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Course Selection */}
+        <div className="p-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity bg-background border border-border rounded-xl p-3 w-full justify-between">
+              <span className="font-medium text-foreground">{selectedCourse?.title || "Выберите курс"}</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-full bg-background border border-border shadow-lg z-[9999]">
+              {courses.map(course => (
+                <DropdownMenuItem 
+                  key={course.id} 
+                  onClick={() => setSelectedCourseId(course.id)}
+                  className="p-3 cursor-pointer hover:bg-muted focus:bg-muted"
+                >
+                  <div>
+                    <div className="font-medium text-foreground">{course.title}</div>
+                    <div className="text-sm text-muted-foreground">{course.description}</div>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {/* Chapters and Learning Path Content */}
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 px-4">
           {chapters.map((chapter, chapterIndex) => <div key={chapter.id} className="space-y-4">
               {/* Chapter Header */}
               <div className="bg-indigo-600 text-white p-4 rounded-2xl border-[3px] border-indigo-700 shadow-[0px_4px_0px_0px] shadow-indigo-700">
