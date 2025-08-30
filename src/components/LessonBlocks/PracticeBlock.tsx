@@ -22,7 +22,48 @@ export const PracticeBlock = ({ block, onNext, isLastBlock, onComplete }: Practi
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   
-  const data: QuestionData = block.content;
+  // Add null safety check for block.content
+  if (!block || !block.content) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Handle data structure mismatch - extract from exercises array or use direct content
+  let data: QuestionData;
+  
+  if (block.content.exercises && Array.isArray(block.content.exercises) && block.content.exercises.length > 0) {
+    // Database structure with exercises array
+    const exercise = block.content.exercises[0];
+    data = {
+      question: exercise.question || 'Вопрос не найден',
+      options: exercise.options || [],
+      correct: exercise.correctAnswer !== undefined ? exercise.correctAnswer : exercise.correct || 0,
+      explanation: exercise.explanation
+    };
+  } else {
+    // Direct structure or fallback
+    data = {
+      question: block.content.question || 'Вопрос не найден',
+      options: block.content.options || [],
+      correct: block.content.correctAnswer !== undefined ? block.content.correctAnswer : block.content.correct || 0,
+      explanation: block.content.explanation
+    };
+  }
+
+  // Additional safety check for options array
+  if (!Array.isArray(data.options) || data.options.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center p-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Вопрос загружается...</p>
+        </div>
+      </div>
+    );
+  }
+  
   const isCorrect = selectedAnswer === data.correct;
 
   const handleAnswerSelect = (optionIndex: number) => {
