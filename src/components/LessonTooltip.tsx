@@ -91,14 +91,15 @@ const LessonTooltip = ({
   const xpBreakdown = calculateDynamicXP();
   return (
     <TooltipProvider>
-      <Tooltip open={open} onOpenChange={onOpenChange}>
+      <Tooltip open={open} onOpenChange={onOpenChange} delayDuration={100}>
         <TooltipTrigger asChild>
           {children}
         </TooltipTrigger>
         <TooltipContent 
           side="top" 
           sideOffset={15}
-          className="bg-white border border-gray-200 shadow-xl rounded-2xl p-4 min-w-[300px] max-w-[340px]"
+          className="bg-white border border-gray-200 shadow-xl rounded-2xl p-4 min-w-[300px] max-w-[340px] z-[9999] relative"
+          style={{ zIndex: 9999 }}
         >
           <div className="flex flex-col gap-3">
             {/* Lesson title */}
