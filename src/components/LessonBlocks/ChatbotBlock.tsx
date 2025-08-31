@@ -206,40 +206,25 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // Create context with system prompt and conversation history
-      const contextMessages = [
-        { role: 'system', content: data?.systemPrompt || '' },
-        ...(messages || []).map(msg => ({
-          role: msg.type === 'user' ? 'user' : 'assistant',
-          content: msg.content
-        })),
-        { role: 'user', content: messageContent }
-      ];
-
-      const { data: response, error } = await supabase.functions.invoke('generate-text', {
+      // Step 1: Generate content
+      const { data: contentResponse, error: contentError } = await supabase.functions.invoke('generate-content', {
         body: { 
           prompt: messageContent,
           model: data?.model || 'gpt-4o-mini',
           systemPrompt: hasTask ? 
             'Ты эксперт по созданию контента. Выполни точно то, что просит пользователь. Создай качественный, профессиональный контент согласно запросу. Отвечай на русском языке.' :
-            (data?.systemPrompt || ''),
-          context: contextMessages,
-          isLessonMode: true,
-          taskEvaluation: hasTask ? {
-            ...data?.task,
-            evaluationSystemPrompt: data?.systemPrompt
-          } : false
+            (data?.systemPrompt || '')
         },
         headers: {
           authorization: `Bearer ${session?.access_token}`
         }
       });
 
-      if (error) {
-        let errorMsg = `Ошибка: ${error.message}`;
+      if (contentError) {
+        let errorMsg = `Ошибка: ${contentError.message}`;
         
-        if (error.message.includes('Недостаточно монет')) {
-          const coinsMatch = error.message.match(/Требуется: (\d+), доступно: (\d+)/);
+        if (contentError.message.includes('Недостаточно монет')) {
+          const coinsMatch = contentError.message.match(/Требуется: (\d+), доступно: (\d+)/);
           if (coinsMatch) {
             errorMsg = `Недостаточно монет для этого запроса. Требуется: ${coinsMatch[1]}, у вас: ${coinsMatch[2]}`;
             toast({
@@ -257,90 +242,74 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
           timestamp: new Date()
         };
         setMessages(prev => [...prev, assistantMessage]);
-      } else {
-        const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: response.response,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, assistantMessage]);
-        setInteractionCount(prev => prev + 1);
-        
-        if (hasTask) {
+        return;
+      }
+
+      if (!contentResponse?.content) {
+        throw new Error('No content received from AI');
+      }
+
+      // Add AI response with generated content
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: contentResponse.content,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      setInteractionCount(prev => prev + 1);
+      
+      // Step 2: If task exists, evaluate the prompt and content
+      if (hasTask && data?.task) {
+        const { data: evaluationResponse, error: evaluationError } = await supabase.functions.invoke('evaluate-prompt', {
+          body: { 
+            prompt: messageContent,
+            content: contentResponse.content,
+            task: data.task,
+            systemPrompt: data?.systemPrompt
+          },
+          headers: {
+            authorization: `Bearer ${session?.access_token}`
+          }
+        });
+
+        if (evaluationError) {
+          console.error('Evaluation error:', evaluationError);
+          // Continue without evaluation if it fails
+        } else if (evaluationResponse?.evaluation) {
           const newAttemptsUsed = attemptsUsed + 1;
           setAttemptsUsed(newAttemptsUsed);
           
-          // Handle task evaluation response
-          if (response.evaluation) {
-            const evaluation: TaskEvaluation = response.evaluation;
-            setCurrentEvaluation(evaluation);
-            setGeneratedContent(response.response);
-            
-            // Determine if task is completed based on evaluation score
-            const isCompleted = evaluation.success || evaluation.score >= 8;
-            if (isCompleted) {
-              setTaskCompleted(true);
-              await updateUserAttempts(newAttemptsUsed, true, evaluation);
+          const evaluation: TaskEvaluation = evaluationResponse.evaluation;
+          setCurrentEvaluation(evaluation);
+          setGeneratedContent(contentResponse.content);
+          
+          // Determine if task is completed based on evaluation score
+          const isCompleted = evaluation.success || evaluation.score >= 8;
+          if (isCompleted) {
+            setTaskCompleted(true);
+            await updateUserAttempts(newAttemptsUsed, true, evaluation);
+            toast({
+              title: "Задание выполнено!",
+              description: `Отличная работа! Оценка: ${evaluation.score}/10`,
+              variant: "default",
+            });
+          } else {
+            await updateUserAttempts(newAttemptsUsed, false, evaluation);
+            if (newAttemptsUsed >= maxAttempts) {
               toast({
-                title: "Задание выполнено!",
-                description: `Отличная работа! Оценка: ${evaluation.score}/10`,
-                variant: "default",
+                title: "Попытки исчерпаны",
+                description: "Вы можете продолжить изучение следующего блока.",
+                variant: "destructive",
               });
             } else {
-              await updateUserAttempts(newAttemptsUsed, false, evaluation);
-              if (newAttemptsUsed >= maxAttempts) {
-                toast({
-                  title: "Попытки исчерпаны",
-                  description: "Вы можете продолжить изучение следующего блока.",
-                  variant: "destructive",
-                });
-              } else {
-                toast({
-                  title: `Оценка: ${evaluation.score}/10`,
-                  description: evaluation.score >= 5 ? "Хорошо! Можете улучшить или продолжить." : "Попробуйте улучшить промпт.",
-                  variant: evaluation.score >= 5 ? "default" : "destructive",
-                });
-              }
-            }
-          } else {
-            // Fallback to old criteria-based checking
-            if (data?.task?.successCriteria) {
-              const responseContent = response.response.toLowerCase();
-              const criteriaMatch = data.task.successCriteria.some(criteria => 
-                responseContent.includes(criteria.toLowerCase())
-              );
-              
-              if (criteriaMatch) {
-                setTaskCompleted(true);
-                await updateUserAttempts(newAttemptsUsed, true);
-                toast({
-                  title: "Задание выполнено!",
-                  description: "Отличная работа! Вы успешно выполнили задание.",
-                  variant: "default",
-                });
-              } else {
-                await updateUserAttempts(newAttemptsUsed, false);
-                if (newAttemptsUsed >= maxAttempts) {
-                  toast({
-                    title: "Попытки исчерпаны",
-                    description: "Вы можете продолжить изучение следующего блока.",
-                    variant: "destructive",
-                  });
-                }
-              }
-            } else {
-              await updateUserAttempts(newAttemptsUsed, false);
+              toast({
+                title: `Оценка: ${evaluation.score}/10`,
+                description: evaluation.score >= 5 ? "Хорошо! Можете улучшить или продолжить." : "Попробуйте улучшить промпт.",
+                variant: evaluation.score >= 5 ? "default" : "destructive",
+              });
             }
           }
-        }
-
-        // Show coins deducted notification (should be 0 for lessons)
-        if (response.coinsDeducted > 0) {
-          toast({
-            title: `Списано ${response.coinsDeducted} монет`,
-            description: `Остаток: ${response.remainingCoins} монет`,
-          });
         }
       }
     } catch (error) {
