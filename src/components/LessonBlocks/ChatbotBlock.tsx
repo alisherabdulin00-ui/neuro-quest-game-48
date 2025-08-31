@@ -18,6 +18,14 @@ interface Message {
   timestamp: Date;
 }
 
+interface TaskEvaluation {
+  success: boolean;
+  score: number;
+  feedback: string;
+  improvements: string[];
+  strengths: string[];
+}
+
 interface ChatbotTask {
   id: string;
   title: string;
@@ -64,6 +72,8 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
   const [interactionCount, setInteractionCount] = useState(0);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [taskCompleted, setTaskCompleted] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState<string>('');
+  const [currentEvaluation, setCurrentEvaluation] = useState<TaskEvaluation | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -91,7 +101,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
     try {
       const { data, error } = await supabase
         .from('user_lesson_block_attempts')
-        .select('attempts_used, completed')
+        .select('attempts_used, completed, feedback_data')
         .eq('user_id', userIdParam)
         .eq('lesson_block_id', block.id)
         .maybeSingle();
@@ -104,6 +114,9 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       if (data) {
         setAttemptsUsed(data.attempts_used);
         setTaskCompleted(data.completed);
+        if (data.feedback_data) {
+          setCurrentEvaluation(data.feedback_data as unknown as TaskEvaluation);
+        }
       }
     } catch (error) {
       console.error('Error fetching attempts:', error);
@@ -111,7 +124,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
   };
 
   // Update attempts in database
-  const updateUserAttempts = async (attemptsCount: number, isCompleted: boolean = false) => {
+  const updateUserAttempts = async (attemptsCount: number, isCompleted: boolean = false, feedbackData: TaskEvaluation | null = null) => {
     if (!userId) return;
 
     try {
@@ -122,6 +135,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
           lesson_block_id: block.id,
           attempts_used: attemptsCount,
           completed: isCompleted,
+          feedback_data: feedbackData as any,
           updated_at: new Date().toISOString()
         });
 
@@ -207,7 +221,8 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
           model: data?.model || 'gpt-4o-mini',
           systemPrompt: data?.systemPrompt || '',
           context: contextMessages,
-          isLessonMode: true
+          isLessonMode: true,
+          taskEvaluation: hasTask
         },
         headers: {
           authorization: `Bearer ${session?.access_token}`
@@ -250,33 +265,67 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
           const newAttemptsUsed = attemptsUsed + 1;
           setAttemptsUsed(newAttemptsUsed);
           
-          // Check if task is completed based on success criteria
-          if (data?.task?.successCriteria) {
-            const responseContent = response.response.toLowerCase();
-            const criteriaMatch = data.task.successCriteria.some(criteria => 
-              responseContent.includes(criteria.toLowerCase())
-            );
+          // Handle task evaluation response
+          if (response.evaluation) {
+            const evaluation: TaskEvaluation = response.evaluation;
+            setCurrentEvaluation(evaluation);
+            setGeneratedContent(response.response);
             
-            if (criteriaMatch) {
+            // Determine if task is completed based on evaluation score
+            const isCompleted = evaluation.success || evaluation.score >= 8;
+            if (isCompleted) {
               setTaskCompleted(true);
-              await updateUserAttempts(newAttemptsUsed, true);
+              await updateUserAttempts(newAttemptsUsed, true, evaluation);
               toast({
                 title: "Задание выполнено!",
-                description: "Отличная работа! Вы успешно выполнили задание.",
+                description: `Отличная работа! Оценка: ${evaluation.score}/10`,
                 variant: "default",
               });
             } else {
-              await updateUserAttempts(newAttemptsUsed, false);
+              await updateUserAttempts(newAttemptsUsed, false, evaluation);
               if (newAttemptsUsed >= maxAttempts) {
                 toast({
                   title: "Попытки исчерпаны",
                   description: "Вы можете продолжить изучение следующего блока.",
                   variant: "destructive",
                 });
+              } else {
+                toast({
+                  title: `Оценка: ${evaluation.score}/10`,
+                  description: evaluation.score >= 5 ? "Хорошо! Можете улучшить или продолжить." : "Попробуйте улучшить промпт.",
+                  variant: evaluation.score >= 5 ? "default" : "destructive",
+                });
               }
             }
           } else {
-            await updateUserAttempts(newAttemptsUsed, false);
+            // Fallback to old criteria-based checking
+            if (data?.task?.successCriteria) {
+              const responseContent = response.response.toLowerCase();
+              const criteriaMatch = data.task.successCriteria.some(criteria => 
+                responseContent.includes(criteria.toLowerCase())
+              );
+              
+              if (criteriaMatch) {
+                setTaskCompleted(true);
+                await updateUserAttempts(newAttemptsUsed, true);
+                toast({
+                  title: "Задание выполнено!",
+                  description: "Отличная работа! Вы успешно выполнили задание.",
+                  variant: "default",
+                });
+              } else {
+                await updateUserAttempts(newAttemptsUsed, false);
+                if (newAttemptsUsed >= maxAttempts) {
+                  toast({
+                    title: "Попытки исчерпаны",
+                    description: "Вы можете продолжить изучение следующего блока.",
+                    variant: "destructive",
+                  });
+                }
+              }
+            } else {
+              await updateUserAttempts(newAttemptsUsed, false);
+            }
           }
         }
 
@@ -368,6 +417,71 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
             <Badge variant="outline" className="text-xs">
               {interactionCount}/{minInteractions} взаимодействий
             </Badge>
+          </div>
+        </div>
+      )}
+
+      {/* Evaluation Feedback Panel - Show for tasks */}
+      {hasTask && currentEvaluation && (
+        <div className="mx-4 mb-4">
+          <div className={`rounded-lg border p-4 ${
+            currentEvaluation.score >= 8 
+              ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
+              : currentEvaluation.score >= 5 
+              ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800'
+              : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800'
+          }`}>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold flex items-center gap-2">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                  currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
+                }`}>
+                  {currentEvaluation.score}
+                </div>
+                Оценка работы
+              </h4>
+              <div className="text-sm text-muted-foreground">
+                {currentEvaluation.score}/10
+              </div>
+            </div>
+            
+            <p className={`text-sm mb-3 ${
+              currentEvaluation.score >= 8 
+                ? 'text-green-700 dark:text-green-300' 
+                : currentEvaluation.score >= 5 
+                ? 'text-yellow-700 dark:text-yellow-300'
+                : 'text-red-700 dark:text-red-300'
+            }`}>
+              {currentEvaluation.feedback}
+            </p>
+            
+            {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
+              <div className="mb-3">
+                <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
+                <ul className="text-xs text-green-700 dark:text-green-300 space-y-1">
+                  {currentEvaluation.strengths.map((strength, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">•</span>
+                      {strength}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && currentEvaluation.score < 8 && (
+              <div>
+                <h5 className="text-sm font-medium text-orange-600 mb-1">💡 Предложения по улучшению:</h5>
+                <ul className="text-xs text-orange-700 dark:text-orange-300 space-y-1">
+                  {currentEvaluation.improvements.map((improvement, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-orange-500 mt-0.5">•</span>
+                      {improvement}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -331,6 +331,7 @@ export type Database = {
           attempts_used: number
           completed: boolean
           created_at: string
+          feedback_data: Json | null
           id: string
           lesson_block_id: string
           updated_at: string
@@ -340,6 +341,7 @@ export type Database = {
           attempts_used?: number
           completed?: boolean
           created_at?: string
+          feedback_data?: Json | null
           id?: string
           lesson_block_id: string
           updated_at?: string
@@ -349,6 +351,7 @@ export type Database = {
           attempts_used?: number
           completed?: boolean
           created_at?: string
+          feedback_data?: Json | null
           id?: string
           lesson_block_id?: string
           updated_at?: string

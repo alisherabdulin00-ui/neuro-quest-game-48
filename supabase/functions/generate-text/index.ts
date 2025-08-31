@@ -72,7 +72,7 @@ serve(async (req) => {
       );
     }
 
-    const { prompt, model = 'gpt-5-2025-08-07', isLessonMode = false } = await req.json();
+    const { prompt, model = 'gpt-5-2025-08-07', isLessonMode = false, taskEvaluation = false, systemPrompt, context } = await req.json();
 
     // Get user from auth token
     const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
@@ -156,15 +156,23 @@ serve(async (req) => {
 
     const isNewerModel = [...gpt5Models, ...gpt5MiniModels, ...gpt5NanoModels, ...reasoningModels, ...gpt4Models].includes(model);
 
-    const requestBody: any = {
-      model: model,
-      messages: [
+    // Build messages array based on context or fallback
+    let messages;
+    if (context && Array.isArray(context)) {
+      messages = context;
+    } else {
+      messages = [
         { 
           role: 'system', 
-          content: 'Отвечай на русском языке кратко и по делу.' 
+          content: systemPrompt || 'Отвечай на русском языке кратко и по делу.' 
         },
         { role: 'user', content: prompt }
-      ],
+      ];
+    }
+
+    const requestBody: any = {
+      model: model,
+      messages: messages,
     };
 
     // Set token limits based on model type
@@ -233,6 +241,88 @@ serve(async (req) => {
     const finishReason = data.choices[0].finish_reason;
     console.log('Generated text length:', generatedText ? generatedText.length : 'null');
     console.log('Finish reason:', finishReason);
+
+    // Handle task evaluation mode
+    if (taskEvaluation && generatedText) {
+      console.log('Performing task evaluation...');
+      
+      // Second AI call for evaluation
+      const evaluationPrompt = `Оцените качество промпта пользователя и сгенерированный контент по следующим критериям:
+
+ПРОМПТ ПОЛЬЗОВАТЕЛЯ: "${prompt}"
+
+СГЕНЕРИРОВАННЫЙ КОНТЕНТ: "${generatedText}"
+
+Проанализируйте:
+1. Качество и детальность промпта пользователя
+2. Соответствие сгенерированного контента запросу
+3. Профессиональность и структурированность результата
+
+Верните JSON в следующем формате:
+{
+  "success": true/false,
+  "score": число от 1 до 10,
+  "feedback": "Детальная обратная связь о качестве промпта",
+  "improvements": ["Конкретные предложения по улучшению"],
+  "strengths": ["Что пользователь сделал хорошо"]
+}
+
+Оценка 8-10: отличная работа, задание выполнено
+Оценка 5-7: хорошо, но можно улучшить
+Оценка 1-4: нужно существенно доработать`;
+
+      const evaluationBody = {
+        model: 'gpt-4.1-2025-04-14', // Use reliable model for evaluation
+        messages: [
+          { role: 'system', content: 'Ты эксперт по оценке качества промптов и контента. Всегда отвечай только валидным JSON без дополнительного текста.' },
+          { role: 'user', content: evaluationPrompt }
+        ],
+        max_completion_tokens: 1000
+      };
+
+      const evaluationResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(evaluationBody),
+      });
+
+      let evaluationData = null;
+      if (evaluationResponse.ok) {
+        const evalResult = await evaluationResponse.json();
+        const evaluationText = evalResult.choices[0]?.message?.content;
+        
+        try {
+          evaluationData = JSON.parse(evaluationText);
+          console.log('Evaluation completed:', evaluationData);
+        } catch (parseError) {
+          console.error('Failed to parse evaluation JSON:', parseError);
+          // Fallback evaluation
+          evaluationData = {
+            success: false,
+            score: 5,
+            feedback: "Не удалось провести автоматическую оценку",
+            improvements: ["Попробуйте еще раз"],
+            strengths: ["Вы создали контент"]
+          };
+        }
+      }
+
+      // Return structured response with content and evaluation
+      return new Response(
+        JSON.stringify({ 
+          response: generatedText.trim(),
+          evaluation: evaluationData,
+          coinsDeducted: (userTier === 'pro' || isLessonMode) ? 0 : coins,
+          remainingCoins: userTier === 'pro' ? 'unlimited' : (isLessonMode ? currentCoins : (currentCoins - coins))
+        }), 
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
     
     // Extract token usage from OpenAI response
     const inputTokens = data.usage?.prompt_tokens || 0;
