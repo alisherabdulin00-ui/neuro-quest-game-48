@@ -368,12 +368,10 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         /* Task-based header */
         <div className="bg-card rounded-lg border p-4 mb-4 mx-4 mt-4">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-lg font-bold">!</span>
-            </div>
+           
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-semibold text-foreground">Практическое задание</h2>
+                {/* <h2 className="text-lg font-semibold text-foreground">Практическое задание</h2> */}
                 <div className="text-xs text-muted-foreground">
                   Попытка {attemptsUsed} из {maxAttempts}
                 </div>
