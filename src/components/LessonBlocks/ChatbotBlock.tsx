@@ -73,14 +73,65 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
   const canComplete = hasTask ? taskCompleted : interactionCount >= minInteractions;
   const attemptsRemaining = maxAttempts - attemptsUsed;
 
-  // Get current user
+  // Get current user and fetch attempts
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUserId(user?.id || null);
+      
+      if (user?.id && hasTask) {
+        await fetchUserAttempts(user.id);
+      }
     };
     getUser();
-  }, []);
+  }, [hasTask, block.id]);
+
+  // Fetch user attempts for this lesson block
+  const fetchUserAttempts = async (userIdParam: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_lesson_block_attempts')
+        .select('attempts_used, completed')
+        .eq('user_id', userIdParam)
+        .eq('lesson_block_id', block.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        console.error('Error fetching attempts:', error);
+        return;
+      }
+
+      if (data) {
+        setAttemptsUsed(data.attempts_used);
+        setTaskCompleted(data.completed);
+      }
+    } catch (error) {
+      console.error('Error fetching attempts:', error);
+    }
+  };
+
+  // Update attempts in database
+  const updateUserAttempts = async (attemptsCount: number, isCompleted: boolean = false) => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_lesson_block_attempts')
+        .upsert({
+          user_id: userId,
+          lesson_block_id: block.id,
+          attempts_used: attemptsCount,
+          completed: isCompleted,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('Error updating attempts:', error);
+      }
+    } catch (error) {
+      console.error('Error updating attempts:', error);
+    }
+  };
 
   // Add initial message if provided (only for non-task chatbots)
   useEffect(() => {
@@ -196,7 +247,8 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         setInteractionCount(prev => prev + 1);
         
         if (hasTask) {
-          setAttemptsUsed(prev => prev + 1);
+          const newAttemptsUsed = attemptsUsed + 1;
+          setAttemptsUsed(newAttemptsUsed);
           
           // Check if task is completed based on success criteria
           if (data?.task?.successCriteria) {
@@ -207,18 +259,24 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
             
             if (criteriaMatch) {
               setTaskCompleted(true);
+              await updateUserAttempts(newAttemptsUsed, true);
               toast({
                 title: "Задание выполнено!",
                 description: "Отличная работа! Вы успешно выполнили задание.",
                 variant: "default",
               });
-            } else if (attemptsUsed + 1 >= maxAttempts) {
-              toast({
-                title: "Попытки исчерпаны",
-                description: "Вы можете продолжить изучение следующего блока.",
-                variant: "destructive",
-              });
+            } else {
+              await updateUserAttempts(newAttemptsUsed, false);
+              if (newAttemptsUsed >= maxAttempts) {
+                toast({
+                  title: "Попытки исчерпаны",
+                  description: "Вы можете продолжить изучение следующего блока.",
+                  variant: "destructive",
+                });
+              }
             }
+          } else {
+            await updateUserAttempts(newAttemptsUsed, false);
           }
         }
 

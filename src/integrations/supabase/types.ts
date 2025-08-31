@@ -326,6 +326,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_lesson_block_attempts: {
+        Row: {
+          attempts_used: number
+          completed: boolean
+          created_at: string
+          id: string
+          lesson_block_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts_used?: number
+          completed?: boolean
+          created_at?: string
+          id?: string
+          lesson_block_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts_used?: number
+          completed?: boolean
+          created_at?: string
+          id?: string
+          lesson_block_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_points: {
         Row: {
           created_at: string
