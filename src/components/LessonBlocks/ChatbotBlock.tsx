@@ -143,8 +143,6 @@ export const ChatbotBlock = ({
     }
   };
 
-  const [showInput, setShowInput] = useState(true);
-
   // Add initial message if provided (only for non-task chatbots)
   useEffect(() => {
     if (!hasTask && data?.initialMessage) {
@@ -157,13 +155,6 @@ export const ChatbotBlock = ({
       setMessages([initialMsg]);
     }
   }, [data?.initialMessage, hasTask]);
-
-  // Hide input after task completion
-  useEffect(() => {
-    if (hasTask && currentEvaluation) {
-      setShowInput(false);
-    }
-  }, [hasTask, currentEvaluation]);
   const scrollToBottom = () => {
     scrollAreaRef.current?.scrollIntoView({
       behavior: "smooth"
@@ -427,10 +418,10 @@ export const ChatbotBlock = ({
                           <CollapsibleTrigger asChild>
                             <Button variant="outline" className="w-full mb-4 text-lg font-bold py-3 px-6 rounded-xl border-2 border-gray-300 shadow-[0px_4px_0px_0px] shadow-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-300 active:shadow-[0px_0px_0px_0px] active:shadow-gray-300 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
                               {showDetailedFeedback ? <>
-                                  Скрыть подробности
+                                  Скрыть
                                   <ChevronUpIcon className="w-5 h-5 ml-2" />
                                 </> : <>
-                                  Показать подробности
+                                  Подробнее
                                   <ChevronDownIcon className="w-5 h-5 ml-2" />
                                 </>}
                             </Button>
@@ -498,15 +489,13 @@ export const ChatbotBlock = ({
       {/* Input Area */}
       <div className="flex justify-center py-4 px-6 flex-shrink-0">
         <div className="w-full max-w-2xl space-y-4">
-          {/* Input Form - show only when input is allowed */}
-          {showInput && (
-            <div className="flex space-x-4">
-              <input type="text" value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyPress={handleKeyPress} placeholder={hasTask && attemptsUsed >= maxAttempts ? "Попытки исчерпаны..." : "Введите ваш промпт..."} disabled={isGenerating || hasTask && attemptsUsed >= maxAttempts} className="flex-1 h-16 px-6 py-4 text-lg font-medium bg-white border-2 border-gray-300 rounded-2xl shadow-[0px_4px_0px_0px] shadow-gray-300 focus:outline-none focus:border-indigo-400 focus:shadow-indigo-300 focus:shadow-[0px_4px_0px_0px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-gray-400" />
-              <Button onClick={() => handleSend()} disabled={!inputValue.trim() || isGenerating || hasTask && attemptsUsed >= maxAttempts} className="bg-indigo-500 h-16 hover:bg-indigo-600 text-white px-6 py-4 text-lg font-bold rounded-2xl border-2 border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-400 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-400 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed min-w-[4rem]">
-                {isGenerating ? <ArrowPathIcon className="w-6 h-6 animate-spin" /> : <PaperAirplaneIcon className="w-6 h-6" />}
-              </Button>
-            </div>
-          )}
+          {/* Input Form */}
+          <div className="flex space-x-4">
+            <input type="text" value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyPress={handleKeyPress} placeholder={hasTask && attemptsUsed >= maxAttempts ? "Попытки исчерпаны..." : "Введите ваш промпт..."} disabled={isGenerating || hasTask && attemptsUsed >= maxAttempts} className="flex-1 px-6 py-4 text-lg font-medium bg-white border-2 border-gray-300 rounded-2xl shadow-[0px_4px_0px_0px] shadow-gray-300 focus:outline-none focus:border-indigo-400 focus:shadow-indigo-300 focus:shadow-[0px_4px_0px_0px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-gray-400" />
+            <Button onClick={() => handleSend()} disabled={!inputValue.trim() || isGenerating || hasTask && attemptsUsed >= maxAttempts} className="bg-indigo-500 h-full hover:bg-indigo-600 text-white px-6 py-4 text-lg font-bold rounded-2xl border-2 border-indigo-400 shadow-[0px_4px_0px_0px] shadow-indigo-400 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-400 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-400 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed min-w-[4rem]">
+              {isGenerating ? <ArrowPathIcon className="w-6 h-6 animate-spin" /> : <PaperAirplaneIcon className="w-6 h-6" />}
+            </Button>
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3">
@@ -517,21 +506,20 @@ export const ChatbotBlock = ({
             setGeneratedContent("");
             setMessages([]);
             setShowDetailedFeedback(false);
-            setShowInput(true);
           }} className="flex-1 text-lg font-bold py-4 px-6 rounded-xl border-2 border-gray-300 shadow-[0px_4px_0px_0px] shadow-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-300 active:shadow-[0px_0px_0px_0px] active:shadow-gray-300 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]">
                 <ArrowPathIcon className="w-5 h-5 mr-2" />
-                Еще раз
+                Попробовать снова ({attemptsRemaining})
               </Button>}
             
             {/* Continue/Complete Button */}
             {(hasTask && currentEvaluation || !hasTask && canComplete) && <Button onClick={isLastBlock ? onComplete : onNext} disabled={!canComplete} className={`${hasTask && currentEvaluation && attemptsRemaining > 0 && !taskCompleted ? 'flex-1' : 'w-full'} bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed`}>
-                <CheckCircleIcon className="w-5 h-5 mr-2" />
-                Далее
+                
+                {isLastBlock ? 'Завершить урок' : 'Продолжить'}
               </Button>}
 
             {/* Progress indicator for non-task mode */}
             {!hasTask && !canComplete && <Button disabled className="w-full bg-gray-300 text-gray-600 px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-gray-400 cursor-not-allowed">
-                Еще {minInteractions - interactionCount} взаимодействий
+                Еще раз
               </Button>}
           </div>
         </div>
