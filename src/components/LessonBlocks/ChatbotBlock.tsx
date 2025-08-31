@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -366,219 +365,212 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
 
   return (
     <div className="h-full flex flex-col">
-      {hasTask ? (
-        /* Task-based header */
-        <div className="bg-card rounded-lg border p-4 mb-4 mx-4 mt-4">
-          <div className="flex items-start gap-4">
-           
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                {/* <h2 className="text-lg font-semibold text-foreground">Практическое задание</h2> */}
-                <div className="text-xs text-muted-foreground">
-                  Попытка {attemptsUsed} из {maxAttempts}
-                </div>
-              </div>
-              <h3 className="text-base font-medium text-orange-600 mb-2">{data.task.title}</h3>
-              <p className="text-sm text-muted-foreground">{data.task.description}</p>
-              
-              {taskCompleted && (
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mt-3">
-                  <div className="flex items-center gap-2">
-                    <CheckCircleIcon className="w-4 h-4 text-green-600" />
-                    <span className="text-green-700 dark:text-green-300 text-sm font-medium">Задание выполнено!</span>
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto">
+        {hasTask ? (
+          /* Task-based header */
+          <div className="bg-card rounded-lg border p-4 mb-4 mx-4 mt-4">
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs text-muted-foreground">
+                    Попытка {attemptsUsed} из {maxAttempts}
                   </div>
                 </div>
-              )}
+                <h3 className="text-base font-medium text-orange-600 mb-2">{data.task.title}</h3>
+                <p className="text-sm text-muted-foreground">{data.task.description}</p>
+                
+                {taskCompleted && (
+                  <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mt-3">
+                    <div className="flex items-center gap-2">
+                      <CheckCircleIcon className="w-4 h-4 text-green-600" />
+                      <span className="text-green-700 dark:text-green-300 text-sm font-medium">Задание выполнено!</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ) : (
-        /* Regular chatbot header */
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-primary/20 rounded-full">
-              <ChatBubbleLeftRightIcon className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-foreground">{data?.title || 'Чат-бот'}</h2>
-              <p className="text-sm text-muted-foreground">{data?.description || 'Описание недоступно'}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {data?.model || 'gpt-4o-mini'}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {interactionCount}/{minInteractions} взаимодействий
-            </Badge>
-          </div>
-        </div>
-      )}
-
-      {/* Generated Content - Show first when task is completed */}
-      {hasTask && generatedContent && (
-        <div className="mx-4 mb-4">
-          <div className="bg-card rounded-lg border p-4">
-            <h4 className="font-semibold mb-3">Ваш результат:</h4>
-            <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>{generatedContent}</ReactMarkdown>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Score Display - Show after generated content */}
-      {hasTask && currentEvaluation && (
-        <div className="mx-4 mb-4">
-          <div className={`rounded-lg border p-4 ${
-            currentEvaluation.score >= 8 
-              ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
-              : currentEvaluation.score >= 5 
-              ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800'
-              : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800'
-          }`}>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white ${
-                  currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
-                }`}>
-                  {currentEvaluation.score}
-                </div>
-                Оценка работы
-              </h4>
-              <div className="text-lg font-semibold text-muted-foreground">
-                {currentEvaluation.score}/10
+        ) : (
+          /* Regular chatbot header */
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-primary/20 rounded-full">
+                <ChatBubbleLeftRightIcon className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-foreground">{data?.title || 'Чат-бот'}</h2>
+                <p className="text-sm text-muted-foreground">{data?.description || 'Описание недоступно'}</p>
               </div>
             </div>
             
-            <Collapsible open={showDetailedFeedback} onOpenChange={setShowDetailedFeedback}>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full mb-3">
-                  {showDetailedFeedback ? (
-                    <>
-                      Скрыть подробную оценку
-                      <ChevronUpIcon className="w-4 h-4 ml-2" />
-                    </>
-                  ) : (
-                    <>
-                      Показать подробную оценку
-                      <ChevronDownIcon className="w-4 h-4 ml-2" />
-                    </>
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-              
-              <CollapsibleContent className="space-y-3">
-                <p className={`text-sm ${
-                  currentEvaluation.score >= 8 
-                    ? 'text-green-700 dark:text-green-300' 
-                    : currentEvaluation.score >= 5 
-                    ? 'text-yellow-700 dark:text-yellow-300'
-                    : 'text-red-700 dark:text-red-300'
-                }`}>
-                  {currentEvaluation.feedback}
-                </p>
-                
-                {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
-                  <div>
-                    <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
-                    <ul className="text-xs text-green-700 dark:text-green-300 space-y-1">
-                      {currentEvaluation.strengths.map((strength, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <span className="text-green-500 mt-0.5">•</span>
-                          {strength}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && currentEvaluation.score < 8 && (
-                  <div>
-                    <h5 className="text-sm font-medium text-orange-600 mb-1">↗ Предложения по улучшению:</h5>
-                    <ul className="text-xs text-orange-700 dark:text-orange-300 space-y-1">
-                      {currentEvaluation.improvements.map((improvement, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <span className="text-orange-500 mt-0.5">•</span>
-                          {improvement}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">
+                {data?.model || 'gpt-4o-mini'}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {interactionCount}/{minInteractions} взаимодействий
+              </Badge>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <div className="px-4 py-4">
-            {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[40vh] text-center space-y-4">
-                <div className="p-4 bg-muted rounded-full">
-                  <ChatBubbleLeftRightIcon className="w-8 h-8 text-muted-foreground" />
-                </div>
-                 <div>
-                   <h3 className="text-lg font-semibold mb-2">
-                     {hasTask ? 'Выполните задание' : 'Начните диалог'}
-                   </h3>
-                   <p className="text-muted-foreground text-sm">
-                     {hasTask 
-                       ? `У вас есть ${maxAttempts} попыток для выполнения задания`
-                       : 'Задайте вопрос для начала изучения'
-                     }
-                   </p>
-                 </div>
+        {/* Generated Content - Show first when task is completed */}
+        {hasTask && generatedContent && (
+          <div className="mx-4 mb-4">
+            <div className="bg-card rounded-lg border p-4">
+              <h4 className="font-semibold mb-3">Ваш результат:</h4>
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown>{generatedContent}</ReactMarkdown>
               </div>
-            ) : (
-              <div className="space-y-4 pb-4">
-                {messages.map((message) => (
-                  <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {message.type === 'assistant' && (
-                      <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                        <ChatBubbleLeftRightIcon className="w-3.5 h-3.5 text-primary-foreground" />
-                      </div>
+            </div>
+          </div>
+        )}
+
+        {/* Score Display - Show after generated content */}
+        {hasTask && currentEvaluation && (
+          <div className="mx-4 mb-4">
+            <div className={`rounded-lg border p-4 ${
+              currentEvaluation.score >= 8 
+                ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
+                : currentEvaluation.score >= 5 
+                ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800'
+                : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white ${
+                    currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
+                  }`}>
+                    {currentEvaluation.score}
+                  </div>
+                  Оценка работы
+                </h4>
+                <div className="text-lg font-semibold text-muted-foreground">
+                  {currentEvaluation.score}/10
+                </div>
+              </div>
+              
+              <Collapsible open={showDetailedFeedback} onOpenChange={setShowDetailedFeedback}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full mb-3">
+                    {showDetailedFeedback ? (
+                      <>
+                        Скрыть подробную оценку
+                        <ChevronUpIcon className="w-4 h-4 ml-2" />
+                      </>
+                    ) : (
+                      <>
+                        Показать подробную оценку
+                        <ChevronDownIcon className="w-4 h-4 ml-2" />
+                      </>
                     )}
+                  </Button>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="space-y-3">
+                  <p className={`text-sm ${
+                    currentEvaluation.score >= 8 
+                      ? 'text-green-700 dark:text-green-300' 
+                      : currentEvaluation.score >= 5 
+                      ? 'text-yellow-700 dark:text-yellow-300'
+                      : 'text-red-700 dark:text-red-300'
+                  }`}>
+                    {currentEvaluation.feedback}
+                  </p>
+                  
+                  {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
+                    <div>
+                      <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
+                      <ul className="text-xs text-green-700 dark:text-green-300 space-y-1">
+                        {currentEvaluation.strengths.map((strength, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-green-500 mt-0.5">•</span>
+                            {strength}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && currentEvaluation.score < 8 && (
+                    <div>
+                      <h5 className="text-sm font-medium text-orange-600 mb-1">↗ Предложения по улучшению:</h5>
+                      <ul className="text-xs text-orange-700 dark:text-orange-300 space-y-1">
+                        {currentEvaluation.improvements.map((improvement, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-orange-500 mt-0.5">•</span>
+                            {improvement}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          </div>
+        )}
+
+        {/* Chat Messages */}
+        <div className="px-4 py-4">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[40vh] text-center space-y-4">
+              <div className="p-4 bg-muted rounded-full">
+                <ChatBubbleLeftRightIcon className="w-8 h-8 text-muted-foreground" />
+              </div>
+               <div>
+                 <h3 className="text-lg font-semibold mb-2">
+                   {hasTask ? 'Выполните задание' : 'Начните диалог'}
+                 </h3>
+                 <p className="text-muted-foreground text-sm">
+                   {hasTask 
+                     ? `У вас есть ${maxAttempts} попыток для выполнения задания`
+                     : 'Задайте вопрос для начала изучения'
+                   }
+                 </p>
+               </div>
+            </div>
+          ) : (
+            <div className="space-y-4 pb-4">
+              {messages.map((message) => (
+                <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {message.type === 'assistant' && (
+                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                      <ChatBubbleLeftRightIcon className="w-3.5 h-3.5 text-primary-foreground" />
+                    </div>
+                  )}
+                  <div className={`${
+                    message.type === 'user' 
+                      ? 'max-w-[80%] sm:max-w-[70%]' 
+                      : 'max-w-[85%] sm:max-w-[75%] flex-1'
+                  }`}>
                     <div className={`${
-                      message.type === 'user' 
-                        ? 'max-w-[80%] sm:max-w-[70%]' 
-                        : 'max-w-[85%] sm:max-w-[75%] flex-1'
-                    }`}>
-                      <div className={`rounded-2xl px-4 py-3 ${
-                        message.type === 'user' 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-muted'
-                      }`}>
-                        {message.type === 'assistant' ? (
-                          <div className="prose prose-sm max-w-none dark:prose-invert prose-p:leading-relaxed prose-p:m-0 prose-p:mb-2 prose-p:last:mb-0">
-                            <ReactMarkdown>{message.content}</ReactMarkdown>
-                          </div>
-                        ) : (
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
-                        )}
+                      message.type === 'user'
+                        ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3'
+                        : 'bg-muted/70 text-foreground rounded-2xl rounded-tl-sm px-4 py-3'
+                    } shadow-sm`}>
+                      <div className="prose prose-sm max-w-none text-inherit [&>*]:text-inherit [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>h1]:text-inherit [&>h2]:text-inherit [&>h3]:text-inherit [&>h4]:text-inherit [&>h5]:text-inherit [&>h6]:text-inherit [&>blockquote]:text-inherit [&>code]:text-inherit">
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
                       </div>
                     </div>
-                    {message.type === 'user' && (
-                      <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
-                        <span className="text-xs font-medium">Вы</span>
-                      </div>
-                    )}
+                    <div className={`text-xs text-muted-foreground mt-1 ${
+                      message.type === 'user' ? 'text-right' : 'text-left'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
-                ))}
-                <div ref={scrollAreaRef} />
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+                </div>
+              ))}
+              <div ref={scrollAreaRef} />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Suggested Questions - only for non-task chatbots */}
+      {/* Suggested Questions - Fixed at bottom */}
       {!hasTask && data?.suggestedQuestions && Array.isArray(data.suggestedQuestions) && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
-        <div className="px-4 py-2 border-t border-border bg-muted/30">
+        <div className="border-t border-border bg-muted/30 p-4">
           <p className="text-xs text-muted-foreground mb-2">Рекомендуемые вопросы:</p>
           <div className="flex flex-wrap gap-2">
             {data.suggestedQuestions.map((question, index) => (
@@ -597,8 +589,8 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         </div>
       )}
 
-      {/* Input Area */}
-      <div className="border-t border-border bg-background p-4">
+      {/* Fixed Input and CTA Area */}
+      <div className="border-t border-border bg-background p-4 flex-shrink-0">
         <div className="relative mb-3">
           <div className="relative flex items-center bg-muted/50 border border-border rounded-3xl shadow-sm hover:shadow-md transition-all">
             <Input
