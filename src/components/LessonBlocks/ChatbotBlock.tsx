@@ -220,10 +220,15 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         body: { 
           prompt: messageContent,
           model: data?.model || 'gpt-4o-mini',
-          systemPrompt: data?.systemPrompt || '',
+          systemPrompt: hasTask ? 
+            'Ты эксперт по созданию контента. Выполни точно то, что просит пользователь. Создай качественный, профессиональный контент согласно запросу. Отвечай на русском языке.' :
+            (data?.systemPrompt || ''),
           context: contextMessages,
           isLessonMode: true,
-          taskEvaluation: hasTask
+          taskEvaluation: hasTask ? {
+            ...data?.task,
+            evaluationSystemPrompt: data?.systemPrompt
+          } : false
         },
         headers: {
           authorization: `Bearer ${session?.access_token}`

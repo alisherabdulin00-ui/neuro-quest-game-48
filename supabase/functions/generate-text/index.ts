@@ -271,10 +271,12 @@ serve(async (req) => {
 Оценка 5-7: хорошо, но можно улучшить
 Оценка 1-4: нужно существенно доработать`;
 
+      const evaluationSystemPrompt = taskEvaluation.evaluationSystemPrompt || 'Ты эксперт по оценке качества промптов и контента. Всегда отвечай только валидным JSON без дополнительного текста.';
+      
       const evaluationBody = {
         model: 'gpt-4.1-2025-04-14', // Use reliable model for evaluation
         messages: [
-          { role: 'system', content: 'Ты эксперт по оценке качества промптов и контента. Всегда отвечай только валидным JSON без дополнительного текста.' },
+          { role: 'system', content: evaluationSystemPrompt },
           { role: 'user', content: evaluationPrompt }
         ],
         max_completion_tokens: 1000
