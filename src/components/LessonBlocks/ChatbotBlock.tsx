@@ -82,24 +82,18 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
     getUser();
   }, []);
 
-  // Add initial message if provided
+  // Add initial message if provided (only for non-task chatbots)
   useEffect(() => {
-    let initialContent = data?.initialMessage || '';
-    
-    if (data?.task) {
-      initialContent = `**Задание:** ${data.task.title}\n\n${data.task.description}\n\n**Ваша задача:** ${data.task.prompt}\n\nУ вас есть ${data.task.maxAttempts} попыток для выполнения этого задания.`;
-    }
-    
-    if (initialContent) {
+    if (!hasTask && data?.initialMessage) {
       const initialMsg: Message = {
         id: 'initial',
         type: 'assistant',
-        content: initialContent,
+        content: data.initialMessage,
         timestamp: new Date()
       };
       setMessages([initialMsg]);
     }
-  }, [data?.initialMessage, data?.task]);
+  }, [data?.initialMessage, hasTask]);
 
   const scrollToBottom = () => {
     scrollAreaRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -263,40 +257,62 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border p-4">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-primary/20 rounded-full">
-            <ChatBubbleLeftRightIcon className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-foreground">{data?.title || 'Чат-бот'}</h2>
-            <p className="text-sm text-muted-foreground">{data?.description || 'Описание недоступно'}</p>
+      {hasTask ? (
+        /* Task-based header */
+        <div className="bg-card rounded-lg border p-6 mb-4 mx-4 mt-4">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-lg font-bold">!</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xl font-bold text-foreground">Практическое задание</h2>
+                <div className="text-sm text-muted-foreground">
+                  Попытка {attemptsUsed} из {maxAttempts}
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold mb-3 text-orange-600">{data.task.title}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{data.task.description}</p>
+              
+              <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+                <h4 className="font-medium text-orange-800 dark:text-orange-200 mb-2">Задание:</h4>
+                <p className="text-sm text-orange-700 dark:text-orange-300">{data.task.prompt}</p>
+              </div>
+              
+              {taskCompleted && (
+                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mt-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircleIcon className="w-5 h-5 text-green-600" />
+                    <span className="text-green-700 dark:text-green-300 font-medium">Задание выполнено успешно!</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-xs">
-            {data?.model || 'gpt-4o-mini'}
-          </Badge>
-          {hasTask ? (
-            <>
-              <Badge variant="outline" className="text-xs">
-                Попыток: {attemptsUsed}/{maxAttempts}
-              </Badge>
-              {taskCompleted && (
-                <Badge variant="default" className="text-xs bg-green-500">
-                  Выполнено ✓
-                </Badge>
-              )}
-            </>
-          ) : (
+      ) : (
+        /* Regular chatbot header */
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border p-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-primary/20 rounded-full">
+              <ChatBubbleLeftRightIcon className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-foreground">{data?.title || 'Чат-бот'}</h2>
+              <p className="text-sm text-muted-foreground">{data?.description || 'Описание недоступно'}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {data?.model || 'gpt-4o-mini'}
+            </Badge>
             <Badge variant="outline" className="text-xs">
               {interactionCount}/{minInteractions} взаимодействий
             </Badge>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-hidden">
@@ -361,8 +377,8 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         </ScrollArea>
       </div>
 
-      {/* Suggested Questions */}
-      {data?.suggestedQuestions && Array.isArray(data.suggestedQuestions) && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
+      {/* Suggested Questions - only for non-task chatbots */}
+      {!hasTask && data?.suggestedQuestions && Array.isArray(data.suggestedQuestions) && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
         <div className="px-4 py-2 border-t border-border bg-muted/30">
           <p className="text-xs text-muted-foreground mb-2">Рекомендуемые вопросы:</p>
           <div className="flex flex-wrap gap-2">
