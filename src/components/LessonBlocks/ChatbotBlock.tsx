@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon, CheckCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
+import { ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon, CheckCircleIcon, ChevronDownIcon, ChevronUpIcon, UserIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/solid";
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import { supabase } from "@/integrations/supabase/client";
@@ -339,165 +339,160 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
 
   return (
     <div className="h-full flex flex-col">
-      {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto">
-        {hasTask ? (
-          /* Task-based header */
-          <div className="bg-card rounded-lg border p-4 mb-4 mx-4 mt-4">
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-xs text-muted-foreground">
-                    Попытка {attemptsUsed} из {maxAttempts}
+      {/* Content */}
+      <div className="flex-1 flex flex-col justify-center overflow-hidden">
+        <div className="w-full max-h-full overflow-y-auto px-6">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium mb-4">
+              <ChatBubbleLeftRightIcon className="w-4 h-4 mr-2 text-indigo-600" />
+              {hasTask ? 'ПРАКТИКА ПРОМПТИНГА' : 'ЧАТ С AI'}
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800 leading-tight mb-2">
+              {hasTask ? data?.task?.title : data?.title || 'Чат-бот'}
+            </h1>
+            <p className="text-lg text-gray-600">
+              {hasTask ? data?.task?.description : data?.description || 'Описание недоступно'}
+            </p>
+            {hasTask && (
+              <div className="mt-3 text-sm text-gray-500">
+                Попытка {attemptsUsed} из {maxAttempts}
+              </div>
+            )}
+          </div>
+
+          {/* Chat Messages */}
+          <div className="space-y-4 mb-6">
+            {/* System Introduction */}
+            {data?.systemPrompt && !hasTask && (
+              <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-[0px_4px_0px_0px] shadow-gray-200 p-6">
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <SparklesIcon className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-lg text-gray-800 font-medium">{data.systemPrompt}</p>
                   </div>
                 </div>
-                <h3 className="text-base font-medium text-orange-600 mb-2">{data.task.title}</h3>
-                <p className="text-sm text-muted-foreground">{data.task.description}</p>
-                
-                {taskCompleted && (
-                  <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mt-3">
-                    <div className="flex items-center gap-2">
-                      <CheckCircleIcon className="w-4 h-4 text-green-600" />
-                      <span className="text-green-700 dark:text-green-300 text-sm font-medium">Задание выполнено!</span>
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
-          </div>
-        ) : (
-          /* Regular chatbot header */
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-primary/20 rounded-full">
-                <ChatBubbleLeftRightIcon className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold text-foreground">{data?.title || 'Чат-бот'}</h2>
-                <p className="text-sm text-muted-foreground">{data?.description || 'Описание недоступно'}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
-                {data?.model || 'gpt-4o-mini'}
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                {interactionCount}/{minInteractions} взаимодействий
-              </Badge>
-            </div>
-          </div>
-        )}
+            )}
 
-
-
-        {/* Chat Messages */}
-        <div className="px-4 py-4">
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[40vh] text-center space-y-4">
-              <div className="p-4 bg-muted rounded-full">
-                <ChatBubbleLeftRightIcon className="w-8 h-8 text-muted-foreground" />
+            {/* Empty state */}
+            {messages.length === 0 && (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ChatBubbleLeftRightIcon className="w-8 h-8 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  {hasTask ? 'Выполните задание' : 'Начните диалог'}
+                </h3>
+                <p className="text-gray-600">
+                  {hasTask 
+                    ? `У вас есть ${maxAttempts} попыток для выполнения задания`
+                    : 'Задайте вопрос для начала изучения'
+                  }
+                </p>
               </div>
-               <div>
-                 <h3 className="text-lg font-semibold mb-2">
-                   {hasTask ? 'Выполните задание' : 'Начните диалог'}
-                 </h3>
-                 <p className="text-muted-foreground text-sm">
-                   {hasTask 
-                     ? `У вас есть ${maxAttempts} попыток для выполнения задания`
-                     : 'Задайте вопрос для начала изучения'
-                   }
-                 </p>
-               </div>
-            </div>
-          ) : (
-            <div className="space-y-4 pb-4">
-              {messages.map((message, index) => (
-                <div key={message.id}>
-                  <div className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {message.type === 'assistant' && (
-                      <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                        <ChatBubbleLeftRightIcon className="w-3.5 h-3.5 text-primary-foreground" />
-                      </div>
-                    )}
-                    <div className={`${
+            )}
+
+            {/* Chat Messages */}
+            {messages.map((message, index) => (
+              <div key={message.id} className={`${message.type === 'user' ? 'ml-8' : 'mr-8'}`}>
+                <div className={`rounded-2xl border-2 p-6 shadow-[0px_4px_0px_0px] ${
+                  message.type === 'user' 
+                    ? 'bg-indigo-50 border-indigo-200 shadow-indigo-200' 
+                    : 'bg-white border-gray-200 shadow-gray-200'
+                }`}>
+                  <div className="flex items-start space-x-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                       message.type === 'user' 
-                        ? 'max-w-[80%] sm:max-w-[70%]' 
-                        : 'max-w-[85%] sm:max-w-[75%] flex-1'
+                        ? 'bg-indigo-200' 
+                        : 'bg-green-100'
                     }`}>
-                      <div className={`${
-                        message.type === 'user'
-                          ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3'
-                          : 'bg-muted/70 text-foreground rounded-2xl rounded-tl-sm px-4 py-3'
-                      } shadow-sm`}>
-                        <div className="prose prose-sm max-w-none text-inherit [&>*]:text-inherit [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>h1]:text-inherit [&>h2]:text-inherit [&>h3]:text-inherit [&>h4]:text-inherit [&>h5]:text-inherit [&>h6]:text-inherit [&>blockquote]:text-inherit [&>code]:text-inherit">
+                      {message.type === 'user' ? (
+                        <UserIcon className="w-5 h-5 text-indigo-700" />
+                      ) : (
+                        <SparklesIcon className="w-5 h-5 text-green-600" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className={`text-lg font-medium ${
+                        message.type === 'user' 
+                          ? 'text-indigo-800' 
+                          : 'text-gray-800'
+                      }`}>
+                        <div className="prose prose-lg max-w-none text-inherit [&>*]:text-inherit [&>p]:mb-2 [&>p:last-child]:mb-0">
                           <ReactMarkdown>{message.content}</ReactMarkdown>
                         </div>
                       </div>
-                      <div className={`text-xs text-muted-foreground mt-1 ${
-                        message.type === 'user' ? 'text-right' : 'text-left'
-                      }`}>
+                      <div className="text-xs text-gray-500 mt-2">
                         {message.timestamp.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Show evaluation after assistant response in task mode */}
-                  {hasTask && message.type === 'assistant' && index === messages.length - 1 && currentEvaluation && (
-                    <div className="mt-4 ml-10">
-                      <div className={`rounded-lg border p-4 ${
-                        currentEvaluation.score >= 8 
-                          ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
-                          : currentEvaluation.score >= 5 
-                          ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800'
-                          : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800'
-                      }`}>
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold flex items-center gap-2">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white ${
-                              currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
-                            }`}>
-                              {currentEvaluation.score}
-                            </div>
-                            Оценка работы
-                          </h4>
-                          <div className="text-lg font-semibold text-muted-foreground">
-                            {currentEvaluation.score}/10
-                          </div>
+                </div>
+                
+                {/* Show evaluation for assistant messages in task mode */}
+                {hasTask && message.type === 'assistant' && index === messages.length - 1 && currentEvaluation && (
+                  <div className="mt-4 mr-8">
+                    <div className={`rounded-2xl border-2 p-6 shadow-[0px_4px_0px_0px] ${
+                      currentEvaluation.score >= 8 
+                        ? 'bg-green-50 border-green-200 shadow-green-200' 
+                        : currentEvaluation.score >= 5 
+                        ? 'bg-yellow-50 border-yellow-200 shadow-yellow-200'
+                        : 'bg-red-50 border-red-200 shadow-red-200'
+                    }`}>
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white ${
+                          currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
+                        }`}>
+                          {currentEvaluation.score}
                         </div>
-                        
+                        <div>
+                          <h4 className="text-xl font-bold text-gray-800">Оценка работы</h4>
+                          <p className="text-lg text-gray-600">{currentEvaluation.score}/10</p>
+                        </div>
+                      </div>
+                      
+                      <p className={`text-lg font-medium mb-4 ${
+                        currentEvaluation.score >= 8 
+                          ? 'text-green-700' 
+                          : currentEvaluation.score >= 5 
+                          ? 'text-yellow-700'
+                          : 'text-red-700'
+                      }`}>
+                        {currentEvaluation.feedback}
+                      </p>
+                      
+                      {(currentEvaluation.strengths?.length > 0 || currentEvaluation.improvements?.length > 0) && (
                         <Collapsible open={showDetailedFeedback} onOpenChange={setShowDetailedFeedback}>
                           <CollapsibleTrigger asChild>
-                            <Button variant="outline" size="sm" className="w-full mb-3">
+                            <Button 
+                              variant="outline" 
+                              className="w-full mb-4 text-lg font-bold py-3 px-6 rounded-xl border-2 border-gray-300 shadow-[0px_4px_0px_0px] shadow-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-300 active:shadow-[0px_0px_0px_0px] active:shadow-gray-300 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+                            >
                               {showDetailedFeedback ? (
                                 <>
-                                  Скрыть подробную оценку
-                                  <ChevronUpIcon className="w-4 h-4 ml-2" />
+                                  Скрыть подробности
+                                  <ChevronUpIcon className="w-5 h-5 ml-2" />
                                 </>
                               ) : (
                                 <>
-                                  Показать подробную оценку
-                                  <ChevronDownIcon className="w-4 h-4 ml-2" />
+                                  Показать подробности
+                                  <ChevronDownIcon className="w-5 h-5 ml-2" />
                                 </>
                               )}
                             </Button>
                           </CollapsibleTrigger>
                           
-                          <CollapsibleContent className="space-y-3">
-                            <p className={`text-sm ${
-                              currentEvaluation.score >= 8 
-                                ? 'text-green-700 dark:text-green-300' 
-                                : currentEvaluation.score >= 5 
-                                ? 'text-yellow-700 dark:text-yellow-300'
-                                : 'text-red-700 dark:text-red-300'
-                            }`}>
-                              {currentEvaluation.feedback}
-                            </p>
-                            
-                            {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
-                              <div>
-                                <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
-                                <ul className="list-disc list-inside text-sm text-green-700 dark:text-green-300 space-y-1">
+                          <CollapsibleContent className="space-y-4">
+                            {currentEvaluation.strengths?.length > 0 && (
+                              <div className="bg-green-100 rounded-xl p-4 border-2 border-green-200">
+                                <h5 className="text-lg font-bold text-green-700 mb-2 flex items-center">
+                                  <CheckCircleIcon className="w-5 h-5 mr-2" />
+                                  Сильные стороны
+                                </h5>
+                                <ul className="list-disc list-inside text-base text-green-700 space-y-1">
                                   {currentEvaluation.strengths.map((strength, idx) => (
                                     <li key={idx}>{strength}</li>
                                   ))}
@@ -505,10 +500,13 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
                               </div>
                             )}
                             
-                            {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && (
-                              <div>
-                                <h5 className="text-sm font-medium text-orange-600 mb-1">→ Рекомендации:</h5>
-                                <ul className="list-disc list-inside text-sm text-orange-700 dark:text-orange-300 space-y-1">
+                            {currentEvaluation.improvements?.length > 0 && (
+                              <div className="bg-orange-100 rounded-xl p-4 border-2 border-orange-200">
+                                <h5 className="text-lg font-bold text-orange-700 mb-2 flex items-center">
+                                  <StarIcon className="w-5 h-5 mr-2" />
+                                  Рекомендации
+                                </h5>
+                                <ul className="list-disc list-inside text-base text-orange-700 space-y-1">
                                   {currentEvaluation.improvements.map((improvement, idx) => (
                                     <li key={idx}>{improvement}</li>
                                   ))}
@@ -517,86 +515,85 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
                             )}
                           </CollapsibleContent>
                         </Collapsible>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-              
-              {isGenerating && (
-                <div className="flex gap-3 justify-start">
-                  <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                    <ChatBubbleLeftRightIcon className="w-3.5 h-3.5 text-primary-foreground" />
-                  </div>
-                  <div className="bg-muted/70 text-foreground rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      )}
                     </div>
                   </div>
+                )}
+              </div>
+            ))}
+
+            {/* Loading indicator */}
+            {isGenerating && (
+              <div className="mr-8">
+                <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-[0px_4px_0px_0px] shadow-gray-200 p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <SparklesIcon className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div className="flex space-x-1">
+                      <div className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-3 h-3 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-3 h-3 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
                 </div>
-              )}
-              
-              <div ref={scrollAreaRef} />
-            </div>
-          )}
+              </div>
+            )}
+
+            {/* Suggested Questions */}
+            {!hasTask && data?.suggestedQuestions?.length > 0 && messages.length <= 1 && (
+              <div className="bg-gray-50 rounded-2xl border-2 border-gray-200 shadow-[0px_4px_0px_0px] shadow-gray-200 p-6">
+                <h4 className="text-lg font-bold text-gray-800 mb-4">Попробуйте спросить:</h4>
+                <div className="space-y-3">
+                  {data.suggestedQuestions.map((question, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      onClick={() => handleSuggestedQuestion(question)}
+                      disabled={isGenerating}
+                      className="w-full text-left text-base font-medium py-3 px-4 rounded-xl border-2 border-gray-300 shadow-[0px_4px_0px_0px] shadow-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-300 active:shadow-[0px_0px_0px_0px] active:shadow-gray-300 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
+                    >
+                      {question}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Suggested Questions - Fixed at bottom */}
-      {!hasTask && data?.suggestedQuestions && Array.isArray(data.suggestedQuestions) && data.suggestedQuestions.length > 0 && messages.length <= 1 && (
-        <div className="border-t border-border bg-muted/30 p-4">
-          <p className="text-xs text-muted-foreground mb-2">Рекомендуемые вопросы:</p>
-          <div className="flex flex-wrap gap-2">
-            {data.suggestedQuestions.map((question, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestedQuestion(question)}
-                disabled={isGenerating}
-                className="text-xs h-auto py-1 px-2 rounded-full"
-              >
-                {question}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Fixed Input and CTA Area */}
-      <div className="border-t border-border bg-background p-4 flex-shrink-0">
-        <div className="relative mb-3">
-          <div className="relative flex items-center bg-muted/50 border border-border rounded-3xl shadow-sm hover:shadow-md transition-all">
-            <Input
+      {/* Input Area */}
+      <div className="flex justify-center py-4 px-6 flex-shrink-0">
+        <div className="w-full max-w-2xl space-y-4">
+          {/* Input Form */}
+          <div className="flex space-x-3">
+            <input
+              type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={hasTask && attemptsUsed >= maxAttempts ? "Попытки исчерпаны..." : "Напишите сообщение..."}
+              placeholder={hasTask && attemptsUsed >= maxAttempts ? "Попытки исчерпаны..." : "Введите ваш промпт..."}
               disabled={isGenerating || (hasTask && attemptsUsed >= maxAttempts)}
-              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 pr-12 py-3 text-sm placeholder:text-muted-foreground/60 min-h-[44px]"
+              className="flex-1 px-6 py-4 text-lg font-medium border-2 border-gray-200 rounded-xl shadow-[0px_4px_0px_0px] shadow-gray-200 focus:outline-none focus:border-indigo-300 focus:shadow-indigo-200 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <Button
+            <Button 
               onClick={() => handleSend()}
               disabled={!inputValue.trim() || isGenerating || (hasTask && attemptsUsed >= maxAttempts)}
-              size="icon"
-              variant="ghost"
-              className="absolute right-2 h-7 w-7 rounded-full hover:bg-muted disabled:opacity-50"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
-                <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" />
+                <ArrowPathIcon className="w-5 h-5 animate-spin" />
               ) : (
-                <PaperAirplaneIcon className="w-3.5 h-3.5" />
+                <PaperAirplaneIcon className="w-5 h-5" />
               )}
             </Button>
           </div>
-        </div>
 
-        {/* Action Buttons for Task Mode */}
-        {hasTask && currentEvaluation && (
-          <div className="flex gap-3 mb-3">
-            {attemptsRemaining > 0 && !taskCompleted && (
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            {/* Try Again Button for Task Mode */}
+            {hasTask && currentEvaluation && attemptsRemaining > 0 && !taskCompleted && (
               <Button 
                 variant="outline"
                 onClick={() => {
@@ -606,57 +603,36 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
                   setMessages([]);
                   setShowDetailedFeedback(false);
                 }}
-                className="flex-1"
+                className="flex-1 text-lg font-bold py-4 px-6 rounded-xl border-2 border-gray-300 shadow-[0px_4px_0px_0px] shadow-gray-300 hover:shadow-[0px_2px_0px_0px] hover:shadow-gray-300 active:shadow-[0px_0px_0px_0px] active:shadow-gray-300 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px]"
               >
-                <ArrowPathIcon className="w-4 h-4 mr-2" />
+                <ArrowPathIcon className="w-5 h-5 mr-2" />
                 Попробовать снова ({attemptsRemaining})
               </Button>
             )}
             
-            {isLastBlock ? (
+            {/* Continue/Complete Button */}
+            {((hasTask && currentEvaluation) || (!hasTask && canComplete)) && (
               <Button 
-                onClick={onComplete} 
+                onClick={isLastBlock ? onComplete : onNext}
                 disabled={!canComplete}
-                className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white"
-              >
-                <CheckCircleIcon className="w-4 h-4 mr-2" />
-                Завершить урок
-              </Button>
-            ) : (
-              <Button 
-                onClick={onNext}
-                disabled={!canComplete}
-                className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white"
-              >
-                Продолжить
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Bottom Button for non-task mode */}
-        {!hasTask && (
-          <div className="flex justify-center">
-            {isLastBlock ? (
-              <Button 
-                onClick={onComplete} 
-                disabled={!canComplete}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`${hasTask && currentEvaluation && attemptsRemaining > 0 && !taskCompleted ? 'flex-1' : 'w-full'} bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <CheckCircleIcon className="w-5 h-5 mr-2" />
-                {canComplete ? 'Завершить урок' : `Еще ${minInteractions - interactionCount} взаимодействий`}
+                {isLastBlock ? 'Завершить урок' : 'Продолжить'}
               </Button>
-            ) : (
+            )}
+
+            {/* Progress indicator for non-task mode */}
+            {!hasTask && !canComplete && (
               <Button 
-                onClick={onNext}
-                disabled={!canComplete}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg font-bold border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+                className="w-full bg-gray-300 text-gray-600 px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-gray-400 cursor-not-allowed"
               >
-                {canComplete ? 'Продолжить' : `Еще ${minInteractions - interactionCount} взаимодействий`}
+                Еще {minInteractions - interactionCount} взаимодействий
               </Button>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
