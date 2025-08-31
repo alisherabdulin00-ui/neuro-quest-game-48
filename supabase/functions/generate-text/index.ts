@@ -72,7 +72,7 @@ serve(async (req) => {
       );
     }
 
-    const { prompt, model = 'gpt-5-2025-08-07' } = await req.json();
+    const { prompt, model = 'gpt-5-2025-08-07', isLessonMode = false } = await req.json();
 
     // Get user from auth token
     const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
@@ -121,8 +121,8 @@ serve(async (req) => {
     const userTier = subscription?.subscription_tier || 'free';
     const maxCoins = subscription?.max_coins || 50;
 
-    // For free tier, check if user has exceeded their limit
-    if (userTier === 'free' && currentCoins <= 0) {
+    // For free tier, check if user has exceeded their limit (skip if in lesson mode)
+    if (!isLessonMode && userTier === 'free' && currentCoins <= 0) {
       return new Response(
         JSON.stringify({ 
           error: 'Недостаточно монет. Выполните уроки чтобы заработать монеты или перейдите на Pro.',
@@ -244,8 +244,8 @@ serve(async (req) => {
     const { coins, totalUsd } = calculateCost(inputTokens, outputTokens, model);
     console.log('Calculated cost:', coins, 'coins (', totalUsd, 'USD)');
     
-    // For Pro users, skip coin deduction
-    if (userTier !== 'pro') {
+    // For Pro users or lesson mode, skip coin deduction
+    if (userTier !== 'pro' && !isLessonMode) {
       // Check if user has enough coins for this request
       if (currentCoins < coins) {
         return new Response(
@@ -294,7 +294,7 @@ serve(async (req) => {
         input_tokens: inputTokens,
         output_tokens: outputTokens,
         cost_usd: totalUsd,
-        coins_deducted: userTier === 'pro' ? 0 : coins,
+        coins_deducted: (userTier === 'pro' || isLessonMode) ? 0 : coins,
         multiplier: 3.0
       });
 
@@ -332,8 +332,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         response: generatedText.trim(),
-        coinsDeducted: userTier === 'pro' ? 0 : coins,
-        remainingCoins: userTier === 'pro' ? 'unlimited' : (currentCoins - coins)
+        coinsDeducted: (userTier === 'pro' || isLessonMode) ? 0 : coins,
+        remainingCoins: userTier === 'pro' ? 'unlimited' : (isLessonMode ? currentCoins : (currentCoins - coins))
       }), 
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

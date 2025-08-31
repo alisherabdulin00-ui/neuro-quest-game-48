@@ -18,6 +18,15 @@ interface Message {
   timestamp: Date;
 }
 
+interface ChatbotTask {
+  id: string;
+  title: string;
+  description: string;
+  prompt: string;
+  successCriteria: string[];
+  maxAttempts: number;
+}
+
 interface ChatbotData {
   title: string;
   description: string;
@@ -27,6 +36,7 @@ interface ChatbotData {
   initialMessage?: string;
   suggestedQuestions?: string[];
   minInteractions?: number;
+  task?: ChatbotTask;
 }
 
 interface ChatbotBlockProps {
@@ -52,11 +62,16 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
   const [isGenerating, setIsGenerating] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [interactionCount, setInteractionCount] = useState(0);
+  const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [taskCompleted, setTaskCompleted] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  const hasTask = data?.task;
+  const maxAttempts = data?.task?.maxAttempts || 3;
   const minInteractions = data?.minInteractions || 3;
-  const canComplete = interactionCount >= minInteractions;
+  const canComplete = hasTask ? taskCompleted : interactionCount >= minInteractions;
+  const attemptsRemaining = maxAttempts - attemptsUsed;
 
   // Get current user
   useEffect(() => {
@@ -69,16 +84,22 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
 
   // Add initial message if provided
   useEffect(() => {
-    if (data?.initialMessage) {
+    let initialContent = data?.initialMessage || '';
+    
+    if (data?.task) {
+      initialContent = `**Задание:** ${data.task.title}\n\n${data.task.description}\n\n**Ваша задача:** ${data.task.prompt}\n\nУ вас есть ${data.task.maxAttempts} попыток для выполнения этого задания.`;
+    }
+    
+    if (initialContent) {
       const initialMsg: Message = {
         id: 'initial',
         type: 'assistant',
-        content: data.initialMessage,
+        content: initialContent,
         timestamp: new Date()
       };
       setMessages([initialMsg]);
     }
-  }, [data?.initialMessage]);
+  }, [data?.initialMessage, data?.task]);
 
   const scrollToBottom = () => {
     scrollAreaRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,6 +117,16 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       toast({
         title: "Требуется авторизация",
         description: "Войдите в систему для использования AI",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check attempts limit for task mode
+    if (hasTask && attemptsUsed >= maxAttempts) {
+      toast({
+        title: "Попытки исчерпаны",
+        description: `Вы использовали все ${maxAttempts} попыток для этого задания.`,
         variant: "destructive",
       });
       return;
@@ -128,9 +159,10 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
       const { data: response, error } = await supabase.functions.invoke('generate-text', {
         body: { 
           prompt: messageContent,
-          model: data?.model || 'gpt-3.5-turbo',
+          model: data?.model || 'gpt-4o-mini',
           systemPrompt: data?.systemPrompt || '',
-          context: contextMessages
+          context: contextMessages,
+          isLessonMode: true
         },
         headers: {
           authorization: `Bearer ${session?.access_token}`
@@ -168,8 +200,35 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         };
         setMessages(prev => [...prev, assistantMessage]);
         setInteractionCount(prev => prev + 1);
+        
+        if (hasTask) {
+          setAttemptsUsed(prev => prev + 1);
+          
+          // Check if task is completed based on success criteria
+          if (data?.task?.successCriteria) {
+            const responseContent = response.response.toLowerCase();
+            const criteriaMatch = data.task.successCriteria.some(criteria => 
+              responseContent.includes(criteria.toLowerCase())
+            );
+            
+            if (criteriaMatch) {
+              setTaskCompleted(true);
+              toast({
+                title: "Задание выполнено!",
+                description: "Отличная работа! Вы успешно выполнили задание.",
+                variant: "default",
+              });
+            } else if (attemptsUsed + 1 >= maxAttempts) {
+              toast({
+                title: "Попытки исчерпаны",
+                description: "Вы можете продолжить изучение следующего блока.",
+                variant: "destructive",
+              });
+            }
+          }
+        }
 
-        // Show coins deducted notification
+        // Show coins deducted notification (should be 0 for lessons)
         if (response.coinsDeducted > 0) {
           toast({
             title: `Списано ${response.coinsDeducted} монет`,
@@ -218,11 +277,24 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-xs">
-            {data?.model || 'gpt-3.5-turbo'}
+            {data?.model || 'gpt-4o-mini'}
           </Badge>
-          <Badge variant="outline" className="text-xs">
-            {interactionCount}/{minInteractions} взаимодействий
-          </Badge>
+          {hasTask ? (
+            <>
+              <Badge variant="outline" className="text-xs">
+                Попыток: {attemptsUsed}/{maxAttempts}
+              </Badge>
+              {taskCompleted && (
+                <Badge variant="default" className="text-xs bg-green-500">
+                  Выполнено ✓
+                </Badge>
+              )}
+            </>
+          ) : (
+            <Badge variant="outline" className="text-xs">
+              {interactionCount}/{minInteractions} взаимодействий
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -235,10 +307,17 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
                 <div className="p-4 bg-muted rounded-full">
                   <ChatBubbleLeftRightIcon className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Начните диалог</h3>
-                  <p className="text-muted-foreground text-sm">Задайте вопрос для начала изучения</p>
-                </div>
+                 <div>
+                   <h3 className="text-lg font-semibold mb-2">
+                     {hasTask ? 'Выполните задание' : 'Начните диалог'}
+                   </h3>
+                   <p className="text-muted-foreground text-sm">
+                     {hasTask 
+                       ? `У вас есть ${maxAttempts} попыток для выполнения задания`
+                       : 'Задайте вопрос для начала изучения'
+                     }
+                   </p>
+                 </div>
               </div>
             ) : (
               <div className="space-y-4 pb-4">
@@ -311,13 +390,13 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Напишите сообщение..."
-              disabled={isGenerating}
+              placeholder={hasTask && attemptsUsed >= maxAttempts ? "Попытки исчерпаны..." : "Напишите сообщение..."}
+              disabled={isGenerating || (hasTask && attemptsUsed >= maxAttempts)}
               className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 pr-12 py-3 text-sm placeholder:text-muted-foreground/60 min-h-[44px]"
             />
             <Button
               onClick={() => handleSend()}
-              disabled={!inputValue.trim() || isGenerating}
+              disabled={!inputValue.trim() || isGenerating || (hasTask && attemptsUsed >= maxAttempts)}
               size="icon"
               variant="ghost"
               className="absolute right-2 h-7 w-7 rounded-full hover:bg-muted disabled:opacity-50"
@@ -340,7 +419,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
               className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCircleIcon className="w-5 h-5 mr-2" />
-              {canComplete ? 'Завершить урок' : `Еще ${minInteractions - interactionCount} взаимодействий`}
+              {canComplete ? 'Завершить урок' : (hasTask ? `Попыток: ${attemptsRemaining}` : `Еще ${minInteractions - interactionCount} взаимодействий`)}
             </Button>
           ) : (
             <Button 
@@ -348,7 +427,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
               disabled={!canComplete}
               className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg font-bold border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {canComplete ? 'Продолжить' : `Еще ${minInteractions - interactionCount} взаимодействий`}
+              {canComplete ? 'Продолжить' : (hasTask ? `Попыток: ${attemptsRemaining}` : `Еще ${minInteractions - interactionCount} взаимодействий`)}
             </Button>
           )}
         </div>
