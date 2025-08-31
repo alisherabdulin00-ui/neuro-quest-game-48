@@ -134,6 +134,8 @@ export const ChatbotBlock = ({
         completed: isCompleted,
         feedback_data: feedbackData as any,
         updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,lesson_block_id'
       });
       if (error) {
         console.error('Error updating attempts:', error);
