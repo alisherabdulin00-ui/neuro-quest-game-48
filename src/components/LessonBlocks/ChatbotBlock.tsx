@@ -389,102 +389,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
           </div>
         )}
 
-        {/* Generated Content - Show first when task is completed */}
-        {hasTask && generatedContent && (
-          <div className="mx-4 mb-4">
-            <div className="bg-card rounded-lg border p-4">
-              <h4 className="font-semibold mb-3">Ваш результат:</h4>
-              <div className="prose prose-sm max-w-none">
-                <ReactMarkdown>{generatedContent}</ReactMarkdown>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Score Display - Show after generated content */}
-        {hasTask && currentEvaluation && (
-          <div className="mx-4 mb-4">
-            <div className={`rounded-lg border p-4 ${
-              currentEvaluation.score >= 8 
-                ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
-                : currentEvaluation.score >= 5 
-                ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800'
-                : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white ${
-                    currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
-                  }`}>
-                    {currentEvaluation.score}
-                  </div>
-                  Оценка работы
-                </h4>
-                <div className="text-lg font-semibold text-muted-foreground">
-                  {currentEvaluation.score}/10
-                </div>
-              </div>
-              
-              <Collapsible open={showDetailedFeedback} onOpenChange={setShowDetailedFeedback}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" size="sm" className="w-full mb-3">
-                    {showDetailedFeedback ? (
-                      <>
-                        Скрыть подробную оценку
-                        <ChevronUpIcon className="w-4 h-4 ml-2" />
-                      </>
-                    ) : (
-                      <>
-                        Показать подробную оценку
-                        <ChevronDownIcon className="w-4 h-4 ml-2" />
-                      </>
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent className="space-y-3">
-                  <p className={`text-sm ${
-                    currentEvaluation.score >= 8 
-                      ? 'text-green-700 dark:text-green-300' 
-                      : currentEvaluation.score >= 5 
-                      ? 'text-yellow-700 dark:text-yellow-300'
-                      : 'text-red-700 dark:text-red-300'
-                  }`}>
-                    {currentEvaluation.feedback}
-                  </p>
-                  
-                  {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
-                    <div>
-                      <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
-                      <ul className="text-xs text-green-700 dark:text-green-300 space-y-1">
-                        {currentEvaluation.strengths.map((strength, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-green-500 mt-0.5">•</span>
-                            {strength}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && currentEvaluation.score < 8 && (
-                    <div>
-                      <h5 className="text-sm font-medium text-orange-600 mb-1">↗ Предложения по улучшению:</h5>
-                      <ul className="text-xs text-orange-700 dark:text-orange-300 space-y-1">
-                        {currentEvaluation.improvements.map((improvement, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-orange-500 mt-0.5">•</span>
-                            {improvement}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          </div>
-        )}
 
         {/* Chat Messages */}
         <div className="px-4 py-4">
@@ -507,35 +412,132 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
             </div>
           ) : (
             <div className="space-y-4 pb-4">
-              {messages.map((message) => (
-                <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {message.type === 'assistant' && (
-                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                      <ChatBubbleLeftRightIcon className="w-3.5 h-3.5 text-primary-foreground" />
-                    </div>
-                  )}
-                  <div className={`${
-                    message.type === 'user' 
-                      ? 'max-w-[80%] sm:max-w-[70%]' 
-                      : 'max-w-[85%] sm:max-w-[75%] flex-1'
-                  }`}>
+              {messages.map((message, index) => (
+                <div key={message.id}>
+                  <div className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {message.type === 'assistant' && (
+                      <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                        <ChatBubbleLeftRightIcon className="w-3.5 h-3.5 text-primary-foreground" />
+                      </div>
+                    )}
                     <div className={`${
-                      message.type === 'user'
-                        ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3'
-                        : 'bg-muted/70 text-foreground rounded-2xl rounded-tl-sm px-4 py-3'
-                    } shadow-sm`}>
-                      <div className="prose prose-sm max-w-none text-inherit [&>*]:text-inherit [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>h1]:text-inherit [&>h2]:text-inherit [&>h3]:text-inherit [&>h4]:text-inherit [&>h5]:text-inherit [&>h6]:text-inherit [&>blockquote]:text-inherit [&>code]:text-inherit">
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      message.type === 'user' 
+                        ? 'max-w-[80%] sm:max-w-[70%]' 
+                        : 'max-w-[85%] sm:max-w-[75%] flex-1'
+                    }`}>
+                      <div className={`${
+                        message.type === 'user'
+                          ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3'
+                          : 'bg-muted/70 text-foreground rounded-2xl rounded-tl-sm px-4 py-3'
+                      } shadow-sm`}>
+                        <div className="prose prose-sm max-w-none text-inherit [&>*]:text-inherit [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>h1]:text-inherit [&>h2]:text-inherit [&>h3]:text-inherit [&>h4]:text-inherit [&>h5]:text-inherit [&>h6]:text-inherit [&>blockquote]:text-inherit [&>code]:text-inherit">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
+                      </div>
+                      <div className={`text-xs text-muted-foreground mt-1 ${
+                        message.type === 'user' ? 'text-right' : 'text-left'
+                      }`}>
+                        {message.timestamp.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
-                    <div className={`text-xs text-muted-foreground mt-1 ${
-                      message.type === 'user' ? 'text-right' : 'text-left'
-                    }`}>
-                      {message.timestamp.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  
+                  {/* Show evaluation after assistant response in task mode */}
+                  {hasTask && message.type === 'assistant' && index === messages.length - 1 && currentEvaluation && (
+                    <div className="mt-4 ml-10">
+                      <div className={`rounded-lg border p-4 ${
+                        currentEvaluation.score >= 8 
+                          ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
+                          : currentEvaluation.score >= 5 
+                          ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800'
+                          : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800'
+                      }`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold flex items-center gap-2">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white ${
+                              currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
+                            }`}>
+                              {currentEvaluation.score}
+                            </div>
+                            Оценка работы
+                          </h4>
+                          <div className="text-lg font-semibold text-muted-foreground">
+                            {currentEvaluation.score}/10
+                          </div>
+                        </div>
+                        
+                        <Collapsible open={showDetailedFeedback} onOpenChange={setShowDetailedFeedback}>
+                          <CollapsibleTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full mb-3">
+                              {showDetailedFeedback ? (
+                                <>
+                                  Скрыть подробную оценку
+                                  <ChevronUpIcon className="w-4 h-4 ml-2" />
+                                </>
+                              ) : (
+                                <>
+                                  Показать подробную оценку
+                                  <ChevronDownIcon className="w-4 h-4 ml-2" />
+                                </>
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                          
+                          <CollapsibleContent className="space-y-3">
+                            <p className={`text-sm ${
+                              currentEvaluation.score >= 8 
+                                ? 'text-green-700 dark:text-green-300' 
+                                : currentEvaluation.score >= 5 
+                                ? 'text-yellow-700 dark:text-yellow-300'
+                                : 'text-red-700 dark:text-red-300'
+                            }`}>
+                              {currentEvaluation.feedback}
+                            </p>
+                            
+                            {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
+                              <div>
+                                <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
+                                <ul className="list-disc list-inside text-sm text-green-700 dark:text-green-300 space-y-1">
+                                  {currentEvaluation.strengths.map((strength, idx) => (
+                                    <li key={idx}>{strength}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && (
+                              <div>
+                                <h5 className="text-sm font-medium text-orange-600 mb-1">→ Рекомендации:</h5>
+                                <ul className="list-disc list-inside text-sm text-orange-700 dark:text-orange-300 space-y-1">
+                                  {currentEvaluation.improvements.map((improvement, idx) => (
+                                    <li key={idx}>{improvement}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {isGenerating && (
+                <div className="flex gap-3 justify-start">
+                  <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                    <ChatBubbleLeftRightIcon className="w-3.5 h-3.5 text-primary-foreground" />
+                  </div>
+                  <div className="bg-muted/70 text-foreground rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                     </div>
                   </div>
                 </div>
-              ))}
+              )}
+              
               <div ref={scrollAreaRef} />
             </div>
           )}
