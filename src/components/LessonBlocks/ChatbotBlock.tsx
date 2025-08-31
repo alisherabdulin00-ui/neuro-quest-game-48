@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChatBubbleLeftRightIcon, PaperAirplaneIcon, ArrowPathIcon, CheckCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import { supabase } from "@/integrations/supabase/client";
@@ -74,6 +75,7 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
   const [taskCompleted, setTaskCompleted] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string>('');
   const [currentEvaluation, setCurrentEvaluation] = useState<TaskEvaluation | null>(null);
+  const [showDetailedFeedback, setShowDetailedFeedback] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -414,7 +416,19 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
         </div>
       )}
 
-      {/* Evaluation Feedback Panel - Show for tasks */}
+      {/* Generated Content - Show first when task is completed */}
+      {hasTask && generatedContent && (
+        <div className="mx-4 mb-4">
+          <div className="bg-card rounded-lg border p-4">
+            <h4 className="font-semibold mb-3">Ваш результат:</h4>
+            <div className="prose prose-sm max-w-none">
+              <ReactMarkdown>{generatedContent}</ReactMarkdown>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Score Display - Show after generated content */}
       {hasTask && currentEvaluation && (
         <div className="mx-4 mb-4">
           <div className={`rounded-lg border p-4 ${
@@ -426,55 +440,75 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
           }`}>
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold flex items-center gap-2">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white ${
                   currentEvaluation.score >= 8 ? 'bg-green-600' : currentEvaluation.score >= 5 ? 'bg-yellow-600' : 'bg-red-600'
                 }`}>
                   {currentEvaluation.score}
                 </div>
                 Оценка работы
               </h4>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-lg font-semibold text-muted-foreground">
                 {currentEvaluation.score}/10
               </div>
             </div>
             
-            <p className={`text-sm mb-3 ${
-              currentEvaluation.score >= 8 
-                ? 'text-green-700 dark:text-green-300' 
-                : currentEvaluation.score >= 5 
-                ? 'text-yellow-700 dark:text-yellow-300'
-                : 'text-red-700 dark:text-red-300'
-            }`}>
-              {currentEvaluation.feedback}
-            </p>
-            
-            {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
-              <div className="mb-3">
-                <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
-                <ul className="text-xs text-green-700 dark:text-green-300 space-y-1">
-                  {currentEvaluation.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">•</span>
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
-            {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && currentEvaluation.score < 8 && (
-              <div>
-                <h5 className="text-sm font-medium text-orange-600 mb-1">💡 Предложения по улучшению:</h5>
-                <ul className="text-xs text-orange-700 dark:text-orange-300 space-y-1">
-                  {currentEvaluation.improvements.map((improvement, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-orange-500 mt-0.5">•</span>
-                      {improvement}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <Collapsible open={showDetailedFeedback} onOpenChange={setShowDetailedFeedback}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full mb-3">
+                  {showDetailedFeedback ? (
+                    <>
+                      Скрыть подробную оценку
+                      <ChevronUpIcon className="w-4 h-4 ml-2" />
+                    </>
+                  ) : (
+                    <>
+                      Показать подробную оценку
+                      <ChevronDownIcon className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent className="space-y-3">
+                <p className={`text-sm ${
+                  currentEvaluation.score >= 8 
+                    ? 'text-green-700 dark:text-green-300' 
+                    : currentEvaluation.score >= 5 
+                    ? 'text-yellow-700 dark:text-yellow-300'
+                    : 'text-red-700 dark:text-red-300'
+                }`}>
+                  {currentEvaluation.feedback}
+                </p>
+                
+                {currentEvaluation.strengths && currentEvaluation.strengths.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-medium text-green-600 mb-1">✓ Сильные стороны:</h5>
+                    <ul className="text-xs text-green-700 dark:text-green-300 space-y-1">
+                      {currentEvaluation.strengths.map((strength, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-green-500 mt-0.5">•</span>
+                          {strength}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {currentEvaluation.improvements && currentEvaluation.improvements.length > 0 && currentEvaluation.score < 8 && (
+                  <div>
+                    <h5 className="text-sm font-medium text-orange-600 mb-1">↗ Предложения по улучшению:</h5>
+                    <ul className="text-xs text-orange-700 dark:text-orange-300 space-y-1">
+                      {currentEvaluation.improvements.map((improvement, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-orange-500 mt-0.5">•</span>
+                          {improvement}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </div>
       )}
@@ -591,27 +625,70 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
           </div>
         </div>
 
-        {/* Bottom Button */}
-        <div className="flex justify-center">
-          {isLastBlock ? (
-            <Button 
-              onClick={onComplete} 
-              disabled={!canComplete}
-              className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CheckCircleIcon className="w-5 h-5 mr-2" />
-              {canComplete ? 'Завершить урок' : (hasTask ? `Попыток: ${attemptsRemaining}` : `Еще ${minInteractions - interactionCount} взаимодействий`)}
-            </Button>
-          ) : (
-            <Button 
-              onClick={onNext}
-              disabled={!canComplete}
-              className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg font-bold border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {canComplete ? 'Продолжить' : (hasTask ? `Попыток: ${attemptsRemaining}` : `Еще ${minInteractions - interactionCount} взаимодействий`)}
-            </Button>
-          )}
-        </div>
+        {/* Action Buttons for Task Mode */}
+        {hasTask && currentEvaluation && (
+          <div className="flex gap-3 mb-3">
+            {attemptsRemaining > 0 && !taskCompleted && (
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setInputValue("");
+                  setCurrentEvaluation(null);
+                  setGeneratedContent("");
+                  setMessages([]);
+                  setShowDetailedFeedback(false);
+                }}
+                className="flex-1"
+              >
+                <ArrowPathIcon className="w-4 h-4 mr-2" />
+                Попробовать снова ({attemptsRemaining})
+              </Button>
+            )}
+            
+            {isLastBlock ? (
+              <Button 
+                onClick={onComplete} 
+                disabled={!canComplete}
+                className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white"
+              >
+                <CheckCircleIcon className="w-4 h-4 mr-2" />
+                Завершить урок
+              </Button>
+            ) : (
+              <Button 
+                onClick={onNext}
+                disabled={!canComplete}
+                className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white"
+              >
+                Продолжить
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Bottom Button for non-task mode */}
+        {!hasTask && (
+          <div className="flex justify-center">
+            {isLastBlock ? (
+              <Button 
+                onClick={onComplete} 
+                disabled={!canComplete}
+                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-12 py-4 text-lg font-bold rounded-xl border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CheckCircleIcon className="w-5 h-5 mr-2" />
+                {canComplete ? 'Завершить урок' : `Еще ${minInteractions - interactionCount} взаимодействий`}
+              </Button>
+            ) : (
+              <Button 
+                onClick={onNext}
+                disabled={!canComplete}
+                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-16 py-4 text-lg font-bold border-none shadow-[0px_4px_0px_0px] shadow-indigo-600 hover:shadow-[0px_2px_0px_0px] hover:shadow-indigo-600 active:shadow-[0px_0px_0px_0px] active:shadow-indigo-600 transition-all duration-150 hover:translate-y-[2px] active:translate-y-[4px] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {canComplete ? 'Продолжить' : `Еще ${minInteractions - interactionCount} взаимодействий`}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
