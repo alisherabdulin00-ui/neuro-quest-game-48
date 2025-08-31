@@ -366,31 +366,26 @@ export const ChatbotBlock = ({ block, onNext, isLastBlock, onComplete }: Chatbot
     <div className="h-full flex flex-col">
       {hasTask ? (
         /* Task-based header */
-        <div className="bg-card rounded-lg border p-6 mb-4 mx-4 mt-4">
+        <div className="bg-card rounded-lg border p-4 mb-4 mx-4 mt-4">
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-white text-lg font-bold">!</span>
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-foreground">Практическое задание</h2>
-                <div className="text-sm text-muted-foreground">
+                <h2 className="text-lg font-semibold text-foreground">Практическое задание</h2>
+                <div className="text-xs text-muted-foreground">
                   Попытка {attemptsUsed} из {maxAttempts}
                 </div>
               </div>
-              <h3 className="text-lg font-semibold mb-3 text-orange-600">{data.task.title}</h3>
-              <p className="text-sm text-muted-foreground mb-4">{data.task.description}</p>
-              
-              <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-                <h4 className="font-medium text-orange-800 dark:text-orange-200 mb-2">Задание:</h4>
-                <p className="text-sm text-orange-700 dark:text-orange-300">{data.task.prompt}</p>
-              </div>
+              <h3 className="text-base font-medium text-orange-600 mb-2">{data.task.title}</h3>
+              <p className="text-sm text-muted-foreground">{data.task.description}</p>
               
               {taskCompleted && (
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mt-4">
+                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mt-3">
                   <div className="flex items-center gap-2">
-                    <CheckCircleIcon className="w-5 h-5 text-green-600" />
-                    <span className="text-green-700 dark:text-green-300 font-medium">Задание выполнено успешно!</span>
+                    <CheckCircleIcon className="w-4 h-4 text-green-600" />
+                    <span className="text-green-700 dark:text-green-300 text-sm font-medium">Задание выполнено!</span>
                   </div>
                 </div>
               )}
